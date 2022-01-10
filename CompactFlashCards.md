@@ -1,4 +1,12 @@
 
+| PIO Mode | Cycle Time (nanoseconds) | Maximum Transfer Rate (MB/s) | Defining Standard |
+|:--------:|:------------------------:|:----------------------------:|:-----------------:|
+|  Mode 0  |  600                     |  3.3                         |  ATA              |
+|  Mode 1  |  383                     |  5.2                         |  ATA              |
+|  Mode 2  |  240                     |  8.3                         |  ATA              |
+|  Mode 3  |  180                     |  11.1                        |  ATA-2            |
+|  Mode 4  |  120                     |  16.7                        |  ATA-2            |
+
 
 |                   CF Card                 | identify[0] | identify[7] | identify[8] | identify[82] | identify[83] | pwrmgt fails | soft rst fails |
 |:-----------------------------------------:|:-----------:|:-----------:|:-----------:|:------------:|:------------:|:------------:|:--------------:|
