@@ -11,12 +11,12 @@ may include the vendor’s identification, model number and other useful informa
 
 SP-808 sends "ATAPI INQUIRY", but does not read allocated data and sends "IDENTIFY PACKET DEVICE" next.
 
-
+```
 [00:00:31 DEBUG D0 EF --] SET FEATURES ID - drive: A0
 [00:00:31 DEBUG D0 EF --] Subcommand: 00, params: 02 | 01 | 80 | 00
-
+```
 ** "Subcommand: 00" is not documented in ATA-5 specification, it is reserved.
-
+```
 [00:01:57 CONSOLE] Logging start...
 [00:02:00 DEBUG D0 A0 5A] Software (SRST) Reset
 [00:02:00 TRACE D0 A0 5A] Present dev: Master 
@@ -45,6 +45,7 @@ SP-808 sends "ATAPI INQUIRY", but does not read allocated data and sends "IDENTI
 [00:02:00 TRACE D0 A0 5A] 
 [00:02:00 TRACE D0 A0 55] Packet: 55 00 00 00 00 00 00 00 0E 00 00 00, DMA: 0
 [00:02:00 WARN  D0 A0 55] !! Unknown ATAPI CMD: 55 !!
+```
 
 * 55h MODE SELECT (10)
 * 23h READ FORMAT CAPACITIES
@@ -59,7 +60,7 @@ ATAPI Byte Count Register handling.
 The SP-808 puts a maximum number of bytes it wants to receive in one DRQ cycle to this register and the drive can send up to this limit. 
 
 For exampe, here the Roland SP-808 requested one block(sector) here (len: 1), and everything worked as expected:
-
+```
 [00:05:52 TRACE D0 A0 A8] Packet: A8 00 00 00 00 00 00 00 00 01 00 00, DMA: 0
 [00:05:52 DEBUG D0 A0 A8] READ (12), sector: 0, len: 1
 [00:05:52 TRACE D0 A0 A8] Seeking -> 0
@@ -70,21 +71,23 @@ For exampe, here the Roland SP-808 requested one block(sector) here (len: 1), an
 [00:05:52 TRACE D0 A0 A8] Seeking -> 4000
 [00:05:52 TRACE D0 A0 A8] PKT data xfer end
 [00:05:52 TRACE D0 A0 A8] 
-
+```
 In this example, the Roland SP-808 requested 9 sectors (len: 9):
+```
 [00:05:52 TRACE D0 A0 A8] Packet: A8 00 00 00 00 21 00 00 00 09 00 00, DMA: 0
 [00:05:52 DEBUG D0 A0 A8] READ (12), sector: 33, len: 9
-
+```
 
 However, we can see that it also set byte count to 0x200:
-3900: REG: 4, WR<-, data: 00 - Cyl Low
-3901: REG: 5, WR<-, data: 02 - Cyl High
-
+```
+REG: 4, WR<-, data: 00 - Cyl Low
+REG: 5, WR<-, data: 02 - Cyl High
+```
 This means that the Roland SP-808 wanted to receive data in 9 blocks of 512 bytes, not one block of 4608 bytes.
 If you try and send it a single blcok of 4608 bytes, it waits for 7 seconds and then sends SRST to start from the begining.
-
+```
 [00:05:52 TRACE D0 A0 A8] Seeking -> 4200
 [00:05:59 DEBUG D0 A0 A8] Software (SRST) Reset
 [00:05:59 TRACE D0 A0 A8]
 [00:05:59 DEBUG D0 A0 A8]
-
+```
