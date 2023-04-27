@@ -88,8 +88,10 @@ example of H8 code:
 reset vector:
 
 In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. 
-In each32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits.
+In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits.
 The exception vector table differs depending on the microcontroller.
 
+The H8 supports normal (64KB addressing, 16 bits) and advanced mode (16MB addressing, 24 bits).
+However, according to the Renesas technical documentation, certain instructions accept 32-bit pointer values where the upper 8 bits are "reserved".
 
- 
+
