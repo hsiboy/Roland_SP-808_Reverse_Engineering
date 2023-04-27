@@ -1,4 +1,19 @@
-stringss from SP-808ex firmware, cleaned.
+# Strings from SP-808ex firmware, cleaned.
+
+Interesting observation. The SP-808 service manual says this about flash memory:
+
+> If the flash memory (IC9 of the main board) becomes failure
+> either in terms of software or hardware, the following message
+> appears on screen:
+
+```
+<< EMERGENCY >>
+SYSTEM is BROKEN !
+Please consult quali -
+fied Roland Service.
+```
+Those string do not exist in the dumped rom.
+
 
 ```
 TTS25ESYS
