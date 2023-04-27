@@ -1,4 +1,20 @@
+# The SP-808 CPU
+
 The Roland SP-808 groovebox uses a Hitachi HD6432653 CPU or H8S/2600
+
+The Hitachi H8/2600 is an outdated microcontroller that was widely used in the 1990s and early 2000s. It is known for its simple architecture and low power consumption, but it also poses significant challenges when it comes to reverse engineering firmware.
+
+One of the main difficulties in reverse engineering H8/2600 firmware is the lack of modern tools and resources. Unlike more modern processors, the H8/2600 does not have sophisticated debugging or tracing capabilities, making it much harder to understand how the firmware works.
+
+Another challenge is the lack of documentation and support for the H8/2600. Since this processor is no longer in widespread use, finding technical information or help online can be difficult. This can be particularly frustrating for reverse engineers who are trying to understand the inner workings of a particular piece of hardware or software that uses the H8/2600.
+
+In addition to these technical challenges, there are also legal and ethical considerations when it comes to reverse engineering firmware. In some cases, reverse engineering may be illegal or violate intellectual property rights. This can make it difficult for researchers or engineers who want to understand or improve upon existing technology.
+
+Despite these challenges, reverse engineering H8/2600 firmware is still possible. It requires a combination of technical expertise, persistence, and creativity. Reverse engineers may need to develop their own tools or methods for analyzing firmware, and they may need to rely on manual analysis and experimentation to understand how the firmware works.
+
+In conclusion, while reverse engineering firmware for the H8/2600 processor poses significant challenges, it is still possible with the right combination of skills, resources, and determination. As more and more technology becomes obsolete, the need for reverse engineering will only continue to grow, making this an important area of research and development.
+
+## Specification
 
 Its a General-register machine, with Sixteen 16-bit general registers (also usable as sixteen 8-bit registers
 or eight 32-bit registers).
@@ -43,7 +59,9 @@ These newly added instructions, mean that tools like binwalk and objdump fail, b
 
 It's worth noting that instructions on the H8S/2600 execute twice as fast as they did on the H8/300H.
 
-Manuals are readily available for the micro. Here's the software manual {TODO link to repo} . Here's the hardware manual. The Opensource for Renesas project has a gcc and binutils build, which appears to be originally from KPIT. 
+## Findings
+
+Manufacturer manuals are readily available for the micro. Here's the software manual {TODO link to repo} . Here's the hardware manual. The Opensource for Renesas project has a gcc and binutils build, which appears to be originally from KPIT. 
 Using objdump from that package decompiles correctly and understand all of the commands for H8, H8300, H8S/2000, and H8S/2600, each of which has a few added instructions.
 
 ** Note: The H8 line of CPUs is bigendian **
