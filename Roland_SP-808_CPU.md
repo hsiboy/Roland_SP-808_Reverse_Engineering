@@ -49,6 +49,7 @@ Using objdump from that package decompiles correctly and understand all of the c
 ** Note: The H8 line of CPUs is bigendian **
 
 I can't find anything in the manuals that explains what address code execution starts. The manuals do explain that the chip has an 'advanced mode', and in that mode, address 0x00 contains an exception table with addresses to jump to. The first 4 bytes should have the address, but we appear to have a string in the Roland Firmware 🤔
+
 The manu aexlains that the exception vector table starts at 0x00 and first exception is the restart exception. he CPU handles boot as an exception (power glitch?), so the first four bytes in the firmware, should be a 32 bit address that points to the first instruction, not an ascii string.
 
 Therefore, Roland, have 'packaged' the firmware with a header and a footer (inlcuding padding bytes) and i need to find the SP-808 firmware within this envelope.
@@ -83,4 +84,12 @@ example of H8 code:
  80e:	46 0e       	bne	.+14 (0x81e)
  810:	1a 80       	sub.l	er0,er0
 ```
+
+reset vector:
+
+In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. 
+In each32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits.
+The exception vector table differs depending on the microcontroller.
+
+
  
