@@ -56,7 +56,8 @@ Therefore, Roland, have 'packaged' the firmware with a header and a footer (inlc
 
 example of H8 code:
 
-```
+```asm
+
    0:	00 00       	nop	
    2:	04 00       	orc	#0x0,ccr
    4:	ff ff       	mov.b	#0xff,r7l
@@ -67,7 +68,7 @@ example of H8 code:
    e:	ff ff       	mov.b	#0xff,r7l
 ```
    First instruction, is the restart exception vector and it points to `0x0400`
-```
+```asm
  400:	7a 07 00 ff 	mov.l	#0xfffc00,er7   ;Put 0x 00fffc00 into ER7
  404:	fc 00 
  406:	04 80       	orc	#0x80,ccr       ;OR 0x 80 with the control register
@@ -75,7 +76,7 @@ example of H8 code:
  40a:	6a 88 fe bf 	mov.b	r0l,@0xfebf:16  ;Put 0x1B into address 0000febf
 ```
  Off to '0x0800'
-```
+```asm
  800:	01 10 6d f2 	stm.l	er2-er3,@-sp
  804:	1b 97       	subs	#4,r7
  806:	01 00 69 f0 	mov.l	er0,@r7
@@ -87,11 +88,132 @@ example of H8 code:
 
 reset vector:
 
-In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. 
+In advanced mode the top area starting at `H'00000000` is allocated to the exception vector table in units of 32 bits. 
 In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits.
 The exception vector table differs depending on the microcontroller.
 
 The H8 supports normal (64KB addressing, 16 bits) and advanced mode (16MB addressing, 24 bits).
 However, according to the Renesas technical documentation, certain instructions accept 32-bit pointer values where the upper 8 bits are "reserved".
+
+```asm
+
+null = 0      Unknown Operation
+
+add            Add binary
+adds           Add with sign extension
+addx           Add with extend carry
+and            Logical AND
+andc           Logical AND with control register
+band           Bit AND
+bra            Branch always
+brn            Branch never
+bhi            Branch if higher
+bls            Branch if lower or same
+bcc            Branch if carry clear (higher or same)
+bcs            Branch if carry set (lower)
+bne            Branch if not equal
+beq            Branch if equal
+bvc            Branch if overflow clear
+bvs            Branch if overflow set
+bpl            Branch if plus
+bmi            Branch if minus
+bge            Branch if greates or equal
+blt            Branch if less
+bgt            Branch if greater
+ble            Branch if less or equal
+bclr           Bit clear
+biand          Bit invert AND
+bild           Bit invert load
+bior           Bit invert OR
+bist           Bit invert store
+bixor          Bit invert XOR
+bld            Bit load
+bnot           Bit NOT
+bor            Bit OR
+bset           Bit set
+bsr            Branch to subroutine
+bst            Bit store
+btst           Bit test
+bxor           Bit XOR
+clrmac         Clear MAC register
+cmp            Compare
+daa            Decimal adjust add
+das            Decimal adjust subtract
+dec            Decrement
+divxs          Divide extended as signed
+divxu          Divide extended as unsigned
+eepmov         Move data to EEPROM
+exts           Extend as signed
+extu           Extend as unsigned
+inc            Increment
+jmp            Jump
+jsr            Jump to subroutine
+ldc            Load to control register
+ldm            Load to multiple registers
+ldmac          Load to MAC register
+mac            Multiply and accumulate
+mov            Move data
+movfpe         Move from peripheral with E clock
+movtpe         Move to peripheral with E clock
+mulxs          Multiply extend as signed
+mulxu          Multiply extend as unsigned
+neg            Negate
+nop            No operation
+not            Logical complement
+or             Logical OR
+orc            Logical OR with control register
+pop            Pop data from stack
+push           Push data on stack
+rotl           Rotate left
+rotr           Rotate right
+rotxl          Rotate with extend carry left
+rotxr          Rotate with extend carry right
+rte            Return from exception
+rts            Return from subroutine
+shal           Shift arithmetic left
+shar           Shift arithmetic right
+shll           Shift logical left
+shlr           Shift logical right
+sleep          Power down mode
+stc            Store from control register
+stm            Store from multiple registers
+stmac          Store from MAC register
+sub            Subtract binary
+subs           Subtract with sign extension
+subx           Subtract with extend carry
+tas            Test and set
+trapa          Trap always
+xor            Logical XOR
+xorc           Logical XOR with control register
+
+H8SX
+rtel           Returns from an exception restoring data to multiple general registers
+rtsl           Returns from a subroutine restoring data to multiple general registers
+movmd          Transfers a data block
+movsd          Transfers a data block with zero detection
+bras           Branch always after the next instruction (delay slot)
+movab          MOVe effective Address/B
+movaw          MOVe effective Address/W
+moval          MOVe effective Address/L
+bsetne         Bit SET if Not Equal
+bseteq         Bit SET if EQual
+bclrne         Bit CLeaR if Not Equal
+bclreq         Bit CLeaR if Equal
+bstz           Bit STore Zero flag
+bistz          Bit Invert STore Zero flag
+bfld           Bit Field LoaD
+bfst           Bit Field STore
+muls           MULtiply as Signed
+divs           DIVide as Signed
+mulu           MULtiply as Unsigned
+divu           DIVide as Unsigned
+mulsu          MULtiply as Signed
+muluu          MULtiply as Unsigned
+brabc          BRAnch if Bit Cleared
+brabs          BRAnch if Bit Set
+bsrbc          Branch to SubRoutine if Bit Cleared
+bsrbs          Branch to SubRoutine if Bit Set
+
+```
 
 
