@@ -10,6 +10,12 @@ Writing low-level code for ATAPI requires a good understanding of the hardware a
 
 In conclusion, writing low-level code for ATAPI can be a challenging task, but with the right knowledge and tools, it is possible to develop robust and reliable code for communicating with optical storage devices over the ATA interface. By understanding the ATA/ATAPI protocol, setting up the appropriate registers and issuing commands, and testing and debugging the code, developers can create effective and efficient solutions for working with these types of devices.
 
+## Example code:
+
+Note that the INQUIRY command returns a standard set of device identification information, but other ATAPI commands may have different response formats and data lengths. When sending other commands, the caller should adjust the pData parameter and dwDataLen parameters of the IssueAtapiCommand function to match the expected response data.
+
+### Linux
+
 ```C++
 
 #include <stdio.h>
@@ -65,4 +71,80 @@ int main()
     return 0;
 }
 ```
+
+### Windows:
+
+```C++
+#include <windows.h>
+#include <winioctl.h>
+#include <ntddscsi.h>
+#include <stdio.h>
+
+#define ATAPI_IOCTL_CDROM_BASE     FILE_DEVICE_CD_ROM
+#define IOCTL_CDROM_RAW_READ      CTL_CODE(ATAPI_IOCTL_CDROM_BASE, 0x000F, METHOD_OUT_DIRECT, FILE_READ_ACCESS)
+
+void IssueAtapiCommand(HANDLE hDevice, BYTE bOpcode, BYTE bParam, BYTE bLen, BYTE* pData, DWORD dwDataLen)
+{
+    SCSI_PASS_THROUGH_DIRECT sptd = { 0 };
+    sptd.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
+    sptd.PathId = 0;
+    sptd.TargetId = 1;
+    sptd.Lun = 0;
+    sptd.CdbLength = bLen;
+    sptd.DataIn = SCSI_IOCTL_DATA_IN;
+    sptd.DataTransferLength = dwDataLen;
+    sptd.TimeOutValue = 2;
+    sptd.Cdb[0] = bOpcode;
+    sptd.Cdb[1] = bParam;
+    sptd.Cdb[2] = 0;
+    sptd.Cdb[3] = 0;
+    sptd.Cdb[4] = (BYTE)dwDataLen;
+    sptd.Cdb[5] = 0;
+    sptd.Cdb[6] = 0;
+    sptd.Cdb[7] = 0;
+    sptd.Cdb[8] = 0;
+    sptd.Cdb[9] = 0;
+    sptd.Cdb[10] = 0;
+    sptd.Cdb[11] = 0;
+    sptd.Cdb[12] = 0;
+    sptd.Cdb[13] = 0;
+    sptd.Cdb[14] = 0;
+
+    DWORD dwReturned = 0;
+    if (!DeviceIoControl(hDevice, IOCTL_SCSI_PASS_THROUGH_DIRECT, &sptd, sizeof(SCSI_PASS_THROUGH_DIRECT), &sptd, sizeof(SCSI_PASS_THROUGH_DIRECT), &dwReturned, NULL))
+    {
+        // handle error
+    }
+
+    if (pData != NULL)
+    {
+        memcpy(pData, sptd.DataBuffer, min(dwDataLen, sptd.DataTransferLength));
+    }
+}
+
+int main()
+{
+    HANDLE hDevice = CreateFile("\\\\.\\CDROM0", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    if (hDevice == INVALID_HANDLE_VALUE)
+    {
+        // handle error
+    }
+
+    // Send INQUIRY command
+    const DWORD dwInquiryDataLen = 96;
+    BYTE byInquiryData[dwInquiryDataLen] = { 0 };
+    IssueAtapiCommand(hDevice, SCSIOP_INQUIRY, 0, 6, byInquiryData, dwInquiryDataLen);
+
+    // Print INQUIRY data
+    printf("Vendor ID: %.8s\n", byInquiryData + 8);
+    printf("Product ID: %.16s\n", byInquiryData + 16);
+    printf("Firmware Version: %.4s\n", byInquiryData + 32);
+    printf("Serial Number: %.12s\n", byInquiryData + 36);
+
+    CloseHandle(hDevice);
+    return 0;
+}
+```
+
+
 
