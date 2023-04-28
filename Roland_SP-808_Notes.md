@@ -13,6 +13,3 @@ The following DOS command converts all 8 MIDI files and writes the result to a s
 
 ```for %i in (SP8EX#?.mid) do Rmid2bin.exe infil=%i outfil=SP8EXall.bin```
 
-SalvationData USB (host) to IDE https://www.drivestar.biz/index.php?main_page=product_info&products_id=4915
-
-
