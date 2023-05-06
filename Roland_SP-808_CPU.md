@@ -113,125 +113,57 @@ The exception vector table differs depending on the microcontroller.
 The H8 supports normal (64KB addressing, 16 bits) and advanced mode (16MB addressing, 24 bits).
 However, according to the Renesas technical documentation, certain instructions accept 32-bit pointer values where the upper 8 bits are "reserved".
 
-```asm
 
-null = 0      Unknown Operation
-
-add            Add binary
-adds           Add with sign extension
-addx           Add with extend carry
-and            Logical AND
-andc           Logical AND with control register
-band           Bit AND
-bra            Branch always
-brn            Branch never
-bhi            Branch if higher
-bls            Branch if lower or same
-bcc            Branch if carry clear (higher or same)
-bcs            Branch if carry set (lower)
-bne            Branch if not equal
-beq            Branch if equal
-bvc            Branch if overflow clear
-bvs            Branch if overflow set
-bpl            Branch if plus
-bmi            Branch if minus
-bge            Branch if greates or equal
-blt            Branch if less
-bgt            Branch if greater
-ble            Branch if less or equal
-bclr           Bit clear
-biand          Bit invert AND
-bild           Bit invert load
-bior           Bit invert OR
-bist           Bit invert store
-bixor          Bit invert XOR
-bld            Bit load
-bnot           Bit NOT
-bor            Bit OR
-bset           Bit set
-bsr            Branch to subroutine
-bst            Bit store
-btst           Bit test
-bxor           Bit XOR
-clrmac         Clear MAC register
-cmp            Compare
-daa            Decimal adjust add
-das            Decimal adjust subtract
-dec            Decrement
-divxs          Divide extended as signed
-divxu          Divide extended as unsigned
-eepmov         Move data to EEPROM
-exts           Extend as signed
-extu           Extend as unsigned
-inc            Increment
-jmp            Jump
-jsr            Jump to subroutine
-ldc            Load to control register
-ldm            Load to multiple registers
-ldmac          Load to MAC register
-mac            Multiply and accumulate
-mov            Move data
-movfpe         Move from peripheral with E clock
-movtpe         Move to peripheral with E clock
-mulxs          Multiply extend as signed
-mulxu          Multiply extend as unsigned
-neg            Negate
-nop            No operation
-not            Logical complement
-or             Logical OR
-orc            Logical OR with control register
-pop            Pop data from stack
-push           Push data on stack
-rotl           Rotate left
-rotr           Rotate right
-rotxl          Rotate with extend carry left
-rotxr          Rotate with extend carry right
-rte            Return from exception
-rts            Return from subroutine
-shal           Shift arithmetic left
-shar           Shift arithmetic right
-shll           Shift logical left
-shlr           Shift logical right
-sleep          Power down mode
-stc            Store from control register
-stm            Store from multiple registers
-stmac          Store from MAC register
-sub            Subtract binary
-subs           Subtract with sign extension
-subx           Subtract with extend carry
-tas            Test and set
-trapa          Trap always
-xor            Logical XOR
-xorc           Logical XOR with control register
-
-H8SX
-rtel           Returns from an exception restoring data to multiple general registers
-rtsl           Returns from a subroutine restoring data to multiple general registers
-movmd          Transfers a data block
-movsd          Transfers a data block with zero detection
-bras           Branch always after the next instruction (delay slot)
-movab          MOVe effective Address/B
-movaw          MOVe effective Address/W
-moval          MOVe effective Address/L
-bsetne         Bit SET if Not Equal
-bseteq         Bit SET if EQual
-bclrne         Bit CLeaR if Not Equal
-bclreq         Bit CLeaR if Equal
-bstz           Bit STore Zero flag
-bistz          Bit Invert STore Zero flag
-bfld           Bit Field LoaD
-bfst           Bit Field STore
-muls           MULtiply as Signed
-divs           DIVide as Signed
-mulu           MULtiply as Unsigned
-divu           DIVide as Unsigned
-mulsu          MULtiply as Signed
-muluu          MULtiply as Unsigned
-brabc          BRAnch if Bit Cleared
-brabs          BRAnch if Bit Set
-bsrbc          Branch to SubRoutine if Bit Cleared
-bsrbs          Branch to SubRoutine if Bit Set
-
-```
-
+Instruction | Encoding | Operand | Description
+---|---|---|---
+ADDI | 80 | R,S,N | Add immediate value to register
+ADDIU | 81 | R,S,N | Add immediate value to register, unsigned
+ANDI | C0 | R,S,N | AND immediate value with register
+ANDII | C1 | R,S,N | AND immediate value with register, immediate unsigned
+ANDIU | C2 | R,S,N | AND immediate value with register, unsigned
+BEQ | 04 | R,S,J | Branch if equal
+BGEZ | 05 | R,S,J | Branch if greater than or equal, zero extended
+BGTZ | 06 | R,S,J | Branch if greater than zero
+BLEZ | 07 | R,S,J | Branch if less than or equal, zero extended
+BLTZ | 08 | R,S,J | Branch if less than zero
+BNE | 0A | R,S,J | Branch if not equal
+BREAK | 0F | N/A | Generate a software interrupt
+CHK | 10 | R,N | Check if register is greater than or equal to zero
+CLR | 18 | R | Clear register
+CP | 1A | R,S | Compare register with immediate value
+CP.S | 1B | R,S | Compare register with single-precision floating-point value
+DADD | 90 | R,S,D | Add double-precision floating-point values
+DADDI | 91 | R,S,D | Add immediate value to double-precision floating-point register
+DADDIU | 92 | R,S,D | Add immediate value to double-precision floating-point register, unsigned
+DDIVU | 93 | R,S,D | Divide double-precision floating-point values
+DDIV | 94 | R,S,D | Divide double-precision floating-point values
+DSLL | 12 | R,S | Shift left logical
+DSLL32 | 13 | R,S | Shift left logical, 32 bits
+DSLR | 14 | R,S | Shift right logical
+DSUB | 98 | R,S,D | Subtract double-precision floating-point values
+DSUBU | 99 | R,S,D | Subtract double-precision floating-point values, unsigned
+DDIV | 9C | R,S,D | Divide double-precision floating-point values
+DIV | 9E | R,S | Divide single-precision floating-point values
+J | 02 | J | Jump to address
+JAL | 03 | J | Jump and link to address
+JALR | 09 | R,S | Jump and link register
+LB | 20 | R,S | Load byte from memory
+LBU | 21 | R,S | Load byte from memory, unsigned
+LDC | 24 | R,S | Load double-precision floating-point value from memory
+LDC2 | 25 | R,S | Load double-precision floating-point value from memory, 2-byte aligned
+LDF | 26 | R,S | Load single-precision floating-point value from memory
+LDF2 | 27 | R,S | Load single-precision floating-point value from memory, 2-byte aligned
+LH | 22 | R,S | Load halfword from memory
+LHU | 23 | R,S | Load halfword from memory, unsigned
+LUI | 0F | R,N | Load upper immediate into register
+LW | 28 | R,S | Load word from memory
+LWC | 2C | R,S | Load word from memory, 2-byte aligned
+LWC2 | 2D | R,S | Load word from memory, 4-byte aligned
+LWL | 2A | R,S | Load word from memory, low byte
+LWR | 2B | R,S | Load word from memory, high byte
+MFC0 | 40 | R,N | Move from coprocessor 0
+MFHI | 41 | R | Move from high register
+MFLO | 42 | R | Move from low register
+MOVN | 48 | R,S,N | Move if not equal
+MOVZ | 49 | R,S,N | Move if not zero
 
