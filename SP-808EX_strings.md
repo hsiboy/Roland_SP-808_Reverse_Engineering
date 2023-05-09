@@ -12,14 +12,17 @@ SYSTEM is BROKEN !
 Please consult quali -
 fied Roland Service.
 ```
-Those string do not exist in the dumped rom.
+Those string do not exist in the dumped firmware!
 
 
 ```
 TTS25ESYS
 RolandEC
 [[Section Address:
-vSCSI Check...
+
+
+
+SCSI Check...
 SCSI:Disabled
 ID  ********
  EXT.ID 
@@ -1265,6 +1268,11 @@ MASTER
 EMPTY
 GUIDE
 TOP(
+```
+
+---
+
+```
 Song Edit Menu
 Select Song?
 Set Song Param?
@@ -1277,6 +1285,11 @@ Locator?
 Create New Song?
 Delete Song?
 Song Protection
+```
+
+---
+
+```
 Name  [
 Tr.VoiceReserve
 SyncSource
@@ -1333,6 +1346,9 @@ Copy Disk All?
 Load Ext. Sample?
 Load Ext. Song?
 Convert Disk?
+```
+----
+```
 Sample Edit Menu
 Set Sample Param?
 Divide?
@@ -1346,6 +1362,9 @@ Copy Bank?
 Erase Bank?
 Renumber?
 Bank Protection
+```
+----
+```
 Can't Execute.
 (Not Expanded)
 Copy is Prohibited.
