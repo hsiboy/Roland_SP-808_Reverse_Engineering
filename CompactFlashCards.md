@@ -150,6 +150,39 @@ The information is stored on CF card's CIS (Central information structure) and c
 |  Mode 3  |  180                     |  11.1                        |  ATA-2            |
 |  Mode 4  |  120                     |  16.7                        |  ATA-2            |
 
+---
+
+
+|Word.Bit|      Description|
+|:------:|:---------------:|
+|0.15    |  0 = reserved for non magnetic drives |
+|0.14    |  1 = format speed tolerance gap required | 
+|0.13    |  1 = track offset option available |
+|0.12    |  1 = data strobe offset option available |
+|0.11    |  1 = rotational speed tolerance is > 0.5% |
+|0.10    |  1 = disc transfer rate > 10 Mbit/sec |
+|0.9     |  1 = disc transfer rate <= 10 Mbit/sec but > 5 Mbit/sec |
+|0.8     |  1 = disc transfer rate <= 5 Mbit/sec |
+|0.7     |  1 = removable cartridge drive |
+|0.6     |  1 = fixed drive |
+|0.5     |  1 = spindle motor control option implemented |
+|0.4     |  1 = head switch time > 15 usec |
+|0.3     |  1 = not MFM encoded |
+|0.2     |  1 = soft sectored |
+|0.1     |  1 = hard sectored |
+|0.0     |  0 = ATA reserved (should be zero) |
+
+The Iomega Zip drive reports a value of `0x80A0` in word 0.
+
+`80A0 = 1000 0000 1010 0000`
+
+If we use the above bit definitions, then the following apply for the Zip drive:
+
+* magnetic drive
+* removable cartridge drive
+* spindle motor control option implemented
+
+
 
 |                   CF Card                 | identify[0] | identify[7] | identify[8] | identify[82] | identify[83] | pwrmgt fails | soft rst fails |
 |:-----------------------------------------:|:-----------:|:-----------:|:-----------:|:------------:|:------------:|:------------:|:--------------:|
