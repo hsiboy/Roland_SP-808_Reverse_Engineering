@@ -755,4 +755,81 @@ int main() {
   return 0;
 }
 ```
-  
+ 
+---
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <libusb-1.0/libusb.h>
+
+int main() {
+  // Get the list of all USB devices.
+  struct libusb_device **devices;
+  int num_devices = libusb_get_device_list(NULL, &devices);
+  if (num_devices < 0) {
+    perror("libusb_get_device_list");
+    exit(1);
+  }
+
+  // Iterate over the list of USB devices.
+  for (int i = 0; i < num_devices; i++) {
+    struct libusb_device *device = devices[i];
+
+    // Get the device descriptor.
+    struct libusb_device_descriptor descriptor;
+    int err = libusb_get_device_descriptor(device, &descriptor);
+    if (err < 0) {
+      perror("libusb_get_device_descriptor");
+      continue;
+    }
+
+    // Check if the device is a storage device.
+    if (descriptor.bDeviceClass != LIBUSB_CLASS_STORAGE) {
+      continue;
+    }
+
+    // Open the device.
+    int fd = libusb_open(device, 0);
+    if (fd < 0) {
+      perror("libusb_open");
+      continue;
+    }
+
+    // Send the IDENTIFY command.
+    char cmd = 0xEC;
+    write(fd, &cmd, 1);
+
+    // Read the response.
+    char response[512];
+    read(fd, response, 512);
+
+    // Decode word 0 into English.
+    char vendor_id[8];
+    memcpy(vendor_id, response, 8);
+    vendor_id[8] = '\0';
+    char product_id[16];
+    memcpy(product_id, response + 8, 16);
+    product_id[16] = '\0';
+    char revision_id[8];
+    memcpy(revision_id, response + 24, 8);
+    revision_id[8] = '\0';
+
+    // Print the results.
+    printf("Device: %04x:%04x:%04x\n", descriptor.idVendor, descriptor.idProduct, descriptor.bcdDevice);
+    printf("Vendor ID: %s\n", vendor_id);
+    printf("Product ID: %s\n", product_id);
+    printf("Revision ID: %s\n", revision_id);
+
+    // Close the device.
+    libusb_close(fd);
+  }
+
+  // Free the list of devices.
+  libusb_free_device_list(devices, 1);
+
+  return 0;
+}
+```
