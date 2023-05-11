@@ -833,3 +833,85 @@ int main() {
   return 0;
 }
 ```
+
+---
+
+```python
+import sys
+
+def identify_storage_device(device_name):
+  """
+  Queries the specified storage device and returns the information returned by the IDENTIFY command.
+
+  Args:
+    device_name: The name of the storage device to query.
+
+  Returns:
+    The information returned by the IDENTIFY command.
+  """
+
+  # Open the device file for reading.
+  with open(device_name, "rb") as f:
+
+    # Send the IDENTIFY command.
+    f.write(b"\xEC")
+
+    # Read the response.
+    response = f.read(512)
+
+  # Return the response.
+  return response
+
+def get_storage_device_capabilities(response):
+  """
+  Gets the storage device capabilities reported in word 0 of the response.
+
+  Args:
+    response: The response to the IDENTIFY command.
+
+  Returns:
+    The storage device capabilities.
+  """
+
+  # Get the storage device capabilities.
+  capabilities = response[0]
+
+  # Convert the capabilities to human-readable form.
+  capabilities_dict = {
+    0x01: "48-bit addressing",
+    0x02: "LBA addressing",
+    0x04: "DMA",
+    0x08: "UDMA",
+    0x10: "UltraDMA",
+    0x20: "SATA",
+    0x40: "SATA II",
+    0x80: "SATA III",
+    0x100: "Removable media",
+  }
+
+  # Create a list of the human-readable capabilities.
+  human_readable_capabilities = []
+  for capability, description in capabilities_dict.items():
+    if capabilities & capability:
+      human_readable_capabilities.append(description)
+
+  # Return the human-readable capabilities.
+  return human_readable_capabilities
+
+if __name__ == "__main__":
+
+  # Get the device name from the command line.
+  device_name = sys.argv[1]
+
+  # Query the storage device.
+  response = identify_storage_device(device_name)
+
+  # Get the storage device capabilities.
+  capabilities = get_storage_device_capabilities(response)
+
+  # Print the storage device capabilities.
+  print("Storage device capabilities:")
+  for capability in capabilities:
+    print("  %s" % capability)
+```
+
