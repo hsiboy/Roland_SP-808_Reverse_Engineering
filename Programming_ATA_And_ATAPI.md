@@ -697,4 +697,62 @@ Part of the CD-ROM ATAPI function set. If the IDE device only supports packets w
   ```
   
   ------
+
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+  // Get the list of all block devices.
+  char *block_devices = getenv("BLOCK_DEVICES");
+  if (block_devices == NULL) {
+    perror("getenv");
+    exit(1);
+  }
+
+  // Iterate over the list of block devices.
+  char *device;
+  for (device = strtok(block_devices, ":"); device != NULL; device = strtok(NULL, ":")) {
+    // Open the device file.
+    int fd = open(device, O_RDWR);
+    if (fd < 0) {
+      perror("open");
+      continue;
+    }
+
+    // Send the IDENTIFY command.
+    char cmd = 0xEC;
+    write(fd, &cmd, 1);
+
+    // Read the response.
+    char response[512];
+    read(fd, response, 512);
+
+    // Decode word 0 into English.
+    char vendor_id[8];
+    memcpy(vendor_id, response, 8);
+    vendor_id[8] = '\0';
+    char product_id[16];
+    memcpy(product_id, response + 8, 16);
+    product_id[16] = '\0';
+    char revision_id[8];
+    memcpy(revision_id, response + 24, 8);
+    revision_id[8] = '\0';
+
+    // Print the results.
+    printf("Device: %s\n", device);
+    printf("Vendor ID: %s\n", vendor_id);
+    printf("Product ID: %s\n", product_id);
+    printf("Revision ID: %s\n", revision_id);
+
+    // Close the device file.
+    close(fd);
+  }
+
+  return 0;
+}
+```
   
