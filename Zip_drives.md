@@ -1,17 +1,26 @@
-```c
-/* Bits of 'status' */
-#define ERR_STAT		0x01
-#define DRQ_STAT		0x08		// data request
-#define DSC_STAT                0x10
-#define SERVICE_STAT            0x10
-#define READY_STAT		0x40
-#define BUSY_STAT		0x80
+# Zip Drives
 
-/* Bits of 'error' */
-#define ABRT_ERR		0x04		// command aborted
-#define MCR_ERR			0x08		// media change request
-```
-----
+
+The ATAPI (ATA Packet Interface) Zip drive is a type of removable storage device that follows the ATAPI protocol, which is an extension of the ATA (Advanced Technology Attachment) standard. The Zip drive was developed by Iomega Corporation and gained popularity as a high-capacity storage solution in the late 1990s and early 2000s.
+
+1. Interface: The ATAPI Zip drive connects to the host computer using an IDE (Integrated Drive Electronics) interface, also known as ATA. It typically utilizes a 40-pin IDE connector for data and control signals.
+
+2. Physical Media: The Zip drive uses removable Zip disks as the storage medium. Zip disks were available in various capacities, most commonly 100MB, 250MB, and later 750MB. These disks are similar in appearance to floppy disks but housed in a more robust and durable cartridge.
+
+3. Command Set: The ATAPI Zip drive implements a command set that is compatible with the ATAPI specification. It utilizes various commands such as read, write, seek, format, eject, and others to perform operations on the Zip disks.
+
+4. Capacity and Block Size: The capacity of an ATAPI Zip drive depends on the type of Zip disk used. The most common capacity was 100MB, but later models supported larger capacities such as 250MB and 750MB. The block size used for data transfer is typically 512 bytes.
+
+5. Transfer Modes: The ATAPI Zip drive supports various transfer modes defined by the ATA/ATAPI standards, including PIO (Programmed Input/Output) modes and DMA (Direct Memory Access) modes. These modes determine the data transfer rates and the method by which data is exchanged between the drive and the host.
+
+6. Plug-and-Play: The ATAPI Zip drive follows the Plug-and-Play standard, which allows the drive to be automatically detected and configured by the host operating system without the need for manual configuration or driver installation.
+
+7. Compatibility: ATAPI Zip drives are designed to be compatible with a wide range of operating systems, including Windows, Macintosh, and Linux. They can be used as removable storage devices for data backup, file transfer, and archiving purposes.
+
+Overall, the ATAPI Zip drive provided a convenient and high-capacity storage solution for personal computers during its prime. While it has become less prevalent in recent years, it remains a part of computing history and a notable example of removable storage technology.
+
+---
+
 
 ## 40 pin IDE connector
 
@@ -20,6 +29,7 @@
 | 1 | 3 | 5 | 7 | 9  | 11 | 13 | 15 | 17 | 19 | 21 | 23 | 25 | 27 | 29 | 31 | 33 | 35 | 37 | 39 |
 | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 18 | X | 22 | 24 | 26 | 28 | 30 | 32 | 34 | 36 | 38 | 40 |
 
+### Pinout
 
 | Pin    | Function          |
 |--------|-------------------|
@@ -65,52 +75,53 @@
 | Pin 40 | Ground            |
 
 ----
+
 ## ASPI Commands
 
 | Opcode |                  Name                 | Iomega Zip |
-|:------:|:--------------------------------------:|:----------:|
-| 00h     | Test Unit Ready                       |            |
-| 01h     | Rewind                                |            |
-| 02h     | Rezero Unit                           |		 TRUE    |
-| 03h     | Request Sense                         |            |		equ	03h
-| FormatUnit		|	04h | |
-| ReadBlkLimits		|	05h | |
-| ReadSectorIDs		|	05h |   TRUE |
-| NonSenseData		|	06h |  TRUE |
-| ReassignBlocks		|	07h |   TRUE |
-| Read			|	08h | |
-| Write			|	0Ah | |
-| Seek			|	0Bh | |
-| CartProtect		|	0Ch | 	 TRUE |
-| WriteFilemarks		|	10h | |
-| Space			|	11h | |
-| Inquiry		|	12h | |
-| ModeSelect		|	15h | |
-| ReserveUnit		|	16h | |
-| ReleaseUnit		|	17h | |
-| Erase			|	19h | |
-| ModeSense		|	1Ah | |
-| LoadUnload		|	1Bh | |
-| StartStopUnit		|	1Bh |   TRUE |
-| SendDiagnostic		|	1Dh | |
-| PreventAllow		|	1Eh |  TRUE |
-| TranslateLBA		|	22h |  TRUE |
-| FormatTest		|	24h |   TRUE |
-| ReadCapacity		|	25h | |
-| ReadMany		|	28h |   TRUE |
-| WriteMany		|	2Ah |   TRUE |
-| Locate			|	2Bh | |
-| SeekMany		|	2Bh |   TRUE |
-| Verify			|	2Fh |   TRUE |
-| ReadPosition		|	34h | |
-| SynchCache		|	35h |   TRUE |
-| ReadDefectData		|	37h |   TRUE |
-| WriteBuffer		|	3Bh | 	 TRUE |
-| ReadBuffer		|	3Ch |   TRUE |
-| ReadLong		|	3Eh |   TRUE |
-| WriteLong		|	3Fh |   TRUE |
-| ReadToc		|	43h | |
-| WriteFieldFormat	|	 0E3h | 	 TRUE |
+|:------:|:-------------------------------------:|:----------:|
+| 00h    | Test Unit Ready                       |            |
+| 01h    | Rewind                                |            |
+| 02h    | Rezero Unit                           |	  TRUE    |
+| 03h    | Request Sense                         |            |
+| 04h    | FormatUnit		                         |            |
+| 05h    | ReadBlkLimits		                     |            |
+| 05h    | ReadSectorIDs		                     |    TRUE    |
+| 06h    | NonSenseData		                       |    TRUE    |
+| 07h    | ReassignBlocks		                     |    TRUE    |
+| 08h    | Read			                             |            |
+| 0Ah    | Write			                           |	          |
+| 0Bh    | Seek			                             |            |
+| 0Ch    | CartProtect	                         | 	 TRUE     |
+| 10h    | WriteFilemarks		                     |            |
+| 11h    | Space			                           |	          |
+| 12h    | Inquiry		                           |	          |
+| 15h    | ModeSelect                         	 |	          |
+| 16h    | ReserveUnit		                       |	          |
+| 17h    | ReleaseUnit		                       |	          |
+| 19h    | Erase			                           |	          |
+| 1Ah    | ModeSense		                         |	          |
+| 1Bh    | LoadUnload		                         |	          |
+| 1Bh    | StartStopUnit		                      |   TRUE |
+| 1Dh    | SendDiagnostic		        | |
+| 1Eh    | PreventAllow		|  TRUE |
+| 22h    | TranslateLBA		|  TRUE |
+| 24h    | FormatTest		|   TRUE |
+| 25h    | ReadCapacity		| |
+| 28h    | ReadMany		|   TRUE |
+| 2Ah    | WriteMany		|   TRUE |
+| 2Bh    | Locate			| |
+| 2Bh    | SeekMany		|   TRUE |
+| 2Fh    | Verify			|   TRUE |
+| 34h    | ReadPosition		| |
+| 35h    | SynchCache		|   TRUE |
+| 37h    | ReadDefectData		|   TRUE |
+| 3Bh    | WriteBuffer		| 	 TRUE |
+| 3Ch    | ReadBuffer		|   TRUE |
+| 3Eh    | ReadLong		|   TRUE |
+| 3Fh    | WriteLong		|   TRUE |
+| 43h    | ReadToc	| |
+| E3h    | WriteFieldFormat	| 	 TRUE |
 
 ----
 
@@ -214,11 +225,9 @@ However, the command fails with error codes indicating an illegal request. This 
 
 ---- 
 
-## Iomega Mode Page (
-Let's revisit the Iomega Zip drive for a simple example of mode page
-information. We 'll use the 6-byte Mode Sense command to query the
-drive for default information, requesting all available mode pages. The
-CDB looks like this: 
+## Iomega Mode Page (1Ah)
+Let's revisit the Iomega Zip drive for a simple example of mode page information. We 'll use the 6-byte Mode Sense command to query the
+drive for default information, requesting all available mode pages. The CDB looks like this: 
 
 <table>
 <thead>
