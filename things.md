@@ -49,3 +49,18 @@ the original SP-808.
 4. the message "ZIP DISK UPDATE insert system disk" will be displayed.
 5. Insert system disk
 
+---
+
+## SP-808: Initializing - Restoring the Factory Settings
+
+The following procedure can be used to clear the internal memory and reload the factory settings:
+All USER information will be lost.
+
+1. Press SYSTEM/DISK.
+2. Press the CURSOR DOWN button to select "Init SystemParam?"
+3. Press ENTER/YES to display "Initialize all System Parameters. ARE YOU SURE?"
+4. Press ENTER/YES again to display "KEEP POWER ON!"
+Note: The display will return to "Initialize all System Parameters. ARE YOU SURE?" when finished.
+5. Press PLAY to return to the basic screen.
+
+
