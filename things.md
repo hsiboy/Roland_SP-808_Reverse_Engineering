@@ -33,7 +33,7 @@ the option!!
 1. Power Off.
 2. Push 1/[5] + CLEAR below LOCATOR at same time.
 3. Switch Power On.
-4. "SAVESYSPROG insert disk" is displayed.
+4. "SAVE SYSPROG insert disk" is displayed.
 5. Insert New SP-808 Zip disk.
 
 This can be used to copy the operating system from an SP-808EX, and to update
