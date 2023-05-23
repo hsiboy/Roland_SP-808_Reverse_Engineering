@@ -26,15 +26,28 @@ and that it is not in the middle of a test.
 
 ---
 
-## Save OS with Zipdisk
+## Save OS with Zipdisk - IMAGE
 
-IMPORTANT! Remember to format a Zip disk to store backup on before saving-it will not give you
-the option!!
+IMPORTANT! The SP-808 wipes whatever is on the disk, no warning.
+
 1. Power Off.
 2. Push 1/[5] + CLEAR below LOCATOR at same time.
 3. Switch Power On.
-4. "SAVE SYSPROG insert disk" is displayed.
+4. "SAVE SYSPROG IMAGE" is displayed.
 5. Insert New SP-808 Zip disk.
+
+## Save OS with Zipdisk - FILE
+
+IMPORTANT! The SP-808 wipes whatever is on the disk, no warning.
+
+1. Power Off.
+2. Push 2/[6] + CLEAR below LOCATOR at same time.
+3. Switch Power On.
+4. "SAVE SYSPROG FILE" is displayed.
+5. Insert New SP-808 Zip disk.
+
+NOTES: When using the IMAGE function, the SP-808 appers to create a regular, empty SP-808 ZIP disk. TODO full analysis of the disk structure.
+When using the FILE function, a single file, of [SIZE] called SNG00000.PRG
 
 This can be used to copy the operating system from an SP-808EX, and to update
 the original SP-808.
