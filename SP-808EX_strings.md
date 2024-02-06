@@ -19,9 +19,10 @@ Those string do not exist in the dumped firmware!
 00003 TTS25ESYS
 00018 RolandEC
 2cd22 [[Section Address:
-
+```
 Startup Animation / Logo?
 
+```
 58aba "&*.26:>BFJNRVZ^bfjnrvz
 58bad  "&(*.0268:>@BFHJNPRVXZ^`bfhjnprvxz~
 58ca1  "$&(*,.02468:<>@BDFHJLNPRTVXZ\^`bdfhjlnprtvxz|~
@@ -38,6 +39,9 @@ Startup Animation / Logo?
 59714   !""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
 59813   !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
 59913   !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+```
+
+```
 59a4c 333333?
 59a65 vSCSI Check...
 59a74 SCSI:Disabled
