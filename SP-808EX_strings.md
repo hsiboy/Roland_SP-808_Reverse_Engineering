@@ -126,7 +126,7 @@ Startup Animation / Logo?
 6508c SY:StpWind
 6517e SL:Slicer1
 651fa SL:Slicer2
-65276 SL:+Delay 
+65276 SL:+Delay
 652f2 01>Iso&Fil
 65370 02>Ct.Canc
 653f2 03>CompEtc
