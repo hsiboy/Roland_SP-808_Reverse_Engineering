@@ -1,8 +1,13 @@
 # The SP-808 CPU
 
-The Roland SP-808 groovebox uses a Hitachi HD6432653 CPU or H8S/2600
+The Roland SP-808 groovebox uses a Hitachi HD6432653 or H8S/2655 Series MCU.
 
-The Hitachi H8/2600 is an outdated microcontroller that was widely used in the 1990s and early 2000s. It is known for its simple architecture and low power consumption, but it also poses significant challenges when it comes to reverse engineering firmware.
+Refer to the H8S/2600 Series and H8S/2000 Series Programming Manual for a detailed description of the instruction set.
+Refer to the H8S/2655 Series manual for hardware specification.
+
+The Hitachi H8/2655 series is an outdated microcontroller that was widely used in the 1990s and early 2000s. The H8S/2655 series, in particular, was designed to offer a balance between performance, power consumption, and integrated peripherals, making them a versatile choice for embedded systems.
+
+While it is known for its simple architecture and low power consumption, it poses significant challenges when it comes to reverse engineering its firmware.
 
 One of the main difficulties in reverse engineering H8/2600 firmware is the lack of modern tools and resources. Unlike more modern processors, the H8/2600 does not have sophisticated debugging or tracing capabilities, making it much harder to understand how the firmware works.
 
