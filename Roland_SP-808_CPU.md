@@ -2,6 +2,8 @@
 
 The Roland SP-808 groovebox uses a Hitachi HD6432653 or H8S/2655 Series MCU.
 
+The "Quick Reference Guide to Hitachi Semiconductor Devices" lists it as H8S/2653 HD6432653 64k ROM and 4k RAM running at 5V with 20MHz clock.
+
 Refer to the H8S/2600 Series and H8S/2000 Series Programming Manual for a detailed description of the instruction set.
 Refer to the H8S/2655 Series manual for hardware specification.
 
@@ -13,12 +15,68 @@ One of the main difficulties in reverse engineering H8/2600 firmware is the lack
 
 Another challenge is the lack of documentation and support for the H8/2600. Since this processor is no longer in widespread use, finding technical information or help online can be difficult. This can be particularly frustrating for reverse engineers who are trying to understand the inner workings of a particular piece of hardware or software that uses the H8/2600.
 
-In addition to these technical challenges, there are also legal and ethical considerations when it comes to reverse engineering firmware. In some cases, reverse engineering may be illegal or violate intellectual property rights. This can make it difficult for researchers or engineers who want to understand or improve upon existing technology.
+## Looking at the PCB
 
-Despite these challenges, reverse engineering H8/2600 firmware is still possible. It requires a combination of technical expertise, persistence, and creativity. Reverse engineers may need to develop their own tools or methods for analyzing firmware, and they may need to rely on manual analysis and experimentation to understand how the firmware works.
+Things worthy of note. The MCU isnt handling the IDE interface, this is being handled by an EPSON ASIC SLA919F, and the MCU communicates with it.
 
-In conclusion, while reverse engineering firmware for the H8/2600 processor poses significant challenges, it is still possible with the right combination of skills, resources, and determination. As more and more technology becomes obsolete, the need for reverse engineering will only continue to grow, making this an important area of research and development.
+On the PCB, the pins (MD2 to MD0) that control the MCU Operating Mode are set as follows:
 
+PIN | NAME | H/L
+-- | -- | -- 
+123 | MD0 | Low
+124 | MD1 | High
+125 | MD2 | High
+
+Which means the CPU is running in Mode 6 - "On-chip ROM enabled, expansion mode". This means the MCU is running in Advanced mode!
+
+In Advanced mode, Linear access is provided to a 16-Mbyte maximum address space (architecturally a maximum 16-Mbyte program area and a maximum 4-Gbyte data area, with a maximum of 4 Gbytes for program and data areas combined).
+
+The extended registers (E0 to E7) can be used as 16-bit registers, or as the upper 16-bit segments of 32-bit registers or address registers.
+
+All instructions and addressing modes can be used in Advanced Mode.
+
+In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits:
+
+```
+          ┌──────────────────────────────────┐
+H'00000000│            Reserved              │
+          │----------------------------------│
+          │----                          ----│
+          │ Power-on reset exception vector  │
+          │----                          ----│
+H'00000003├──────────────────────────────────┤
+H'00000004│             Reserved             │
+          │----------------------------------│
+          │----                          ----│
+          │   Manual reset exception vector  │
+          │----                          ----│
+H'00000007├──────────────────────────────────┤
+H'00000008│----                          ----│
+          │                                  │
+          │                                  │
+          │                                  │
+          │                                  │
+          │                                  │
+          │                                  │
+          ├──────────────────────────────────┤
+          │                                  │
+          │                                  │
+          │                                  │
+          │                                  │
+          ├──────────────────────────────────┤
+          │                                  │
+          │                                  │
+          │                                  │
+          "`-._,-'"`"`-._,-'"`-._,-'"`-._,-'"`
+```
+          
+For details of the exception vector table, see section 4, Exception Handling in the Hardware Manual.
+
+PIN 83 STBY is held high.
+
+PIN 82 NMI (Non Maskable Interupt) is held high, which means NMI is not being used.
+
+MIDI is communicated via pin 61 (P3<sub>0</sub> / RXD<sub>0</sub>) and pin 59 (P3<sub>2</sub> / TXD<sub>0</sub>) 
 ## Specification
 
 Its a General-register machine, with Sixteen 16-bit general registers (also usable as sixteen 8-bit registers
