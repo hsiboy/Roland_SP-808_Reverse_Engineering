@@ -23,9 +23,9 @@ On the PCB, the pins (MD2 to MD0) that control the MCU Operating Mode are set as
 
 PIN | NAME | H/L
 -- | -- | -- 
-123 | MD0 | Low
-124 | MD1 | High
-125 | MD2 | High
+123 | MD<sub>0</sub> | Low
+124 | MD<sub>1</sub> | High
+125 | MD<sub>2</sub> | High
 
 Which means the CPU is running in Mode 6 - "On-chip ROM enabled, expansion mode". This means the MCU is running in Advanced mode!
 
