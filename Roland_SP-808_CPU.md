@@ -17,7 +17,16 @@ Another challenge is the lack of documentation and support for the H8/2600. Sinc
 
 ## Looking at the PCB
 
-Things worthy of note. The MCU isnt handling the IDE interface, this is being handled by an EPSON ASIC SLA919F, and the MCU communicates with it.
+PIN 83 STBY is held high.
+
+PIN 82 NMI (Non Maskable Interupt) is held high, which means NMI is not being used.
+
+MIDI is communicated via pin 61 (P3<sub>0</sub> / RXD<sub>0</sub>) and pin 59 (P3<sub>2</sub> / TXD<sub>0</sub>) 
+
+---
+
+> [!TIP]
+> The MCU isnt directly handling the IDE interface, this is being handled by an EPSON ASIC (SLA919F), and the MCU communicates with it.
 
 On the PCB, the pins (MD2 to MD0) that control the MCU Operating Mode are set as follows:
 
@@ -27,56 +36,109 @@ PIN | NAME | H/L
 124 | MD<sub>1</sub> | High
 125 | MD<sub>2</sub> | High
 
-Which means the CPU is running in Mode 6 - "On-chip ROM enabled, expansion mode". This means the MCU is running in Advanced mode!
+Which means the CPU is running in Mode 6 - "On-chip ROM enabled, expansion mode". 
 
-In Advanced mode, Linear access is provided to a 16-Mbyte maximum address space (architecturally a maximum 16-Mbyte program area and a maximum 4-Gbyte data area, with a maximum of 4 Gbytes for program and data areas combined).
+This means the MCU is running in Advanced mode!
+
+---
+
+## Mode 6
+
+The address space is 16 Mbytes in modes 4 to 7 (advanced modes).
+The on-chip ROM of H8S/2655 contains 128 kbytes, but only 56 kbytes are available in modes 2 and 3 (normal modes).
+The address space is divided into eight areas for modes 4 to 7.
+
+In Advanced mode, Linear access is provided to a 16-Mbyte maximum address space (architecturally a maximum 16-Mbyte program area and a maximum 4-Gbyte data area, with a maximum of 4 Gbytes for program and data areas combined). 
+
+> [!NOTE]
+> While the CPU’s architecture allows for 4 Gbytes of address space, the H8S/2655 Group can actually accesses a maximum of 16 Mbytes.
+
+Modes 1, 2, and 4 to 6 are externally expanded modes that allow access to external memory and peripheral devices.
+
+The external expansion modes allow switching between 8-bit and 16-bit bus modes. After program execution starts, an 8-bit or 16-bit address space can be set for each area, depending on the bus controller setting. If 16-bit access is selected for any one area, 16-bit bus mode is set; if 8-bit access is selected for all areas, 8-bit bus mode is set.
+
+> [!NOTE]
+> The functions of each pin depend on the operating mode.
 
 The extended registers (E0 to E7) can be used as 16-bit registers, or as the upper 16-bit segments of 32-bit registers or address registers.
 
 All instructions and addressing modes can be used in Advanced Mode.
 
+In Mode 6:
+
+* Ports A, B and C function as input ports immediately after a reset. They can each be set to output addresses by setting the corresponding bits in the data direction register (DDR) to 1. 
+* Port D functions as a data bus, and part of port F carries bus control signals.
+* The initial bus mode after a reset is 8 bits, with 8-bit access to all areas.
+
+The pin functions of ports A to F vary depending on the operating mode. This Table shows their functions in each operating mode.
+
+|Port | Mode 6|
+| --- | --- |
+|Port A<sub>7-0</sub> | P*/A|
+|Port B | P*/A|
+|Port C | P*/A|
+|Port D | D|
+|Port E | P*/D|
+|Port F<sub>7</sub> | P*/C*|
+|Port F<sub>6-3</sub> | C|
+|Port F<sub>2-0</sub>| P*/C|
+
+Legend:
+- P: I/O port
+- A: Address bus output
+- D: Data bus I/O
+- C: Control signals, clock I/O
+
+
 In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits:
 
 ```
-          ┌──────────────────────────────────┐
-H'00000000│            Reserved              │
-          │----------------------------------│
-          │----                          ----│
-          │ Power-on reset exception vector  │
-          │----                          ----│
-H'00000003├──────────────────────────────────┤
-H'00000004│             Reserved             │
-          │----------------------------------│
-          │----                          ----│
-          │   Manual reset exception vector  │
-          │----                          ----│
-H'00000007├──────────────────────────────────┤
-H'00000008│----                          ----│
-          │                                  │
-          │                                  │
-          │                                  │
-          │                                  │
-          │                                  │
-          │                                  │
-          ├──────────────────────────────────┤
-          │                                  │
-          │                                  │
-          │                                  │
-          │                                  │
-          ├──────────────────────────────────┤
-          │                                  │
-          │                                  │
-          │                                  │
-          "`-._,-'"`"`-._,-'"`-._,-'"`-._,-'"`
+           ┌──────────────────────────────────┐
+H'00000000 │            Reserved              │
+           │----------------------------------│
+           │----                          ----│
+           │ Power-on reset exception vector  │
+           │----                          ----│
+H'00000003 ├──────────────────────────────────┤
+H'00000004 │             Reserved             │
+           │----------------------------------│
+           │----                          ----│
+           │   Manual reset exception vector  │
+           │----                          ----│
+H'00000007 ├──────────────────────────────────┤
+H'00000008 │----                          ----│
+           │----                          ----│
+H'0000000B │----                          ----│
+           │    (Reserved for system use)     │
+H'0000000C │----                              │
+           │----                          ----│
+           │----                          ----│
+           ├──────────────────────────────────┤
+H'00000010 │             Reserved             │
+           │----------------------------------│
+           │----                          ----│
+           │        Exception vector 1        │
+           │----                          ----│
+           ├──────────────────────────────────┤
+           │                                  │
+           │                   ,-'"`-._,-'"`-─┘
+           └─`-._,-'"`"`-._,-'"`
+
 ```
-          
+*Exception Vector Table (Advanced Mode)*
+
+
 For details of the exception vector table, see section 4, Exception Handling in the Hardware Manual.
 
-PIN 83 STBY is held high.
+---
 
-PIN 82 NMI (Non Maskable Interupt) is held high, which means NMI is not being used.
+## ROM (PROM)
 
-MIDI is communicated via pin 61 (P3<sub>0</sub> / RXD<sub>0</sub>) and pin 59 (P3<sub>2</sub> / TXD<sub>0</sub>) 
+The H8S/2653 has 64 kbytes of on-chip ROM (PROM or mask ROM). The ROM is connected to the H8S/2600 CPU by a 16-bit data bus. The CPU accesses both byte data and word data in one state, making possible rapid instruction fetches and high-speed processing.
+The on-chip ROM is enabled or disabled by setting the mode pins (MD2, MD1, and MD0) and bit EAE in BCRL.
+
+---
+
 ## Specification
 
 Its a General-register machine, with Sixteen 16-bit general registers (also usable as sixteen 8-bit registers
@@ -127,11 +189,12 @@ It's worth noting that instructions on the H8S/2600 execute twice as fast as the
 Manufacturer manuals are readily available for the micro. Here's the software manual {TODO link to repo} . Here's the hardware manual. The Opensource for Renesas project has a gcc and binutils build, which appears to be originally from KPIT. 
 Using objdump from that package decompiles correctly and understand all of the commands for H8, H8300, H8S/2000, and H8S/2600, each of which has a few added instructions.
 
-** Note: The H8 line of CPUs is bigendian **
+> [!IMPORTANT]
+> The H8 line of CPUs is bigendian
 
-I can't find anything in the manuals that explains what address code execution starts. The manuals do explain that the chip has an 'advanced mode', and in that mode, address 0x00 contains an exception table with addresses to jump to. The first 4 bytes should have the address, but we appear to have a string in the Roland Firmware 🤔
+I can't find anything in the manuals that explains what address code execution starts at. The manuals do explain that the chip has an 'advanced mode', and in that mode, address 0x00 contains an exception table with addresses to jump to. The first 4 bytes should have the address, but we appear to have a string in the Roland Firmware 🤔
 
-The manu aexlains that the exception vector table starts at 0x00 and first exception is the restart exception. he CPU handles boot as an exception (power glitch?), so the first four bytes in the firmware, should be a 32 bit address that points to the first instruction, not an ascii string.
+The manual explains that the exception vector table starts at 0x00 and first exception is the restart exception. The CPU handles boot as an exception (power glitch?), so the first four bytes in the firmware, should be a 32 bit address that points to the first instruction, not an ascii string.
 
 Therefore, Roland, have 'packaged' the firmware with a header and a footer (inlcuding padding bytes) and i need to find the SP-808 firmware within this envelope.
 
