@@ -17,11 +17,20 @@ Another challenge is the lack of documentation and support for the H8/2600. Sinc
 
 ## Looking at the PCB
 
-PIN 83 STBY is held high.
+Pin 83 STBY is held high.
 
-PIN 82 NMI (Non Maskable Interupt) is held high, which means NMI is not being used.
+Pin 82 NMI (Non Maskable Interupt) is held high, which means NMI is not being used.
 
-MIDI is communicated via pin 61 (P3<sub>0</sub> / RXD<sub>0</sub>) and pin 59 (P3<sub>2</sub> / TXD<sub>0</sub>) 
+MIDI is communicated via pin 61 (P3<sub>0</sub> / RXD<sub>0</sub>) and pin 59 (P3<sub>2</sub> / TXD<sub>0</sub>).
+
+
+Pin 60 is TXD<sub>1</sub> and pin 62 is RXD<sub>1</sub>, this serial interace is brought out on pin 33 as TX1 and pin 32 as RX1 on unpopulated connecter CN7. Pin 31 of CN7 carries XRST, while neighbouring pins 34-37 are GND and pins 38-40 are VCC.
+
+
+> [!NOTE]
+> Need to investigate what (if anything) is on this port during operation, or can it be used with H8/300 debug tools like the E6000?
+
+
 
 ---
 
