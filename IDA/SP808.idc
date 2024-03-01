@@ -1,0 +1,1159 @@
+// Auto-Disassembly script for Roland SP8080 and Edirol A6 ROMs.
+//
+// This is based on Acamus's Auto Disassembler.
+// edited for compatibility with ida 7.x by Professor_jonny
+// and ammeded for the Roland/Edirol by hsiboy
+//
+// vim:foldmethod=syntax foldnestmax=1 sw=2 et smarttab smartindent ft=c
+//
+// ----------------------------- WARNING --------------------------------------
+// This will NOT work with IDA Pro v6.0, but it should work with any other
+// version, including 6.1, as long as you switch off the "Convert Immediate
+// Loads" option. You can find it in Options -> General -> Analysis ->
+// Processor specific analysis options.
+// ----------------------------- WARNING --------------------------------------
+//
+// STEP-BY-STEP TO DISASSEMBLING YOUR ROM IMAGE:
+//
+//  Open IDA Pro, drag your ROM image onto the main
+//   window, and choose the "Renesas H8" processor.)
+//
+// Accept the default options for segments, analysis, etc. Don't bother
+//   creating a RAM segment; this script will do it for you.
+//
+// Next, go to the "Options" drop-down meny, and select "Analysis options...".
+//   Choose "Kernel analyzer options 1", and uncheck:
+//     "Create ascii string if data xref exists"
+//     "Create offset if data xref to seg32 exists"
+//   Choose "Kernel analyzer options 2", and uncheck:
+//     "Check for unicode strings"
+//   (There are ASCII strings in the ROM image, but IDA doesn't 
+//  take alignment into account when converting referenced 32-bit values 
+//  to offsets for some reason.)
+//
+// Finally, go to the "File" drop-down menu, select "Load file", select
+//   "IDC file...", and choose this script. It will automatically start
+//   disassembling the ROM, labeling known memory, register, and function
+//   addresses as it goes.
+//
+
+#include <idc.idc>
+#include <memcpy.idc>
+
+#define H8_ROM_START   0x00000000
+#define H8_CODE_OFFSET 0x00010000
+#define H8_CODE_LENGTH 0x000C0004
+
+// Set a name for a location if there is not already a manual name set.
+#define SafeMakeName(ea, name) if (name) SafeMakeNameEx(ea, name, SN_NOWARN)
+#define SafeMakeNameEx(ea, name, opts) if (ea != BADADDR && !HasName(ea)) MakeNameEx(ea, name, opts);
+#define HasName(ea) !(Name(ea) == "" || strstr(Name(ea), "off_") == 0 || strstr(Name(ea), "unk_") == 0 || strstr(Name(ea), "sub_") == 0 || strstr(Name(ea), "byte_") == 0 || strstr(Name(ea), "word_") == 0 || strstr(Name(ea), "dword_") == 0)
+static MakeNameSequence(ea, name) {
+  auto i, fullname;
+  for (i = 1; i < 5000; i++) {
+    fullname = form("%s_%d", name, i);
+    if (LocByName(fullname) == BADADDR) {
+      SafeMakeName(ea, fullname);
+      return;
+    }
+  }
+}
+
+static H8RegisterNames() {
+    // Interrupt controller - 8 bit
+  SafeMakeName(0xFEC0, "INTC_ICRA");
+  SafeMakeName(0xFEC1, "INTC_ICRB");
+  SafeMakeName(0xFEC2, "INTC_ICRC");
+
+  SafeMakeName(0xFEC4, "INTC_IPRA");
+  SafeMakeName(0xFEC5, "INTC_IPRB");
+  SafeMakeName(0xFEC6, "INTC_IPRC");
+  SafeMakeName(0xFEC7, "INTC_IPRD");
+  SafeMakeName(0xFEC8, "INTC_IPRE");
+  SafeMakeName(0xFEC9, "INTC_IPRF");
+  SafeMakeName(0xFECA, "INTC_IPRG");
+  SafeMakeName(0xFECB, "INTC_IPRH");
+  SafeMakeName(0xFECC, "INTC_IPRI");
+  SafeMakeName(0xFECD, "INTC_IPRJ");
+  SafeMakeName(0xFECE, "INTC_IPRK");
+
+//Bus controller - 8 bit
+  SafeMakeName(0xFED0, "ABWCR");
+  SafeMakeName(0xFED1, "ASTCR");
+  SafeMakeName(0xFED2, "WCRH");
+  SafeMakeName(0xFED3, "WCRL");
+  SafeMakeName(0xFED4, "BCRH");
+  SafeMakeName(0xFED5, "BCRL");
+  SafeMakeName(0xFED6, "MCR");
+  SafeMakeName(0xFED7, "DRAMCR");
+  SafeMakeName(0xFED8, "RTCNT");
+  SafeMakeName(0xFED9, "RTCOR");
+  
+  SafeMakeName(0xFEE0, "MAR0AH");
+  SafeMakeName(0xFEE1, "MAR0AH");
+  SafeMakeName(0xFEE2, "MAR0AL");
+  SafeMakeName(0xFEE3, "MAR0AL");
+  SafeMakeName(0xFEE4, "IOAR0A");
+  SafeMakeName(0xFEE5, "IOAR0A");
+  SafeMakeName(0xFEE6, "ETCR0A");
+  SafeMakeName(0xFEE7, "ETCR0A");
+  SafeMakeName(0xFEE8, "MAR0BH");
+  SafeMakeName(0xFEE9, "MAR0BH");
+  
+  SafeMakeName(0xFEEA, "MAR0BL");
+  SafeMakeName(0xFEEB, "MAR0BL");
+  SafeMakeName(0xFEEC, "IOAR0B");
+  SafeMakeName(0xFEED, "IOAR0B");
+  SafeMakeName(0xFEEE, "ETCR0B");
+  SafeMakeName(0xFEEF, "ETCR0B");
+  SafeMakeName(0xFEF0, "MAR1AH");
+  SafeMakeName(0xFEF1, "MAR1AH");
+  SafeMakeName(0xFEF2, "MAR1AL");
+  SafeMakeName(0xFEF3, "MAR1AL");
+  SafeMakeName(0xFEF4, "IOAR1A");
+  SafeMakeName(0xFEF5, "IOAR1A");
+  SafeMakeName(0xFEF6, "ETCR1A");
+  SafeMakeName(0xFEF7, "ETCR1A");
+  SafeMakeName(0xFEF8, "MAR1BH");
+  SafeMakeName(0xFEF9, "MAR1BH");
+  SafeMakeName(0xFEFA, "MAR1BL");
+  SafeMakeName(0xFEFB, "MAR1BL");
+  SafeMakeName(0xFEFC, "IOAR1B");
+  SafeMakeName(0xFEFD, "IOAR1B");
+  SafeMakeName(0xFEFE, "ETCR1B");
+  SafeMakeName(0xFEFF, "ETCR1B");
+
+  SafeMakeName(0xFF00, "DMAWER");
+  SafeMakeName(0xFF01, "DMATCR");
+  SafeMakeName(0xFF02, "DMACR0A");
+  SafeMakeName(0xFF03, "DMACR0B");
+  SafeMakeName(0xFF04, "DMACR1A");
+  SafeMakeName(0xFF05, "DMACR1B");
+  SafeMakeName(0xFF06, "DMABCRH");
+  SafeMakeName(0xFF07, "DMABCRL");
+
+  SafeMakeName(0xFF2C, "ISCRH");
+  SafeMakeName(0xFF2D, "ISCRL");
+  SafeMakeName(0xFF2E, "IER");
+  SafeMakeName(0xFF2F, "ISR");
+
+  SafeMakeName(0xFF30, "DTCER");
+  SafeMakeName(0xFF31, "DTCER");
+  SafeMakeName(0xFF32, "DTCER");
+  SafeMakeName(0xFF33, "DTCER");
+  SafeMakeName(0xFF34, "DTCER");
+  SafeMakeName(0xFF35, "DTCER");
+
+  SafeMakeName(0xFF38, "SBYCR");
+  SafeMakeName(0xFF39, "SYSCR");
+  SafeMakeName(0xFF3A, "SCKCR");
+  SafeMakeName(0xFF3B, "MDCR");
+  SafeMakeName(0xFF3C, "MSTPCRH");
+  SafeMakeName(0xFF3D, "MSTPCRL");
+
+  SafeMakeName(0xFF46, "PCR");
+  SafeMakeName(0xFF47, "PMR");
+  SafeMakeName(0xFF48, "NDERH");
+  SafeMakeName(0xFF49, "NDERL");
+  SafeMakeName(0xFF4, " ");
+  SafeMakeName(0xFF4, " ");
+  SafeMakeName(0xFF4, " ");
+  SafeMakeName(0xFF4, " ");
+  SafeMakeName(0xFF4, " ");
+
+  
+
+  // -- above this line !! //
+
+
+
+
+  SafeMakeName(0xFF10, "WDT__TCSR");
+  SafeMakeName(0xFF11, "WDT_TCNT");
+  SafeMakeName(0xFF14, "WSC_WCR");
+  SafeMakeName(0xFF15, "RAMCR");
+  SafeMakeName(0xFF16, "BSC_ARBT");
+  SafeMakeName(0xFF17, "BSC_AR3T");
+  SafeMakeName(0xFF19, "SYSC_MDCR");
+  SafeMakeName(0xFF1A, "SYSC_SBYCR");
+  SafeMakeName(0xFF1B, "SYSC_BRCR");
+  SafeMakeName(0xFF1C, "SYSC_NMICR");
+  SafeMakeName(0xFF1D, "SYSC_IRQCR");
+  SafeMakeName(0xFF1E, "SYSC_writeCR");
+  SafeMakeName(0xFF1F, "SYSC_RSTCSR");
+
+  SafeMakeName(0xFF20, "T1CRH");
+  SafeMakeName(0xFF21, "T1CRL");
+  SafeMakeName(0xFF22, "T1SRAH");
+  SafeMakeName(0xFF23, "T1SRAL");
+  SafeMakeName(0xFF24, "T1OERA");
+  SafeMakeName(0xFF25, "TMDRA");
+  SafeMakeName(0xFF26, "T1CNTH");
+  SafeMakeName(0xFF27, "T1CNTL");
+  SafeMakeName(0xFF28, "T1GR1H");
+  SafeMakeName(0xFF29, "T1GR1L");
+  SafeMakeName(0xFF2A, "T1GR2H");
+  SafeMakeName(0xFF2B, "T1GR2L");
+
+  
+  SafeMakeName(0xFF2D, "T1DR1L");
+  SafeMakeName(0xFF2E, "T1DR2H");
+  SafeMakeName(0xFF2F, "T1DR2L");
+
+
+  
+
+  SafeMakeName(0xFF40, "T2CRH");
+  SafeMakeName(0xFF41, "T2CRL");
+  SafeMakeName(0xFF42, "T2SRH");
+  SafeMakeName(0xFF43, "T2SRL");
+  SafeMakeName(0xFF44, "T2OER");
+  SafeMakeName(0xFF46, "T2CNTH");
+  SafeMakeName(0xFF47, "T2CNTL");
+  SafeMakeName(0xFF48, "T2GR1H");
+  SafeMakeName(0xFF49, "T2GR1L");
+  SafeMakeName(0xFF4A, "T2GR2H");
+  SafeMakeName(0xFF4B, "T2GR2L");
+  SafeMakeName(0xFF4C, "T2DR1H");
+  SafeMakeName(0xFF4D, "T2DR1L");
+  SafeMakeName(0xFF4E, "T2DR2H");
+  SafeMakeName(0xFF4F, "T2DR2L");
+
+  SafeMakeName(0xFF50, "T3CRH");
+  SafeMakeName(0xFF51, "T3CRL");
+  SafeMakeName(0xFF52, "T3SRH");
+  SafeMakeName(0xFF53, "T3SRL");
+  SafeMakeName(0xFF54, "T3OER");
+  SafeMakeName(0xFF56, "T3CNTH");
+  SafeMakeName(0xFF57, "T3CNTL");
+  SafeMakeName(0xFF58, "T3GR1H");
+  SafeMakeName(0xFF59, "T3GR1L");
+  SafeMakeName(0xFF5A, "T3GR2H");
+  SafeMakeName(0xFF5B, "T3GR2L");
+  SafeMakeName(0xFF5C, "T3DR1H");
+  SafeMakeName(0xFF5D, "T3DR1L");
+  SafeMakeName(0xFF5E, "T3DR2H");
+  SafeMakeName(0xFF5F, "T3DR2L");
+
+  SafeMakeName(0xFF60, "T4CRH");
+  SafeMakeName(0xFF61, "T4CRL");
+  SafeMakeName(0xFF62, "T4SRH");
+  SafeMakeName(0xFF63, "T4SRL");
+  SafeMakeName(0xFF64, "T4OER");
+  SafeMakeName(0xFF66, "T4CNTH");
+  SafeMakeName(0xFF67, "T4CNTL");
+  SafeMakeName(0xFF68, "T4GR1H");
+  SafeMakeName(0xFF69, "T4GR1L");
+  SafeMakeName(0xFF6A, "T4GR2H");
+  SafeMakeName(0xFF6B, "T4GR2L");
+  SafeMakeName(0xFF6C, "T4DR1H");
+  SafeMakeName(0xFF6D, "T4DR1L");
+  SafeMakeName(0xFF6E, "T4DR2H");
+  SafeMakeName(0xFF6F, "T4DR2L");
+
+  SafeMakeName(0xFF70, "T5CRH");
+  SafeMakeName(0xFF71, "T5CRL");
+  SafeMakeName(0xFF72, "T5SRH");
+  SafeMakeName(0xFF73, "T5SRL");
+  SafeMakeName(0xFF74, "T5OER");
+  SafeMakeName(0xFF76, "T5CNTH");
+  SafeMakeName(0xFF77, "T5CNTL");
+  SafeMakeName(0xFF78, "T5GR1H");
+  SafeMakeName(0xFF79, "T5GR1L");
+  SafeMakeName(0xFF7A, "T5GR2H");
+  SafeMakeName(0xFF7B, "T5GR2L");
+  SafeMakeName(0xFF7C, "T5DR1H");
+  SafeMakeName(0xFF7D, "T5DR1L");
+  SafeMakeName(0xFF7E, "T5DR2H");
+  SafeMakeName(0xFF7F, "T5DR2L");
+
+  SafeMakeName(0xFF80, "T6CRH");
+  SafeMakeName(0xFF81, "T6CRL");
+  SafeMakeName(0xFF82, "T6SRH");
+  SafeMakeName(0xFF83, "T6SRL");
+  SafeMakeName(0xFF84, "T6OER");
+  SafeMakeName(0xFF86, "T6CNTH");
+  SafeMakeName(0xFF87, "T6CNTL");
+  SafeMakeName(0xFF88, "T6GR1H");
+  SafeMakeName(0xFF89, "T6GR1L");
+  SafeMakeName(0xFF8A, "T6GR2H");
+  SafeMakeName(0xFF8B, "T6GR2L");
+
+  SafeMakeName(0xFF90, "T7CRH");
+  SafeMakeName(0xFF91, "T7CRL");
+  SafeMakeName(0xFF92, "T7SRH");
+  SafeMakeName(0xFF93, "T7SRL");
+  SafeMakeName(0xFF94, "T7OER");
+  SafeMakeName(0xFF96, "T7CNTH");
+  SafeMakeName(0xFF97, "T7CNTL");
+  SafeMakeName(0xFF98, "T7GR1H");
+  SafeMakeName(0xFF99, "T7GR1L");
+  SafeMakeName(0xFF9A, "T7GR2H");
+  SafeMakeName(0xFF9B, "T7GR2L");
+
+  SafeMakeName(0xFFA0, "MLTCR");
+  SafeMakeName(0xFFA1, "MLTBR");
+  SafeMakeName(0xFFA2, "MLTMAR");
+  SafeMakeName(0xFFA3, "MLTAR");
+
+  SafeMakeName(0xFFB0, "MULT_CA");
+  SafeMakeName(0xFFB1, "MULT_(CA)");
+  SafeMakeName(0xFFB2, "MULT_CB");
+  SafeMakeName(0xFFB3, "MULT_(CB)");
+  SafeMakeName(0xFFB4, "MULT_CC");
+  SafeMakeName(0xFFB5, "MULT_(CC)");
+  SafeMakeName(0xFFB6, "MULT_XH");
+  SafeMakeName(0xFFB7, "MULT_(XH)");
+  SafeMakeName(0xFFB8, "MULT_H");
+  SafeMakeName(0xFFB9, "MULT_(H)");
+  SafeMakeName(0xFFBA, "MULT_L");
+  SafeMakeName(0xFFBB, "MULT_(L)");
+  SafeMakeName(0xFFBC, "MULT_MR");
+  SafeMakeName(0xFFBD, "MULT_(MR)");
+  SafeMakeName(0xFFBE, "MULT_MMR");
+  SafeMakeName(0xFFBF, "MULT_(MMR)");
+
+  SafeMakeName(0xFE80, "P1DDR");
+  SafeMakeName(0xFE81, "P2DDR");
+  SafeMakeName(0xFE82, "P1DR");
+  SafeMakeName(0xFE83, "P2DR");
+  SafeMakeName(0xFE84, "P3DDR");
+  SafeMakeName(0xFE85, "P4DDR");
+  SafeMakeName(0xFE86, "P3DR");
+  SafeMakeName(0xFE87, "P4DR");
+  SafeMakeName(0xFE88, "P5DDR");
+  SafeMakeName(0xFE89, "P6DDR");
+  SafeMakeName(0xFE8A, "P5DR");
+  SafeMakeName(0xFE8B, "P6DR");
+  SafeMakeName(0xFE8C, "P7DDR");
+  SafeMakeName(0xFE8E, "P7DR");
+  SafeMakeName(0xFE8F, "P8DR");
+
+  SafeMakeName(0xFE91, "PADDR");
+  SafeMakeName(0xFE92, "P9DR");
+  SafeMakeName(0xFE93, "PADR");
+  SafeMakeName(0xFE94, "PBDDR");
+  SafeMakeName(0xFE95, "PCDDR");
+  SafeMakeName(0xFE96, "PBDR");
+  SafeMakeName(0xFE97, "PCDR");
+  SafeMakeName(0xFE98, "PBPCR");
+  SafeMakeName(0xFE99, "PCPCR");
+  SafeMakeName(0xFE9A, "oCR");
+
+  SafeMakeName(0xFEA0, "ADDR0H");
+  SafeMakeName(0xFEA1, "ADDR0L");
+  SafeMakeName(0xFEA2, "ADDR1H");
+  SafeMakeName(0xFEA3, "ADDR1L");
+  SafeMakeName(0xFEA4, "ADDR2H");
+  SafeMakeName(0xFEA5, "ADDR2L");
+  SafeMakeName(0xFEA6, "ADDR3H");
+  SafeMakeName(0xFEA7, "ADDR3L");
+  SafeMakeName(0xFEA8, "ADDR4H");
+  SafeMakeName(0xFEA9, "ADDR4L");
+  SafeMakeName(0xFEAA, "ADDR5H");
+  SafeMakeName(0xFEAB, "ADDR5L");
+  SafeMakeName(0xFEAC, "ADDR6H");
+  SafeMakeName(0xFEAD, "ADDR6L");
+  SafeMakeName(0xFEAE, "ADDR7H");
+  SafeMakeName(0xFEAF, "ADDR7L");
+
+  SafeMakeName(0xFEB0, "ADDR8H");
+  SafeMakeName(0xFEB1, "ADDR8L");
+  SafeMakeName(0xFEB2, "ADDR9H");
+  SafeMakeName(0xFEB3, "ADDR9L");
+  SafeMakeName(0xFEB4, "ADDRAH");
+  SafeMakeName(0xFEB5, "ADDRAL");
+  SafeMakeName(0xFEB6, "ADDRBH");
+  SafeMakeName(0xFEB7, "ADDRBL");
+  SafeMakeName(0xFEB8, "ADCSR");
+  SafeMakeName(0xFEB9, "ADCR");
+
+  SafeMakeName(0xFEDA, "PACR");
+  SafeMakeName(0xFEDB, "P67CR");
+  SafeMakeName(0xFEDC, "ADTRGR");
+  SafeMakeName(0xFEDE, "IRQFR");
+  SafeMakeName(0xFEDF, "BCR");
+
+  SafeMakeName(0xFEE0, "FLMCR");
+  SafeMakeName(0xFEE1, "FLM_EBR1");
+  SafeMakeName(0xFEE2, "FLM_EBR2");
+  SafeMakeName(0xFEEC, "FLMER");
+  SafeMakeName(0xFEED, "FLMSR");
+
+  SafeMakeName(0xFEF0, "PWM1_TCR");
+  SafeMakeName(0xFEF1, "PWM1_DTR");
+  SafeMakeName(0xFEF2, "PWM1_TCNT");
+  SafeMakeName(0xFEF4, "PWM2_TCR");
+  SafeMakeName(0xFEF5, "PWM2_DTR");
+  SafeMakeName(0xFEF6, "PWM2_TCNT");
+  SafeMakeName(0xFEF8, "PWM3_TCR");
+  SafeMakeName(0xFEF9, "PWM3_DTR");
+  SafeMakeName(0xFEFA, "PWM3_TCNT");
+
+}
+
+static ByteRegister(ea, name, comment) {
+  MakeByte(ea);
+  if (!HasName(ea))
+    MakeNameEx(ea, name, SN_NOLIST);
+  if (comment != "")
+    MakeComm(ea, comment);
+  return ea;
+}
+
+static WordRegister(ea, name, comment) {
+  MakeWord(ea);
+  if (!HasName(ea))
+    MakeNameEx(ea, name, SN_NOLIST);
+  if (comment != "")
+    MakeComm(ea, comment);
+  return ea;
+}
+
+static LongRegister(ea, name, comment) {
+  MakeDword(ea);
+  if (!HasName(ea))
+    MakeNameEx(ea, name, SN_NOLIST);
+  if (comment != "")
+    MakeComm(ea, comment);
+  return ea;
+}
+
+static ReservedSpaceArray(start, end) {
+  MakeByte(start);
+  MakeArray(start, end - start + 1);
+  SetArrayFormat(start, AP_ALLOWDUPS, 0, -1);
+  MakeComm(start, "Reserved");
+  return start;
+}
+
+static RegisterArray(ea, count) {
+  MakeArray(ea, count);
+  SetArrayFormat(ea, AP_ALLOWDUPS, count, -1);
+}
+
+static AddVTEntry(ea, name, funcname) {
+  auto j;
+  j = Dword(ea);
+  SafeMakeNameEx(ea, "e" + name, SN_NOLIST);
+  SafeMakeName(j, funcname);
+  MakeFunction(j, BADADDR);
+}
+
+static Fixup_VT(segoffset, romstart) {
+  auto i, j, errcode;
+
+  // fixup all vector table entries
+  for (i = segoffset; i < (segoffset + romstart); i = i + 4) {
+    MakeDword(i);
+    OpOff(i, 0, 0);
+    // These are stack pointers, not code
+    if (i == 0x04 || i == 0x0C)
+      continue;
+    j = Dword(i);
+    MakeCode(j);
+    AutoMark(j, AU_PROC);
+  }
+
+  // Define known VT entries
+  AddVTEntry(0x00000000, "v_power_on_pc", "init");
+  AddVTEntry(0x00000004, "v_power_on_sp", "stack");
+  AddVTEntry(0x00000008, "v_reset_pc", "reset_pc");
+  AddVTEntry(0x0000000C, "v_reset_sp", "");
+  AddVTEntry(0x00000010, "v_gen_ill_inst", "reset");
+  AddVTEntry(0x00000018, "v_slot_ill_inst", "slot_ill_inst");
+  AddVTEntry(0x00000024, "v_cpu_addr_err", "cpu_addr_err");
+  AddVTEntry(0x00000028, "v_dmac_addr_err", "dmac_addr_err");
+  AddVTEntry(0x0000002C, "NMI", "nmi");
+  AddVTEntry(0x00000030, "UBC", "userbreak");
+  AddVTEntry(0x00000080, "TRAP0", "trap");
+  for (i = 33; i <= 63; i++)
+    AddVTEntry(0x00000080 + ((i - 32) * 4), form("TRAP%d", i - 32), "");
+  AddVTEntry(0x00000100, "IRQ0", "irq0");
+  AddVTEntry(0x00000104, "IRQ1", "irq1");
+  AddVTEntry(0x00000108, "IRQ2", "irq2");
+  AddVTEntry(0x0000010C, "IRQ3", "irq3");
+  AddVTEntry(0x00000120, "DMAC0", "dmac0");
+  AddVTEntry(0x00000128, "DMAC1", "dmac1");
+  AddVTEntry(0x00000130, "DMAC2", "dmac2");
+  AddVTEntry(0x00000138, "DMAC3", "dmac3");
+  AddVTEntry(0x000002F0, "CMTI0", "cmti0");
+  AddVTEntry(0x000002F8, "ADI0", "adi0");
+  AddVTEntry(0x00000300, "CMTI1", "cmti1");
+  AddVTEntry(0x00000308, "ADI1", "adi1");
+  AddVTEntry(0x00000380, "ITI", "wdt_iti");
+  // ATU0
+  AddVTEntry(0x00000140, "ITV1", "atu0_itv1");
+  AddVTEntry(0x00000150, "ICI0A", "atu0_ici0a");
+  AddVTEntry(0x00000158, "ICI0B", "atu0_ici0b");
+  AddVTEntry(0x00000160, "ICI0C", "atu0_ici0c");
+  AddVTEntry(0x00000168, "ICI0D", "atu0_ici0d");
+  AddVTEntry(0x00000170, "OVI0", "atu0_ovi0");
+  // ATU1
+  AddVTEntry(0x00000180, "IMI1A", "atu1_imi1a");
+  AddVTEntry(0x00000184, "IMI1B", "atu1_imi1b");
+  AddVTEntry(0x00000188, "IMI1C", "atu1_imi1c");
+  AddVTEntry(0x0000018C, "IMI1D", "atu1_imi1d");
+  AddVTEntry(0x00000190, "IMI1E", "atu1_imi1e");
+  AddVTEntry(0x00000194, "IMI1F", "atu1_imi1f");
+  AddVTEntry(0x00000198, "IMI1G", "atu1_imi1g");
+  AddVTEntry(0x0000019C, "IMI1H", "atu1_imi1h");
+  AddVTEntry(0x000001A0, "OVI1A", "atu1_ovi1a");
+  // ATU2
+  AddVTEntry(0x000001B0, "IMI2A", "atu2_imi2a");
+  AddVTEntry(0x000001B4, "IMI2B", "atu2_imi2b");
+  AddVTEntry(0x000001B8, "IMI2C", "atu2_imi2c");
+  AddVTEntry(0x000001BC, "IMI2D", "atu2_imi2d");
+  AddVTEntry(0x000001C0, "IMI2E", "atu2_imi2e");
+  AddVTEntry(0x000001C4, "IMI2F", "atu2_imi2f");
+  AddVTEntry(0x000001C8, "IMI2G", "atu2_imi2g");
+  AddVTEntry(0x000001CC, "IMI2H", "atu2_imi2h");
+  AddVTEntry(0x000001D0, "OVI2A", "atu2_ovi2a");
+  // ATU3
+  AddVTEntry(0x000001E0, "IMI3A", "atu3_imi3a");
+  AddVTEntry(0x000001E4, "IMI3B", "atu3_imi3b");
+  AddVTEntry(0x000001E8, "IMI3C", "atu3_imi3c");
+  AddVTEntry(0x000001EC, "IMI3D", "atu3_imi3d");
+  AddVTEntry(0x000001F0, "OVI3", "atu3_ovi3");
+  // ATU4
+  AddVTEntry(0x00000200, "IMI4A", "atu4_imi4a");
+  AddVTEntry(0x00000204, "IMI4B", "atu4_imi4b");
+  AddVTEntry(0x00000208, "IMI4C", "atu4_imi4c");
+  AddVTEntry(0x0000020C, "IMI4D", "atu4_imi4d");
+  AddVTEntry(0x00000210, "OVI4", "atu4_ovi4");
+  // ATU5
+  AddVTEntry(0x00000220, "IMI5A", "atu5_imi5a");
+  AddVTEntry(0x00000224, "IMI5B", "atu5_imi5b");
+  AddVTEntry(0x00000228, "IMI5C", "atu5_imi5c");
+  AddVTEntry(0x0000022C, "IMI5D", "atu5_imi5d");
+  AddVTEntry(0x00000230, "OVI5", "atu5_ovi5");
+  // ATU6
+  AddVTEntry(0x00000240, "CMI6A", "atu6_cmi6a");
+  AddVTEntry(0x00000244, "CMI6B", "atu6_cmi6b");
+  AddVTEntry(0x00000248, "CMI6C", "atu6_cmi6c");
+  AddVTEntry(0x0000024C, "CMI6D", "atu6_cmi6d");
+  // ATU7
+  AddVTEntry(0x00000250, "CMI7A", "atu7_cmi7a");
+  AddVTEntry(0x00000254, "CMI7B", "atu7_cmi7b");
+  AddVTEntry(0x00000258, "CMI7C", "atu7_cmi7c");
+  AddVTEntry(0x0000025C, "CMI7D", "atu7_cmi7d");
+  // ATU8
+  AddVTEntry(0x00000260, "OSI8A", "atu8_osi8a");
+  AddVTEntry(0x00000264, "OSI8B", "atu8_osi8b");
+  AddVTEntry(0x00000268, "OSI8C", "atu8_osi8c");
+  AddVTEntry(0x0000026C, "OSI8D", "atu8_osi8d");
+  AddVTEntry(0x00000270, "OSI8E", "atu8_osi8e");
+  AddVTEntry(0x00000274, "OSI8F", "atu8_osi8f");
+  AddVTEntry(0x00000278, "OSI8G", "atu8_osi8g");
+  AddVTEntry(0x0000027C, "OSI8H", "atu8_osi8h");
+  AddVTEntry(0x00000280, "OSI8I", "atu8_osi8i");
+  AddVTEntry(0x00000284, "OSI8J", "atu8_osi8j");
+  AddVTEntry(0x00000288, "OSI8K", "atu8_osi8k");
+  AddVTEntry(0x0000028C, "OSI8L", "atu8_osi8l");
+  AddVTEntry(0x00000290, "OSI8M", "atu8_osi8m");
+  AddVTEntry(0x00000294, "OSI8N", "atu8_osi8n");
+  AddVTEntry(0x00000298, "OSI8O", "atu8_osi8o");
+  AddVTEntry(0x0000029C, "OSI8P", "atu8_osi8p");
+  // ATU9
+  AddVTEntry(0x000002A0, "CMI9A", "atu9_cmi9a");
+  AddVTEntry(0x000002A4, "CMI9B", "atu9_cmi9b");
+  AddVTEntry(0x000002A8, "CMI9C", "atu9_cmi9c");
+  AddVTEntry(0x000002AC, "CMI9D", "atu9_cmi9d");
+  AddVTEntry(0x000002B0, "CMI9E", "atu9_cmi9e");
+  AddVTEntry(0x000002B8, "CMI9F", "atu9_cmi9f");
+  // ATU10
+  AddVTEntry(0x000002C0, "CMI10A", "atu10_cmi10a");
+  AddVTEntry(0x000002C8, "CMI10B", "atu10_cmi10b");
+  AddVTEntry(0x000002D0, "ICI10A", "atu10_ici10a");
+  // ATU11
+  AddVTEntry(0x000002E0, "IMI11A", "atu11_imi11a");
+  AddVTEntry(0x000002E8, "IMI11B", "atu11_imi11b");
+  AddVTEntry(0x000002EC, "OVI11", "atu11_ovi11");
+  // SCI0
+  AddVTEntry(0x00000320, "ERI0", "sci0_eri0");
+  AddVTEntry(0x00000324, "RXI0", "sci0_rxi0");
+  AddVTEntry(0x00000328, "TXI0", "sci0_txi0");
+  AddVTEntry(0x0000032C, "TEI0", "sci0_tei0");
+  // SCI1
+  AddVTEntry(0x00000330, "ERI1", "sci1_eri1");
+  AddVTEntry(0x00000334, "RXI1", "sci1_rxi1");
+  AddVTEntry(0x00000338, "TXI1", "sci1_txi1");
+  AddVTEntry(0x0000033C, "TEI1", "sci1_tei1");
+  // SCI2
+  AddVTEntry(0x00000340, "ERI2", "sci2_eri2");
+  AddVTEntry(0x00000344, "RXI2", "sci2_rxi2");
+  AddVTEntry(0x00000348, "TXI2", "sci2_txi2");
+  AddVTEntry(0x0000034C, "TEI2", "sci2_tei2");
+  // SCI3
+  AddVTEntry(0x00000350, "ERI3", "sci3_eri3");
+  AddVTEntry(0x00000354, "RXI3", "sci3_rxi3");
+  AddVTEntry(0x00000358, "TXI3", "sci3_txi3");
+  AddVTEntry(0x0000035C, "TEI3", "sci3_tei3");
+  // SCI4
+  AddVTEntry(0x00000360, "ERI4", "sci4_eri4");
+  AddVTEntry(0x00000364, "RXI4", "sci4_rxi4");
+  AddVTEntry(0x00000368, "TXI4", "sci4_txi4");
+  AddVTEntry(0x0000036C, "TEI4", "sci4_tei4");
+  // HCAN
+  AddVTEntry(0x00000370, "ERS", "hcan_ers");
+  AddVTEntry(0x00000374, "OVR", "hcan_ovr");
+  AddVTEntry(0x00000378, "RM", "hcan_rm");
+  AddVTEntry(0x0000037C, "SLE", "hcan_sle");
+
+  Message("VT Entry Point Fixups Performed\n", j);
+}
+
+static FixupJumps(void) {
+  auto ea, end, indexa, indexj, xref_from, xref_to;
+
+  ea = 0;
+  end = SegEnd(ea);
+  Message("Fixing jmp from %x to %x... ", ea, end);
+
+  for (ea; ea <= end; ea = NextAddr(ea)) {
+    if (ea == BADADDR) {
+      // Message("No more hits\n");
+      break;
+    }
+
+    // Check for "mova"
+    if (GetMnem(ea) == "mova") {
+      // Message("mova @ %x\n", ea);
+      if (Word(GetOperandValue(ea, 0)) == 0xFFFF)
+        indexa = GetOperandValue(ea, 0);
+      else
+        indexa = NextHead(ea, end) + GetOperandValue(ea, 0);
+      //Message("mova initial @ %x\n", indexa);
+
+      while (Word(indexa) == 0xFFFF) {
+        MakeWord(indexa);
+        indexa = indexa + 2;
+      }
+      //Message("mova points to @ %x\n", indexa);
+      do {
+        ea = NextAddr(ea);
+        if (GetMnem(ea) == "jmp") {
+          xref_from = ea;
+          //Message("jmp @ %x\n", xref_from);
+          break;
+        }
+
+      } while (ea != BADADDR);
+
+      indexj = indexa;
+      while (isUnknown(GetFlags(indexj))) {
+        MakeWord(indexj);
+        xref_to = indexa + Word(indexj);
+        MakeCode(xref_to);
+        AddCodeXref(xref_from, xref_to, fl_JN);
+        //Message("Adding jump from %x to %x\n", xref_from, xref_to);
+        MakeComm(indexj, "jsr " + NameEx(indexj, xref_to));
+        indexj = indexj + 2;
+        ea = indexj;
+      }
+    }
+  }
+  Message("Done\n");
+}
+
+static Fix_Missing_Code(ea, end, is_byte_check) {
+  if (ea == BADADDR || end == BADADDR) {
+    Message("nothing selected\n");
+    return;
+  }
+  Message("Fixing missing code from %x to %x... ", ea, end);
+
+  for (ea; ea <= end; ea = NextAddr(ea)) {
+    if (ea == BADADDR)
+      break;
+
+    if (isUnknown(GetFlags(ea)) && (is_byte_check || Byte(ea) == 0x2F || Byte(ea) == 0x4F)) {
+      AddEntryPoint(ea, ea, "", 1);
+      //MakeCode(ea);
+    }
+  }
+  Message("Done\n");
+}
+
+  auto ea, end, i, mutname;
+
+  ea = 0;
+  end = SegEnd(ea);
+  Message("Searching for MUT table %x to %x... ", ea, end);
+
+  for (ea; ea <= end && ea != BADADDR; ea = NextAddr(ea)) {
+    // Check for "mov.w"
+    if (GetMnem(ea) == "mov.w") {
+      //Message("Found mov.w at 0x%x\n", ea);
+      if ((GetOperandValue(ea, 0) == 0xBF || Word(NextHead(NextHead(ea, end) + GetOperandValue(ea, 0), end)) == 0xBF) && GetMnem(ea + 6) == "shll2") {
+        if (Word(NextHead(NextHead(ea, end) + GetOperandValue(ea, 0), end)) == 0xBF)
+          ea = Dword(NextAddr(NextAddr(ea + 8) + GetOperandValue(ea + 8, 0)));
+        else
+          ea = GetOperandValue(ea + 8, 0);
+        //Message("Found at 0x%x... ", ea);
+        break;
+      }
+    }
+  }
+
+  if (ea == end || ea == BADADDR) {
+    Warning("MUT table not found");
+    return;
+  }
+
+  i = 0;
+  for (ea; ea <= end; ea = ea + 4) {
+    if (ea == BADADDR || end == BADADDR) {
+      Message("No more matches...\n");
+      return;
+    }
+    if (Dword(ea) == 0xFFFFFFFF)
+      break;
+    MakeDword(ea);
+    mutname = form("808_%02X", i++);
+    SafeMakeName(Dword(ea), mutname);
+  }
+
+  // Common MUT requests
+  LabelMutVar("MUT_04", "TimingAdv", "Timing Advance Interpolated");
+  LabelMutVar("MUT_06", "TimingAdv", "Timing Advance Scaled");
+  LabelMutVar("MUT_06", "TimingAdv", "Timing Advance");
+  LabelMutVar("MUT_07", "CoolantTemp", "Coolant Temp");
+  LabelMutVar("MUT_0C", "LTFTLo", "Fuel Trim Low (LTFT)");
+  LabelMutVar("MUT_0D", "LTFTMid", "Fuel Trim Mid (LTFT)");
+  LabelMutVar("MUT_0E", "LTFTHigh", "Fuel Trim High (LTFT)");
+  LabelMutVar("MUT_0F", "STFT", "Oxygen Feedback Trim (STFT)");
+  LabelMutVar("MUT_10", "CoolantTempScaled", "Coolant Temp Scaled");
+  LabelMutVar("MUT_11", "MAFAirTempScaled", "MAF Air Temp Scaled");
+  LabelMutVar("MUT_12", "EGRTemp", "EGR Temperature");
+  LabelMutVar("MUT_13", "O2Sensor", "Front Oxygen Sensor");
+  LabelMutVar("MUT_14", "Battery", "Battery Level");
+  LabelMutVar("MUT_15", "Baro", "Barometer");
+  LabelMutVar("MUT_16", "ISCSteps", "ISC Steps");
+  LabelMutVar("MUT_17", "TPS", "Throttle Position");
+  LabelMutVar("MUT_18", "", "Open Loop Bit Array");
+  LabelMutVar("MUT_19", "", "Startup Check Bits");
+  LabelMutVar("MUT_1A", "AirFlow", "Air Flow - (TPS Idle Adder ?)");
+  LabelMutVar("MUT_1A", "", "TPS Idle Adder");
+  LabelMutVar("MUT_1C", "Load", "ECULoad");
+  LabelMutVar("MUT_1D", "AccelEnrich", "Acceleration Enrichment - (Manifold_Absolute_Pressure_Mean ?)");
+  LabelMutVar("MUT_1F", "PrevLoad", "ECU Load Previous");
+  LabelMutVar("MUT_20", "RPM_Idle_Scaled", "Engine RPM Idle Scaled");
+  LabelMutVar("MUT_21", "RPM", "Engine RPM");
+  LabelMutVar("MUT_22", "", "Idle Related Value (unknown)");
+  LabelMutVar("MUT_24", "TargetIdleRPM", "Target Idle RPM");
+  LabelMutVar("MUT_25", "ISCV_Value", "Idle Stepper Value");
+  LabelMutVar("MUT_26", "KnockSum", "Knock Sum");
+  LabelMutVar("MUT_27", "OctaneFlag", "Octane Level");
+  LabelMutVar("MUT_29", "InjPulseWidth", "Injector Pulse Width (LSB)");
+  LabelMutVar("MUT_2A", "InjPulseWidth", "Injector Pulse Width (MSB)");
+  LabelMutVar("MUT_2C", "AirVol", "Air Volume");
+  LabelMutVar("MUT_2D", "", "Ignition Battery Trim");
+  LabelMutVar("MUT_2E", "", "Vehicle speed Frequency");
+  LabelMutVar("MUT_2F", "Speed", "Speed");
+  LabelMutVar("MUT_30", "Knock", "Knock Voltage");
+  LabelMutVar("MUT_31", "VE", "Volumetric Efficiency");
+  LabelMutVar("MUT_32", "AFRMAP", "Air/Fuel Ratio (Map reference)");
+  LabelMutVar("MUT_33", "Corr_TimingAdv", "Corrected Timing Advance");
+  LabelMutVar("MUT_34", "", "MAP Index");
+  LabelMutVar("MUT_35", "", "Limp Home Fuel TPS Based");
+  LabelMutVar("MUT_36", "", "Active Fault Count");
+  LabelMutVar("MUT_37", "Stored Fault Count", "Count");
+  LabelMutVar("MUT_38", "MAP", "Boost (MDP)");
+  LabelMutVar("MUT_39", "", "Fuel Tank Pressure");
+  LabelMutVar("MUT_3A", "UnscaledAirTemp", "Unscaled Air Temperature");
+  LabelMutVar("MUT_3B", "", "Masked Map Index");
+  LabelMutVar("MUT_3C", "O2Sensor2", "Rear Oxygen Sensor #1");
+  LabelMutVar("MUT_3D", "", "Front Oxygen Sensor #2");
+  LabelMutVar("MUT_3E", "", "Rear Oxygen Sensor #2");
+  LabelMutVar("MUT_3F", "", "Short Term Fuel Feedback Trim O2 Map Index");
+  LabelMutVar("MUT_40", "", "Stored Faults Lo");
+  LabelMutVar("MUT_41", "", "Stored Faults Hi");
+  LabelMutVar("MUT_42", "", "Stored Faults Lo 1");
+  LabelMutVar("MUT_43", "", "Stored Faults Hi 1");
+  LabelMutVar("MUT_44", "", "Stored Faults Lo 2");
+  LabelMutVar("MUT_45", "", "Stored Faults Hi 2");
+  LabelMutVar("MUT_47", "", "Active Faults Lo");
+  LabelMutVar("MUT_48", "", "Active Faults Hi");
+  LabelMutVar("MUT_49", "ACRelaySw", "Air Conditioning Relay");
+  LabelMutVar("MUT_4A", "PurgeDuty", "Purge Solenoid Duty Cycle");
+  LabelMutVar("MUT_4C", "", "Fuel Trim Low Bank 2");
+  LabelMutVar("MUT_4D", "", "Fuel Trim Mid Bank 2");
+  LabelMutVar("MUT_4E", "", "Fuel Trim High Bank 2");
+  LabelMutVar("MUT_4F", "", "Oxygen Feedback Trim Bank 2");
+  LabelMutVar("MUT_50", "", "Long Fuel Trim Bank 1");
+  LabelMutVar("MUT_51", "", "Long Fuel Trim Bank 2");
+  LabelMutVar("MUT_52", "", "Rear Long Fuel Trim Bank 1");
+  LabelMutVar("MUT_53", "", "Rear Long Fuel Trim Bank 2");
+  LabelMutVar("MUT_54", "AccelEnrichTPS", "Acceleration Enrichment (increasing TPS)");
+  LabelMutVar("MUT_55", "DecelLeanTPS", "Deceleration Enleanment (decreasing TPS)");
+  LabelMutVar("MUT_56", "AccelLoadChg", "Acceleration Load Change");
+  LabelMutVar("MUT_57", "DecelLoadChg", "Deceleration Load Change");
+  LabelMutVar("MUT_58", "", "AFR Ct Adder");
+  LabelMutVar("MUT_5B", "", "Rear O2 Voltage");
+  LabelMutVar("MUT_5C", "", "ADC Rear O2 Voltage");
+  LabelMutVar("MUT_60", "", "Rear O2 Trim - Low");
+  LabelMutVar("MUT_61", "", "Rear O2 Trim - Mid");
+  LabelMutVar("MUT_62", "", "Rear O2 Trim - High");
+  LabelMutVar("MUT_63", "", "Rear O2 Feedback Trim");
+  LabelMutVar("MUT_6A", "knock_adc", "knock adc processed");
+  LabelMutVar("MUT_6B", "knock_base", "knock base");
+  LabelMutVar("MUT_6C", "knock_var", "knock var (AKA Knock Sum Addition)");
+  LabelMutVar("MUT_6D", "knock_change", "knock change");
+  LabelMutVar("MUT_6E", "knock_dynamics", "knock dynamics");
+  LabelMutVar("MUT_6F", "knock_flag", "knock flag (AKA Knock Acceleration)");
+  LabelMutVar("MUT_70", "", "Array of Serial Receive Data Register 2 RDR 2 Values");
+  LabelMutVar("MUT_71", "", "Sensor Error");
+  LabelMutVar("MUT_72", "", "Knock Present");
+  LabelMutVar("MUT_73", "", "Throttle Position Delta 1");
+  LabelMutVar("MUT_74", "", "Throttle Position Delta 2");
+  LabelMutVar("MUT_76", "ISCV % Demand", "ISCV % Demand (Columns)");
+  LabelMutVar("MUT_79", "InjectorLatency", "Injector Latency");
+  LabelMutVar("MUT_7A", "", "Continuous Monitor Completion Status 1");
+  LabelMutVar("MUT_7B", "", "Continuous Monitor Completion Status 2");
+  LabelMutVar("MUT_7C", "", "Continuous Monitor Completion Status 3");
+  LabelMutVar("MUT_7D", "", "Non Continuous Monitor Completion Status OBD");
+  LabelMutVar("MUT_7E", "", "Continuous Monitor Completion Status Low 4");
+  LabelMutVar("MUT_7F", "", "Continuous Monitor Completion Status High 4");
+  LabelMutVar("MUT_80", "", "ECU ID Type (LSB)");
+  LabelMutVar("MUT_81", "", "ECU ID Type (MSB)");
+  LabelMutVar("MUT_82", "", "ECU ID Version");
+  LabelMutVar("MUT_83", "", "ADC Channel F");
+  LabelMutVar("MUT_84", "ThermoFanDuty", "Thermo Fan Dutycycle");
+  LabelMutVar("MUT_85", "EgrDuty", "EGR Dutycycle");
+  LabelMutVar("MUT_86", "WGDC", "Wastegate Duty Cycle");
+  LabelMutVar("MUT_87", "FuelTemperature", "Fuel Temperature");
+  LabelMutVar("MUT_88", "FuelLevel", "Fuel Level");
+  LabelMutVar("MUT_89", "", "ADC Channel 8 2");
+  LabelMutVar("MUT_8A", "LoadError", "Load Error - (Throttle Position Corrected ?)");
+  LabelMutVar("MUT_8B", "WGDCCorr", "WGDC Correction");
+  LabelMutVar("MUT_8E", "", "Solenoid Duty");
+  LabelMutVar("MUT_90", "", "Timer Status Register 9 TSR9");
+  LabelMutVar("MUT_96", "MAF_ADC", "RAW MAF ADC value");
+  LabelMutVar("MUT_9A", "ACClutch", "AC clutch");
+  LabelMutVar("MUT_9B", "", "Output Pins");
+  LabelMutVar("MUT_A2", "CrankPulse", "Crankshaft sensor pulse");
+  LabelMutVar("MUT_A2", "MafPulse", "MAF sensor pulse");
+  LabelMutVar("MUT_A2", "CamPulse", "Camshaft sensor pulse");
+  LabelMutVar("MUT_A8", "ATInShaftPulse", "Input shaft speed pulse (A/T)");
+  LabelMutVar("MUT_A8", "ATOutShaftPulse", "Output shaft speed pulse (A/T)");
+  LabelMutVar("MUT_A8", "ATGearL", "Gear: Low (A/T)");
+  LabelMutVar("MUT_A8", "ATGear2", "Gear: 2 (A/T)");
+  LabelMutVar("MUT_A8", "ATGear3", "Gear: 3 (A/T)");
+  LabelMutVar("MUT_A9", "O2HeaterFrontLeft", "Front O2 heater bank 1 (left)");
+  LabelMutVar("MUT_A9", "O2HeaterRearLeft", "Rear O2 heater bank 1 (left)");
+  LabelMutVar("MUT_A9", "O2HeaterFrontRight", "Front O2 heater bank 2 (right)");
+  LabelMutVar("MUT_A9", "O2HeaterRearRight", "Rear O2 heater bank 2 (right)");
+  LabelMutVar("MUT_AA", "Braking", "Brakes Pressed");
+  LabelMutVar("MUT_B3", "ATGearNeutral", "Gear: Neutral (A/T)");
+  LabelMutVar("MUT_B3", "ATGearDrive", "Gear: Drive (A/T)");
+  LabelMutVar("MUT_B4", "ATGearPark", "Gear: Park (A/T)");
+  LabelMutVar("MUT_B4", "ATGearRev", "Gear: Reverse (A/T)");
+  LabelMutVar("MUT_B7", "O2HeaterBrokenFrRt", "front O2 heater circuit open (broken): bank 2 (right)");
+  LabelMutVar("MUT_B8", "O2HeaterBrokenFrLt", "front O2 heater circuit open (broken): bank 1 (left)");
+  LabelMutVar("MUT_B8", "NewACSwitch", "Air Conditioning Switch (Mattjin)");
+  LabelMutVar("MUT_B8", "PowerSteering", "Power Steering");
+  LabelMutVar("MUT_B9", "O2HeaterBrokenRearRt", "rear O2 heater circuit open (broken): bank 2 (right)");
+  LabelMutVar("MUT_BA", "O2HeaterBrokenRearLt", "rear O2 heater circuit open (broken): bank 1 (left)");
+
+  // Common MUT commands
+  LabelMutVar("MUT_C3", "", "SAS (Speed Adjusting Screw)");
+  LabelMutVar("MUT_C5", "", "Purge solenoid venting");
+  LabelMutVar("MUT_CA", "", "Invalid command");
+  LabelMutVar("MUT_CB", "", "Invalid command");
+  LabelMutVar("MUT_CD", "", "A/C fan high");
+  LabelMutVar("MUT_CE", "", "A/C fan low");
+  LabelMutVar("MUT_CF", "", "Main fan high");
+  LabelMutVar("MUT_D0", "", "Main fan low");
+  LabelMutVar("MUT_D2", "", "Lower RPM");
+  LabelMutVar("MUT_D3", "", "Boost control solenoid");
+  LabelMutVar("MUT_D5", "", "EGR solenoid");
+  LabelMutVar("MUT_D6", "", "Fuel pressure solenoid");
+  LabelMutVar("MUT_D7", "", "Purge solenoid");
+  LabelMutVar("MUT_D8", "", "Fuel pump");
+  LabelMutVar("MUT_D9", "", "Fix timing at 5 degrees");
+  LabelMutVar("MUT_DA", "", "Disable injector 1");
+  LabelMutVar("MUT_DB", "", "Disable injector 2");
+  LabelMutVar("MUT_DC", "", "Disable injector 3");
+  LabelMutVar("MUT_DD", "", "Disable injector 4");
+  LabelMutVar("MUT_DE", "", "Disable injector 5 (unused)");
+  LabelMutVar("MUT_DF", "", "Disable injector 6 (unused)");
+  LabelMutVar("MUT_EC", "", "Calibration F6A");
+  LabelMutVar("MUT_ED", "", "Calibration");
+  LabelMutVar("MUT_EE", "", "Calibration");
+  LabelMutVar("MUT_EF", "", "Calibration");
+  LabelMutVar("MUT_F3", "", "Cancel previously-active command (ie. SAS mode)");
+  LabelMutVar("MUT_F9", "", "some keep alive function to keep the accuator engaged. response is 0xff");
+  LabelMutVar("MUT_FA", "", "Clear active and stored faults");
+  LabelMutVar("MUT_FB", "", "Force tests to run");
+  LabelMutVar("MUT_FC", "", "Clear active faults");
+  LabelMutVar("MUT_FE", "", "Immobilizer");
+  LabelMutVar("MUT_FF", "", "Init code");
+
+  Message("Done\n");
+}
+
+static FixDataOffsets(void) {
+  auto ea, end, disass;
+
+  ea = 0;
+  end = SegEnd(ea);
+  if (ea == BADADDR || end == BADADDR) {
+    Message("nothing selected\n");
+    return;
+  }
+  Message("Fixing offsets from %x to %x... ", ea, end);
+
+  for (ea; ea <= end; ea = NextAddr(ea)) {
+    if (ea == BADADDR)
+      break;
+
+    // Check for loc_, off_xxx + y
+    disass = GetDisasm(ea);
+
+    if ((strstr(disass, ".data.l loc_") != -1 && strstr(disass, "+") != -1) ||
+        (strstr(disass, ".data.l off_") != -1 && strstr(disass, "+") != -1)) {
+      //Message("fixing %s  @0x%x\n", disass, ea);
+      MakeWord(ea);
+    }
+  }
+  Message("Done\n");
+}
+
+static FixConstants(void) {
+  auto ea, end, disass;
+
+  ea = 0x1500;
+  end = 0x3500;
+
+  Message("Fixing constants from %x to %x... ", ea, end);
+  for (ea; ea <= end && ea != BADADDR; ea = NextAddr(ea)) {
+    if (Name(ea) == "" || strstr(Name(ea), "unk_") == 0)
+      MakeWord(ea);
+  }
+  Message("Done\n");
+}
+
+static CreateStructures() {
+  auto id, mem;
+  if (GetStrucIdByName("map_3d_byte") < 0) {
+    id = AddStrucEx(-1, "map_3d_byte", 0);
+    AddStrucMember(id, "dimensions", -1, FF_BYTE | FF_0NUMD, 0, 1);
+    AddStrucMember(id, "adder", -1, FF_BYTE | FF_0NUMD, 0, 1);
+    AddStrucMember(id, "index_x", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "index_y", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "nrows", -1, FF_BYTE | FF_0NUMD, 0, 1);
+    AddStrucMember(id, "data", -1, FF_BYTE | FF_0NUMD, 0, 0);
+  }
+  if (GetStrucIdByName("map_3d_word") < 0) {
+    id = AddStrucEx(-1, "map_3d_word", 0);
+    AddStrucMember(id, "dimensions", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "adder", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "index_x", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "index_y", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "nrows", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "data", -1, FF_BYTE | FF_0NUMD, 0, 0);
+  }
+  if (GetStrucIdByName("map_2d_byte") < 0) {
+    id = AddStrucEx(-1, "map_2d_byte", 0);
+    AddStrucMember(id, "dimensions", -1, FF_BYTE | FF_0NUMD, 0, 1);
+    AddStrucMember(id, "adder", -1, FF_BYTE | FF_0NUMD, 0, 1);
+    AddStrucMember(id, "index_x", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "data", -1, FF_BYTE | FF_0NUMD, 0, 0);
+  }
+  if (GetStrucIdByName("map_2d_word") < 0) {
+    id = AddStrucEx(-1, "map_2d_word", 0);
+    AddStrucMember(id, "dimensions", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "adder", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "index_x", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "data", -1, FF_BYTE | FF_0NUMD, 0, 0);
+  }
+  if (GetStrucIdByName("axis_table") < 0) {
+    id = AddStrucEx(-1, "axis_table", 0);
+    AddStrucMember(id, "output", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "input", -1, FF_DWRD, 0, 4);
+    AddStrucMember(id, "length", -1, FF_WORD | FF_0NUMD, 0, 2);
+    AddStrucMember(id, "data", -1, FF_WORD | FF_0NUMD, 0, 0);
+  }
+
+}
+
+static WellKnownFunc(ea, name, comment) {
+  if (ea == BADADDR)
+    return;
+  SafeMakeName(ea, name);
+  MakeCode(ea);
+  SetFunctionFlags(ea, 0);
+  MakeFunction(ea, BADADDR);
+  if (comment != "" && GetFunctionCmt(ea, 0) == "")
+    SetFunctionCmt(ea, comment, 0);
+}
+
+static LabelLibraryFuncs() {
+  auto start, ea, i, end;
+
+  {
+    // Label the enable and disable_interrupts functions, and the global variables they use
+    start = 0x400;
+    end = GetFunctionAttr(start, FUNCATTR_END);
+    WellKnownFunc(start, "disable_interrupts", "Set interrupt mask of SR to 15, storing the old SR on the stack");
+    for (i = start; i != BADADDR; i = NextHead(i, end)) {
+      if (GetMnem(i) == "mov.l" && GetOpnd(i, 1) == "r0") {
+        SafeMakeName(Dnext(i, Dfirst(i)), "sr_stack_ptr");
+        break;
+      }
+    }
+  }
+
+/*
+  WellKnownFunc(0x41E, "enable_interrupts", "Restore the previous SR, pushed to the stack by disable_interrupts");
+  WellKnownFunc(0x430, "set_interrupt_mask", "Set a specific interrupt mask in SR. Takes a 4 bit number in R4 for the mask.");
+  WellKnownFunc(0x500, "add_capped", "Add R4 and R5, storing WORD result in R0, max 0xFFFF");
+  WellKnownFunc(0x514, "add_r4_and_r5", "Add R4 and R5, storing WORD result in R0");
+  WellKnownFunc(0x51C, "add_word_capped", "Add R4 and R5, storing WORD result in R0, max 0xFFFF");
+  WellKnownFunc(0x52C, "memclear", "Clear RAM between R4 and R5");
+  WellKnownFunc(0x53e, "decrement_block", "Subtract 1 from all words between R4 and R5. R4 is set to the next word after R5.");
+  WellKnownFunc(0x562, "increment_block", "Add 1 to all words between R4 and R5. R4 is set to the next word after R5.");
+  WellKnownFunc(0x590, "min_ff", "Set R0 the BYTE minimum of R4 and 0xFF");
+  WellKnownFunc(0x598, "min_ffff", "Set R0 the WORD minimum of R4 and 0xFFFF");
+  WellKnownFunc(0x5A8, "max_3_word", "Return the WORD maximum of R4, R5, R6 in R0");
+  WellKnownFunc(0x5B0, "max_3", "Return the maximum of R4, R5, R6 in R0");
+  WellKnownFunc(0x5D0, "r4_mult_r5_div_r6_capped_to_R0", "Lesser of ((R4*R5)/R6) and 0xFFFF -> R0");
+  WellKnownFunc(0x5E8, "r4_mult_r5_div_r6_to_R0", "Multiply R4 by R5, divide by R6 and return result in R0, capped at 0xFFFFFFFF");
+  WellKnownFunc(0x68A, "multR4R5divr6", "(((R4 * R5) / r6) + 1/2) -> R0");
+  WellKnownFunc(0x6A2, "sub_6A2", "(((R4 * R5) / r6) + 1/2) -> R0");
+  WellKnownFunc(0x752, "sub_752", "Lesser of [(R4 * R5) / 128] and 0xFFFF");
+  WellKnownFunc(0x762, "r0_is_r4_x_r5", "Lesser of ([(R4 * R5) / 128] + 1/2) and 0xFFFF -> R0");
+  WellKnownFunc(0x780, "r4xr5_strange", "Lesser of [(R4 * R5) / 128] and 0xFFFFFFFF -> R0, R5 is word length, R4 can be long word");
+  WellKnownFunc(0x7A6, "sub_7A6", "Lesser of [(R4 * R5) / 128] and 0xFFFFFFFF -> R0");
+  WellKnownFunc(0x7D0, "r4xr5", "Lesser of [(R4 * R5) / 256] and 0xFFFF -> R0");
+  WellKnownFunc(0x7E6, "sub_7E6", "Lesser of [(R4 * R5) / 256] and 0xFFFFFFFF -> R0");
+  WellKnownFunc(0x804, "r4_mult_r5_div_64_add_1_etc2_into_r0", "Lesser of ([(R4 * R5) / 256] +1/2) and 0xFFFF -> R0");
+  WellKnownFunc(0x864, "shlr8_byte", "(R4 / 256) -> R0");
+  WellKnownFunc(0x86A, "shlr16_word", "(R4 / 65536) -> R0");
+  WellKnownFunc(0x870, "shll8_byte", "(R4 * 256) -> R0");
+  WellKnownFunc(0x876, "shll16_word", "(R4 * 65536) -> R0");
+  WellKnownFunc(0x87C, "second_byte_plus_1", "Lesser of (MSB of R4) and (0xFF) -> R0");
+  WellKnownFunc(0x898, "second_word_plus_1", "Lesser of (MSW of R4) and (0xFFFF) -> R0");
+  WellKnownFunc(0x8B8, "NOT_SHLL8_OR_R4_INTO_R0", "inv(byte(R4))|byte(R4) -> R0 (word length value is result)");
+  WellKnownFunc(0x8C4, "R5_Div_R4_Into_R0", "min(R4 / R5, 0xFFFF) -> R0");
+  WellKnownFunc(0x902, "divide_long_by_word", "min(R4 / R5, 0xFFFF) -> R0");
+  WellKnownFunc(0x9B0, "divide_words", "min((R4 / R5) + 1/2), 0xFFFF) -> R0");
+  WellKnownFunc(0x9F2, "R4_DIV_R5_Into_R0_0", "min((R4 / R5) + 1/2, 0xFFFF) -> R0");
+  WellKnownFunc(0x9FA, "sub_9FA", "min((R4 / R5) + 1/2, 0xFFFF) -> R0");
+  WellKnownFunc(0xAB8, "R5x_R0minusR6_plusR6xR4", "min(((R4 * r6) + (R5 * (256 - r6))) / 256), 0xFFFF) -> R0");
+  WellKnownFunc(0xAE0, "sub_AE0", "min((R4 * r6) + (R5 * (256 - r6)) / 256, 0xFFFFFFFF) -> R0");
+  WellKnownFunc(0xB16, "BETWEEN_R4_R5byR6", "min((R4 * r6 + R5 * (255 - R6)) / 255, 0x????) -> R0. This is a sub to interpolate between R4 and R5 using r6");
+  WellKnownFunc(0xD7A, "sub_D7A", "Linear Interpolation of R4 and R5 using r6 as the scalar, results -> R0");
+  WellKnownFunc(0xDC6, "read_mapindex_byte", "Reads BYTE at (R4 + (MAPindex * 4)) into R0");
+  WellKnownFunc(0xDD2, "read_mapindex_word", "Reads WORD at (R4 + (MAPindex * 4)) into R0");
+  WellKnownFunc(0xDE0, "table_lookup_byte_mapindex", "Call table_lookup_byte with a table at (R4 + (MAPindex * 4))");
+  WellKnownFunc(0xDF6, "read_mapindex_long", "Reads DWORD at (R4 + (MAPindex * 4)) into R0");
+  WellKnownFunc(0xEA6, "table_lookup_word_mapindex", "Call table_lookup_word with a table at (R4 + (MAPindex * 4))");
+  WellKnownFunc(0xED8, "multiply_capped", "min(R4 * R5, 0xFFFF) -> R0");
+  WellKnownFunc(0xEEE, "multiply", "min(R4 * R5, 0xFFFF) -> R0");
+  WellKnownFunc(0xEF8, "multiply_word", "Lesser of R4*R5 and 0xFFFFFFFF -> R0");
+  WellKnownFunc(0xF0C, "subtract_nowrap_word", "(R4 > R5) ? (R4 - R5) : 0  -> R0");
+  WellKnownFunc(0xF12, "subtract_nowrap_byte", "max(R4 - R5, 0) -> R0");
+
+  */
+
+  {
+    // Look for the main() function, it should be the only sub called from 'init'
+    start = Dword(0);
+    end = GetFunctionAttr(start, FUNCATTR_END);
+    for (i = start; i != BADADDR; i = NextHead(i, end)) {
+      if (GetMnem(i) == "jsr") {
+        start = Rfirst0(i);
+        // Message("Real init starts at %x\n", start);
+        WellKnownFunc(start, "main", "ROM entry point");
+        break;
+      }
+    }
+  }
+}
+
+
+//-----------------------------------------------------------------------
+// Get name of the current processor
+static get_processor(void) {
+  auto i, procname, chr;
+
+  procname = "";
+  for (i = 0; i < 8; i++) {
+    chr = GetCharPrm(INF_PROCNAME + i);
+    if (chr == 0) break;
+    procname = procname + chr;
+  }
+  return procname;
+}
+
+static main() {
+  auto processor, newaf;
+
+  SetLongPrm(INF_MAXREF, 16);
+  SetCharPrm(INF_INDENT, 22);
+  SetCharPrm(INF_COMMENT, 70);
+  SetCharPrm(INF_MARGIN, 120);
+  SetCharPrm(INF_PREFFLAG, PREF_SEGADR | PREF_FNCOFF); // show segment and function prefixes
+//  SetCharPrm(INF_NULL, 0);                           // don't generate empty lines
+  SetCharPrm(INF_CMTFLAG, SW_ALLCMT);                  // show all comments
+  SetCharPrm(INF_ASMTYPE, 0);                          // use GNU asm format
+  {
+  // Disable some analysis options that don't suit the SH2/SH4 code
+  //  newaf = GetShortPrm(INF_START_AF);
+    newaf = newaf & ~AF_MARKCODE; // Mark typical code sequences as code
+    // newaf = newaf & ~AF_FLIRT;    // Use flirt signatures
+    newaf = newaf & ~AF_PROCPTR;  // Create function if data xref->code32 exists
+    newaf = newaf & ~AF_LVAR;     // Create stack variables
+    newaf = newaf & ~AF_TRACE;    // Trace stack pointer
+    newaf = newaf & ~AF_ASCII;    // Create ascii string if data xref exists
+    newaf = newaf & ~AF_FINAL;    // Final pass of analysis
+  //  SetShortPrm(INF_START_AF, newaf);
+
+    newaf = GetShortPrm(INF_AF2);
+    newaf = newaf & ~AF2_JUMPTBL; // Locate and create jump tables
+    newaf = newaf & ~AF2_DODATA;  // Coagulate data segs in final pass
+    newaf = newaf & ~AF2_CHKUNI;  // Check for unicode strings
+    SetShortPrm(INF_AF2, newaf);
+  }
+
+  processor = get_processor_name();
+  if {(processor == "h8") {
+    Message("H8 create segment %x-%x\n", 0x10000, 0x1ffff);
+    SegCreate(0x10000, 0x1ffff, 0x0, 0, 1, 2);
+    SegRename(0x10000, "seg001");
+    SegClass (0x10000, "CODE");
+    SegDefReg(0x10000, "br", 0x0);
+    SegDefReg(0x10000, "dp", 0x1);
+    SetSegmentType(0x10000, 2);
+
+    //Message("H8/500 create segment %x-%x\n", 0x14000, 0x1ffff);
+    //SegCreate(0x14000, 0x20000, 0x0, 0, 1, 2);
+    //SegRename(0x14000, "seg001");
+    //SegClass (0x14000, "CODE");
+    //SegDefReg(0x14000, "br", 0x0);
+    //SegDefReg(0x14000, "dp", 0x1);
+    //SetSegmentType(0x14000, 2);
+
+    Message("H8/500 create segment %x-%x\n", 0x20000, 0x2ffff);
+    SegCreate(0x20000, 0x2ffff, 0x0, 0, 1, 2);
+    SegRename(0x20000, "seg002");
+    SegClass (0x20000, "CODE");
+    SegDefReg(0x20000, "br", 0x0);
+    SegDefReg(0x20000, "dp", 0x2);
+    SetSegmentType(0x20000, 2);
+
+    Message("H8/500 Creating RAM\n");
+    SegCreate(0xEE80, 0xFFFF, 0, 1, saRelWord, 0);
+    SegRename(0XEE80, "RAM");
+
+    MakeNameEx(0x0001021A, "rom_id", SN_NOLIST);
+    MakeDword(0x0001021A);
+
+    LowVoids(0);
+    HighVoids(H8_CODE_OFFSET);
+  } else {
+    Message("Unknown processor type %s\n", processor);
+  }
+}
