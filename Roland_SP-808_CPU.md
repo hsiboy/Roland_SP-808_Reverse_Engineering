@@ -102,16 +102,11 @@ Legend:
 In advanced mode the top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits:
 
 ```
-           ┌──────────────────────────────────┐
-H'00000000 │            Reserved              │
-           │----------------------------------│
-           │----                          ----│
-           │ Power-on reset exception vector  │
-           │----                          ----│
+H'00000000 ┌──────────────────────────────────┐
+H'00000001 │                                  │
+H'00000002 │ Power-on reset exception vector  │
 H'00000003 ├──────────────────────────────────┤
-H'00000004 │             Reserved             │
-           │----------------------------------│
-           │----                          ----│
+H'00000004 │----                          ----│
            │   Manual reset exception vector  │
            │----                          ----│
 H'00000007 ├──────────────────────────────────┤
@@ -122,24 +117,60 @@ H'0000000B │----                          ----│
 H'0000000C │----                              │
            │----                          ----│
            │----                          ----│
-           ├──────────────────────────────────┤
-H'00000010 │             Reserved             │
-           │----------------------------------│
-           │----                          ----│
-           │        Exception vector 1        │
-           │----                          ----│
-           ├──────────────────────────────────┤
-           │                                  │
+H'00000013 ├──────────────────────────────────┤
            │                   ,-'"`-._,-'"`-─┘
            └─`-._,-'"`"`-._,-'"`
 
 ```
 *Exception Vector Table (Advanced Mode)*
 
+| Exception Source | Vector | Address |
+| --- | --- | --- |
+| Power-on reset | 0 | H'0000 to H'0003 |
+| Manual reset | 1 | H'0004 to H'0007 |
+|Reserved for system use | 2 | H'0008 to H'000B|
+| -:- | 3 | H'000C to H'000F |
+| -:- | 4 | H'0010 to H'0013 |
+|Trace | 5| H'0014 to H'0017 |
+|Reserved for system use | 6 | H'0018 to H'001B | 
+|External interrupt NMI | 7 | H'001C to H'001F |
+|Trap instruction (4 sources) | 8 | H'0020 to H'0023|
+| -:- | 9 | H'0024 to H'0027|
+| -:- | 10 | H'0028 to H'002B|
+| -:- | 11 | H'002C to H'002F|
+|Reserved for system use | 12| H'0030 to H'0033 |
+| -:- | 13 | H'0034 to H'0037 |
+| -:- | 14 | H'0038 to H'003B |
+| -:- | 15 | H'003C to H'003F |
+|External interrupt| | |
+|IRQ<sub>0</sub> |16| H'0040 to H'0043|
+|IRQ<sub>1</sub> |17 | H'0044 to H'0047 |
+|IRQ<sub>2</sub> |18 | H'0048 to H'004B|
+|IRQ<sub>3</sub> |19 | H'004C to H'004F|
+|IRQ<sub>4</sub> |20 | H'0050 to H'0053|
+|IRQ<sub>5</sub> |21 | H'0054 to H'0057|
+|IRQ<sub>6</sub> |22 | H'0058 to H'005B|
+|IRQ<sub>7</sub> |23 | H'005C to H'005F|
+|Internal interrupt<sup>2</sup>| 24| H'0060 to H'0063
+|  -:- | ↓ |  ↓ |
+|   -:- | 91 | H'016C to H'016F |
 
 For details of the exception vector table, see section 4, Exception Handling in the Hardware Manual.
 
 ---
+
+## RAM
+
+The H8S/2655 Group has 4 kbytes of on-chip high-speed static RAM. The RAM is connected to the CPU by a 16-bit data bus, enabling one-state access by the CPU to both byte data and word data. This makes it possible to perform fast word data transfer.
+The on-chip RAM can be enabled or disabled by means of the RAM enable bit (RAME) in the system control register (SYSCR).
+
+| Name | Abbreviation | R/W | Initial Value | Address<sup>*</sup>|
+|---|---|---|---|---|
+| System control register| SYSCR |R/W | H'01 | H'FF39|
+
+<sup>*</sup> Lower 16 bits of the address
+
+When the RAME bit is set to 1, accesses to addresses H'FFEC00 to H'FFFBFF are directed to the on-chip RAM. When the RAME bit is cleared to 0, the off-chip address space is accessed.
 
 ## ROM (PROM)
 
@@ -169,7 +200,7 @@ It has sixty-nine basic instructions
 - Normal mode: 64-kbyte address space
 - Advanced mode: 16-Mbyte address space
 
-It should be noted that people have stated that the is backaward compatible with the Hitachi H8/300H CPU family
+It should be noted that people have stated that the H8/2600 is backaward compatible with the Hitachi H8/300H CPU family
 
 In comparison to the H8/300 CPU, the H8S/2600 CPU has the following enhancements:
 * More general registers and control registers
@@ -202,6 +233,11 @@ Using objdump from that package decompiles correctly and understand all of the c
 > The H8 line of CPUs is bigendian
 
 I can't find anything in the manuals that explains what address code execution starts at. The manuals do explain that the chip has an 'advanced mode', and in that mode, address 0x00 contains an exception table with addresses to jump to. The first 4 bytes should have the address, but we appear to have a string in the Roland Firmware 🤔
+
+```hex
+00000000  5a 12 cc 54 54 53 32 35  45 53 59 53 00 13 03 e9  |Z..TTS25ESYS....|
+00000010  00 01 01 00 00 0c 00 00  52 6f 6c 61 6e 64 45 43  |........RolandEC|
+```
 
 The manual explains that the exception vector table starts at 0x00 and first exception is the restart exception. The CPU handles boot as an exception (power glitch?), so the first four bytes in the firmware, should be a 32 bit address that points to the first instruction, not an ascii string.
 
