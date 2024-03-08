@@ -30,6 +30,61 @@ Pin 60 is TXD<sub>1</sub> and pin 62 is RXD<sub>1</sub>, this serial interace is
 > [!NOTE]
 > Need to investigate what (if anything) is on this port during operation, or can it be used with H8/300 debug tools like the E6000?
 
+---
+
+## Memory Map
+
+> [!NOTE]
+> Page 107 of Hardware manual, figure 3.3
+
+```
+           ┌──────────────────────────────────┐
+H'00000000 │                                  │
+           │                                  │
+           │                                  │
+           │                                  │
+           │          On-chip ROM             │
+           │            (FLASH)               │
+           │          512 kbytes              │
+           │                                  │
+           │                                  │
+H'0000FFFF │                                  │
+           ├──────────────────────────────────┤
+H'00010000 │                                  │
+           │                                  │
+           │                                  │
+           │                                  │
+           │                                  │
+           │  On-chip ROM / external address  │
+           │        space/reserved area*      │
+           │                                  │
+           │                                  │
+           │                                  │
+H'0001FFFF │                                  │
+           ├──────────────────────────────────┤
+H'00020000 │                                  │
+           ≡       External address space     ≡ 
+           │                                  │
+           ├──────────────────────────────────┤
+H'00FFEC00 │                                  │
+           │           On Chip RAM            │
+H'00FFFBFF │                                  │
+           ├──────────────────────────────────┤
+H'00FFFC00 │      External address space      │
+           ├──────────────────────────────────┤
+H'00FFFE3F │     Internal I/O Registers       │
+           ├──────────────────────────────────┤
+H'00FFFF08 │      External address space      │
+           ├──────────────────────────────────┤
+H'00FFFF28 │      Internal I/O Registers      │
+H'00FFFFFF └──────────────────────────────────┘
+
+```
+
+> [!NOTE]
+> On-chip ROM / External address space:
+> When the EAE bit in BCRL is set to 1, this area is a reserved area in the H8S/2653.
+
 
 
 ---
