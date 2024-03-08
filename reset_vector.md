@@ -52,6 +52,13 @@ So, perhaps our vector is at `H'00000020`?
 
 That would give us `10 6D F2` which is again, still bigger than `C0004`, unless of course, the whole file needs to be offset by `100000`? 
 
+> [!NOTE]
+> We don't know what the memory map is, and IDA doesn't/can't help us, so we will have to make some assumptions.
+
+---
+
+
+
 eye balling the firmware in a hex viewer, i can see that the file is zero padded from `7C883` to `BFFD0A`
 
 ```
@@ -65,6 +72,5 @@ eye balling the firmware in a hex viewer, i can see that the file is zero padded
 000c0000  00 00 00 00                                       |....|
 000c0004
 ```
-
 
 
