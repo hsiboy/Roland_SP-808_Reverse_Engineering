@@ -44,8 +44,7 @@ H'00000000 │                                  │
            │                                  │
            │                                  │
            │          On-chip ROM             │
-           │            (FLASH)               │
-           │          512 kbytes              │
+           │           64 kbytes              │
            │                                  │
            │                                  │
 H'0000FFFF │                                  │
@@ -68,7 +67,7 @@ H'00020000 │                                  │
            ├──────────────────────────────────┤
 H'00FFEC00 │                                  │
            │           On Chip RAM            │
-H'00FFFBFF │                                  │
+H'00FFFBFF │            4 Kbytes              │
            ├──────────────────────────────────┤
 H'00FFFC00 │      External address space      │
            ├──────────────────────────────────┤
@@ -85,6 +84,23 @@ H'00FFFFFF └──────────────────────
 > On-chip ROM / External address space:
 > When the EAE bit in BCRL is set to 1, this area is a reserved area in the H8S/2653.
 
+---
+
+Device: HD6432653 [QFP128]</br>
+Manufacturer: Hitachi</br>
+Part number description for this device: `HD FD M NNNNN P V PT TR HZ E`
+
+| HD | Hitachi Digital | CMOS Process |
+| :- | :- | :- |
+| FD | Family Descriptor | 64 = Microcontroller |
+| M | On-Chip Memory Type | 1 = ROMless</br>3 = Masked ROM</br>7 = OTP</br>8 = EEPROM</br>F = Flash</br>N = EEPROM Multi-Chip package |
+| NNNNN | Specific Series | 3NNNN, 5NNN = H8 </br>2NNN = H8S </br>7NNN = SH </br>36NNN = H8-Tiny |
+| P | Product Version | default is blank |
+| V | Low Voltage | Blank </br>G = 5V operation </br>L = 3.3V operation|
+| PT | Package Type | P = SDIP</br> C = Windowed SDIP</br> CP = PLCC </br>F, H, FZ = QFP</br>FY, FX, FP = LQFP</br> TE,T,W, X = TQFP |
+| TR | Temperature Range | Blank = -20°C to 75°C (Standard) </br>I, J,W = -40°C to 85°C (Extended, Wide range)</br>JE = -40°C to 105°C</br>K = -40°C to 125°C |
+| HZ | Maximum Speed (MHz)| - |
+| E | Environment Option | V = Lead-free product|
 
 
 ---
