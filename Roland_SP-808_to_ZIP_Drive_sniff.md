@@ -1,5 +1,8 @@
 The data below was collected from the ATA bus of a Roland SP-808 and is a capture of the data on the bus, during boot up, with a Roland formatted disk in the drive.
 
+> [!NOTE]
+> DDRQ and DDRACK pins (21 & 29) of the IDE interface on the SP-808 are shown in the service manual as not connected, this means the SP-808 hardware is incapable of performing DMA operations.
+
 ```
 0: REG: 6, WR<-, data: 0C - Dev Control
 1: REG: 6, WR<-, data: 08 - Dev Control
