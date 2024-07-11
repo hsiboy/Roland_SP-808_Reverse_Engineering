@@ -1,6 +1,42 @@
 # Zip Drives
 
 
+## Different Types Of IDE Zip Drives
+There are at least four different kinds of IDE Zip drives - the original ATA version, the ATAPI version which replaced it, an ATAPI2 version which seems to have replaced the original ATAPI Zip, and an ATAPI3 version which will probably replace the ATAPI2 . The various types of IDE Zip drives can be differentiated in the following ways:
+
+* The OG ATA Zip has a separate access light and eject button in addition to a manual eject hook on the front of the drive. 
+* All ATAPI Zip's have an eject button which doubles as the access light, and they lack the manual eject hook (they have a hole in the back of the drive for this purpose, so you would have to open up the computer to use it).
+
+To identify an ATAPI2 or ATAPI3 Zip drive, view the label on top of the drive. Beneath the diagram of jumper settings, you should see a part number which begins with P/N. Following that number, it will say ATAPI2 or ATAPI3 if it is one (and if it's an ATAPI2, it may not show all of the available jumper settings on that diagram).
+
+> [!IMPORTANT]
+> Different types of IDE Zip drives use different jumper settings, so it's important to know which type you have.
+
+<br>
+
+> [!TIP]
+> * The firmware revisions for the ATA Zip are in the form of B.29 (letter before number). 
+> * For the ATAPI Zip drives, they should be in the form of 23.D or 14.A (number before letter). 
+
+
+---
+
+The ATAPI2 Zip has some special configuration issues - especially when it's set for drive A: mode. You can find some ATAPI2-specific information here.
+
+I'm told that the ATAPI3 Zip no longer supports drive A: mode as the ATAPI2 model did. Apparently, Iomega decided that it was more trouble than it was worth.
+
+Connecting The Drive
+I think it's usually best to connect an IDE Zip drive as master on the secondary port. Slaving a Zip drive to a CD drive may cause problems because some CD drives don't support a slave drive properly (among other things, it seems that this can cause the hard disk access light to remain steadily lit). While an IDE Zip may work OK on some systems when slaved to a CD drive, there are times when it won't. The configuration with the least potential for trouble would be to make the Zip master on the secondary port.
+
+Since Zip drives are jumpered for slave by default, you will need to move the jumper(s) to the master setting when connecting one as such.
+
+This follwing information came from Iomega's ATAPI Drive A: Installation & Configuration manual which was intended for OEMs. The manual which is included in the retail package with the ATAPI2 Zip does not contain most of this information - perhaps because of the problems which could arise if the average consumer tried to use the drive A: jumper settings.
+
+To identify an ATAPI2 Zip drive, view the label on top of the drive. Beneath the diagram of jumper settings, you should see a part number which begins with P/N. Following that number, it will say ATAPI2 if it is one.
+
+---
+
+
 The ATAPI (ATA Packet Interface) Zip drive is a type of removable storage device that follows the ATAPI protocol, which is an extension of the ATA (Advanced Technology Attachment) standard. The Zip drive was developed by Iomega Corporation and gained popularity as a high-capacity storage solution in the late 1990s and early 2000s.
 
 1. Interface: The ATAPI Zip drive connects to the host computer using an IDE (Integrated Drive Electronics) interface, also known as ATA. It typically utilizes a 40-pin IDE connector for data and control signals.
