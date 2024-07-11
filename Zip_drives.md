@@ -57,6 +57,37 @@ Overall, the ATAPI Zip drive provided a convenient and high-capacity storage sol
 
 ---
 
+```
+The device identity as reported by hdparm for windows is:
+
+ATAPI Direct-access device, with removable media
+Model Number: IOMEGA ZIP 250 ATAPI
+Serial Number: 00304881E6961127
+Firmware Revision: 25.Q
+Standards:
+Supported: 4
+Likely used: 4
+Configuration:
+DRQ response: <=10ms with INTRQ
+Packet size: 12 bytes
+Capabilities:
+LBA, IORDY(can be disabled)
+DMA: mdma0 mdma1 udma0 udma1 *udma2
+Cycle time: min=150ns recommended=150ns
+PIO: pio0 pio1 pio2 pio3
+Cycle time: no flow control=180ns IORDY flow control=180ns
+Commands/features:
+Enabled Supported:
+* Power Management feature set
+* PACKET command feature set
+* DEVICE_RESET command
+* NOP cmd
+* Removable Media Status Notification feature set
+Removable Media Status Notification feature set supported
+```
+
+---
+
 
 ## 40 pin IDE connector
 
