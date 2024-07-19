@@ -1,8 +1,13 @@
+# Compact Flash
+
+A collection of notes to discuss compact flash. What is it, how does it work etc.
+
 
 Compact Flash storage devices can operate in three modes:
 * PC Card Memory Mode
 * PC Card I/O Mode
 * True IDE Mode
+
 Compact Flash devices must support operation in all three modes, but they only operate in a single mode at any given time.
 The CF card senses (using pin #9) if it's connected to IDE or PCMCIA, and switches modes accordingly.
 if connected to IDE, it uses "True IDE" mode, and becomes a hardware-level PATA IDE device.
@@ -182,7 +187,7 @@ If we use the above bit definitions, then the following apply for the Zip drive:
 * removable cartridge drive
 * spindle motor control option implemented
 
-
+I've queried a bunch of CF cards that i tried in place of a zip drive.
 
 |                   CF Card                 | identify[0] | identify[7] | identify[8] | identify[82] | identify[83] | pwrmgt fails | soft rst fails |
 |:-----------------------------------------:|:-----------:|:-----------:|:-----------:|:------------:|:------------:|:------------:|:--------------:|
