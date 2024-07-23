@@ -10,5 +10,5 @@ File Handling: The script processes multiple input files matching a pattern and 
 ## Usage Example
 To use the script for the Roland VS-880, you would run:
 
-```python script.py model=vs880 infil=VS880A-1.mid outfil=VS880A.bin```
+```python rolandext.py model=vs880 infil=VS880A-1.mid outfil=VS880A.bin```
 This command will process the specified input file and extract the firmware data to the output file using the IDs configured for the VS-880 model. You can adapt the configuration for different models as needed.
