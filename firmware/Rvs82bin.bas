@@ -1,4 +1,5 @@
 ' This program extracts the firmware binary from Roland's VS-880 update
+' captured from - https://web.archive.org/web/20171024011106/http://www.users.on.net/~fzabkar/temp/Rvs82bin.bas
 
 #include "vbcompat.bi"
 
