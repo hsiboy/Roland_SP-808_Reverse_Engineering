@@ -1,7 +1,71 @@
 # SP-808 SZHC Command Table Analysis
 
 ## Overview
-During reverse engineering of the Roland SP-808's firmware, we discovered a significant table structure marked with "SZHC" that appears to define the ZIP drive validation sequence. This table is crucial for understanding how the SP-808 authenticates and communicates with its storage device.
+During reverse engineering of the Roland SP-808's firmware, we discovered a significant table structure marked with "SZHC" that appears to define the ZIP drive validation sequence. ~~This table is crucial for understanding how the SP-808 authenticates and communicates with its storage device.~~
+
+The A6 Firmware:
+
+```asm
+ROM_DATA:177A99 aSelf:          .ascii "SELF"<0>
+ROM_DATA:177A9E aZip_0:         .ascii "ZIP "<0>
+ROM_DATA:177AA3 aHd:            .ascii "HD  "<0>
+ROM_DATA:177AA8 aCd:            .ascii "CD  "<0>
+ROM_DATA:177AAD byte_177AAD:    .byte 0x2D                                            ; DATA XREF: sub_1080B6+162↑r
+ROM_DATA:177AAE aSzhc:          .ascii "SZHC"
+```
+
+Device Types:
+
+* SELF (possibly internal storage)
+* ZIP (Iomega ZIP drive)
+* HD (Hard Drive)
+* CD (CD-ROM)
+
+
+> [!NOTE]
+> Could the "SZHC" string be a signature or bitmap? <br>
+> S = SELF <br>
+> Z = ZIP <br>
+> H = HD <br>
+> C = CD ?
+
+<br>
+---
+
+This output is very revealing! Let's analyze what we see in function `sub_12E8E0`:
+
+1. Device Identification Sequence:
+   ```
+   1. Check "IOMEGA  " (capitalized)
+   2. If that fails, check "iomega  " (lowercase)
+   3. Finally check for "ZIP"
+   ```
+
+2. Key Code Flow:
+   ```assembly
+   ; After IOMEGA check
+   mov.b   r0l, r0l      ; Check result
+   bne     loc_12EA5C    ; Branch if not IOMEGA
+   
+   ; After iomega check
+   mov.b   r0l, r0l      ; Check result
+   beq     loc_12EBB4    ; Branch if iomega found
+   
+   ; ZIP check follows
+   ```
+
+3. Data References:
+   ```
+   0x177aad: 0x2d535a48  ; Referenced in sub_1080B6
+   ; Interesting: This looks like ASCII "-SZH" backwards!
+   ; Could be related to the "SZHC" signature we saw
+   ```
+
+Some interesting patterns:
+1. The string comparisons appear to be length-aware (pushing 8 for IOMEGA checks, 3 for ZIP)
+2. There's case-insensitive fallback (tries IOMEGA then iomega)
+3. Memory location 0x41E864 appears important in the validation process
+
 
 ## Table Location and Structure
 Located at firmware offset `0x71AD0`, the table follows this format:
