@@ -1,4 +1,12 @@
-# Roland SP-808 - Reverse Engineering
+# Roland SP-808 - Reverse Engineering - NO MORE ZIP DRIVE!
+
+**UPDATE APRIL 2024**
+
+I think i've cracked it! I've patched the firmware, and i'm currently testing. I've added the work to the repo, see latest additons.
+
+---
+
+
 
 A collection of gathered artifacts and original work, towards getting a modern ATAPI device working in a Roland SP-808
 
