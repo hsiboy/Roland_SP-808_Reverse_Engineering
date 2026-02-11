@@ -20,8 +20,19 @@ Offset   | Value (Big Endian)   | Value (Little Endian) | Is Valid LBA?
 +24      | 1682244096           | 148836               | YES
 +25      | 1157758976           | 581       
 
-
-
+[*] Opening SP-808TS25E.ima...
+[*] Scanning for Directory Anchor...
+[+] Directory Table located at Offset 26368 (Sector 51)
+[+] Found: SONG0000VS2 | LBA: 30902    | Size: 148836   (72.67 MB)
+[+] Found: SONGLISTVS2  | LBA: 26504    | Size: 190523188 (93028.90 MB)
+[+] Found: .           | LBA: 50845    | Size: 154680   (75.53 MB)
+[+] Found: ..          | LBA: 50845    | Size: 23608    (11.53 MB)
+[+] Found: EFFECT__VS2  | LBA: 47520    | Size: 206121   (100.65 MB)
+[+] Found: PADBANK_VS2  | LBA: 26504    | Size: 337716   (164.90 MB)
+[+] Found: SAMPLE__BAK  | LBA: 47520    | Size: 402729   (196.65 MB)
+[+] Found: SAMPLE__VS2  | LBA: 26504    | Size: 468788   (228.90 MB)
+[+] Found: TAKE0000VS2  | LBA: 26504    | Size: 534324   (260.90 MB)
+[+] Found: TAKE0001VS2  | LBA: 26504    | Size: 1058612  (516.90 MB)
 
 
 Sector   | Hex Header                                      | ASCII
