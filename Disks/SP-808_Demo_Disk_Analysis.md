@@ -34,6 +34,602 @@ Offset   | Value (Big Endian)   | Value (Little Endian) | Is Valid LBA?
 [+] Found: TAKE0000VS2  | LBA: 26504    | Size: 534324   (260.90 MB)
 [+] Found: TAKE0001VS2  | LBA: 26504    | Size: 1058612  (516.90 MB)
 
+(Roland SP-808) ➜  ZIP100 SP-808 DEMO disk file SP-808TS25E.ima 
+SP-808TS25E.ima: DOS/MBR boot sector; partition 1 : ID=0x6, start-CHS (0x0,1,1), end-CHS (0xff,11,31), startsector 32, 196575 sectors, extended partition table (last)
+(Roland SP-808) ➜  ZIP100 SP-808 DEMO disk hdiutil attach -readonly -imagekey diskimage-class=CRawDiskImage -nomount SP-808TS25E.ima
+/dev/disk4          	FDisk_partition_scheme         	
+/dev/disk4s1        	DOS_FAT_16                     	
+(Roland SP-808) ➜  ZIP100 SP-808 DEMO disk mkdir /tmp/sp808
+mount -t msdos -o ro /dev/disk4s1 /tmp/sp808
+Executing: /usr/bin/kmutil load -p /System/Library/Extensions/msdosfs.kext
+(Roland SP-808) ➜  ZIP100 SP-808 DEMO disk cd /tmp/sp808 
+(Roland SP-808) ➜  sp808 ls -als
+total 256
+64 drwxrwxrwx@  1 SP-808  Roland  16384 26 Apr  2000 .
+ 0 drwxrwxrwt  17 root           wheel    544 11 Feb 18:39 ..
+64 drwxrwxrwx   1 SP-808  Roland  32768 24 Jan 19:46 SONG0000.VS2
+64 -rwxrwxrwx   1 SP-808  Roland    322 20 Sep  1999 SONGLIST.VS2
+64 drwxrwxrwx   1 SP-808  Roland  32768 24 Jan 19:44 System Volume Information
+(Roland SP-808) ➜  sp808 cd SONG0000.VS2 
+(Roland SP-808) ➜  SONG0000.VS2 ls -als
+total 185792
+  64 drwxrwxrwx  1 SP-808  Roland    32768 24 Jan 19:46 .
+  64 drwxrwxrwx@ 1 SP-808  Roland    16384 26 Apr  2000 ..
+  64 -rwxrwxrwx  1 SP-808  Roland    25600  9 Sep  1998 EFFECT__.VS2
+  64 -rwxrwxrwx  1 SP-808  Roland     1024 20 Sep  1999 PADBANK_.VS2
+  64 -rwxrwxrwx  1 SP-808  Roland    32768  9 Sep  1998 SAMPLE__.BAK
+  64 -rwxrwxrwx  1 SP-808  Roland    32768 20 Sep  1999 SAMPLE__.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0000.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0001.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0002.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0003.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0004.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0005.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0006.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0007.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0008.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0009.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0010.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0011.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0012.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0013.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0014.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0015.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0016.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0017.VS2
+1280 -rwxrwxrwx  1 SP-808  Roland   655360 20 Sep  1999 TAKE0018.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0019.VS2
+1024 -rwxrwxrwx  1 SP-808  Roland   524288 20 Sep  1999 TAKE0020.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0021.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0022.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0023.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0024.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0025.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0026.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0027.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0028.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0029.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0030.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0031.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0032.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0033.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0034.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0035.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0036.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0037.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0038.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0039.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0040.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0041.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0042.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0043.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0044.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0045.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0046.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0047.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0048.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0049.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0050.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0051.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0052.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0053.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0054.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0055.VS2
+1536 -rwxrwxrwx  1 SP-808  Roland   786432 20 Sep  1999 TAKE0056.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0057.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0058.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0059.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0060.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0061.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0062.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0063.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0064.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0065.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0066.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0067.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0068.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0069.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0070.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0071.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0072.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0073.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0074.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0075.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0076.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0077.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0078.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0079.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0080.VS2
+1728 -rwxrwxrwx  1 SP-808  Roland   884736 20 Sep  1999 TAKE0081.VS2
+3328 -rwxrwxrwx  1 SP-808  Roland  1703936 20 Sep  1999 TAKE0082.VS2
+ 960 -rwxrwxrwx  1 SP-808  Roland   491520 20 Sep  1999 TAKE0083.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0084.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0085.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0086.VS2
+ 704 -rwxrwxrwx  1 SP-808  Roland   360448 20 Sep  1999 TAKE0087.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0088.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0089.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0090.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0091.VS2
+3840 -rwxrwxrwx  1 SP-808  Roland  1966080 20 Sep  1999 TAKE0092.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0093.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0094.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0095.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0096.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0097.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0098.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0099.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0100.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0101.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0102.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0103.VS2
+1600 -rwxrwxrwx  1 SP-808  Roland   819200 20 Sep  1999 TAKE0104.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0105.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0106.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0107.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0108.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0109.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0110.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0111.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0112.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0113.VS2
+1856 -rwxrwxrwx  1 SP-808  Roland   950272 20 Sep  1999 TAKE0114.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0115.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0116.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0117.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0118.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0119.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0120.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0121.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0122.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0123.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0124.VS2
+1984 -rwxrwxrwx  1 SP-808  Roland  1015808 20 Sep  1999 TAKE0125.VS2
+ 576 -rwxrwxrwx  1 SP-808  Roland   294912 20 Sep  1999 TAKE0126.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0127.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0128.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0129.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0130.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0131.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0132.VS2
+1472 -rwxrwxrwx  1 SP-808  Roland   753664 20 Sep  1999 TAKE0133.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0134.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0135.VS2
+1216 -rwxrwxrwx  1 SP-808  Roland   622592 20 Sep  1999 TAKE0136.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0137.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0138.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0139.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0140.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0141.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0142.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0143.VS2
+1536 -rwxrwxrwx  1 SP-808  Roland   786432 20 Sep  1999 TAKE0144.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0145.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0146.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0147.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0148.VS2
+ 896 -rwxrwxrwx  1 SP-808  Roland   458752 20 Sep  1999 TAKE0149.VS2
+2432 -rwxrwxrwx  1 SP-808  Roland  1245184 20 Sep  1999 TAKE0150.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0151.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0152.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0153.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0154.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0155.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0156.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0157.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0158.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0159.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0160.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0161.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0162.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0163.VS2
+2048 -rwxrwxrwx  1 SP-808  Roland  1048576 20 Sep  1999 TAKE0164.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0165.VS2
+4608 -rwxrwxrwx  1 SP-808  Roland  2359296 20 Sep  1999 TAKE0166.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0167.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0168.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0169.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0170.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0171.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0172.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0173.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0174.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0175.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0176.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0177.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0178.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0179.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0180.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0181.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0182.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0183.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0184.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0185.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0186.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0187.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0188.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0189.VS2
+4032 -rwxrwxrwx  1 SP-808  Roland  2064384 20 Sep  1999 TAKE0190.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0191.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0192.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0193.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0194.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0195.VS2
+2688 -rwxrwxrwx  1 SP-808  Roland  1376256 20 Sep  1999 TAKE0196.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0197.VS2
+1600 -rwxrwxrwx  1 SP-808  Roland   819200 20 Sep  1999 TAKE0198.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0199.VS2
+1600 -rwxrwxrwx  1 SP-808  Roland   819200 20 Sep  1999 TAKE0200.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0201.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0202.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0203.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0204.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0205.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0206.VS2
+1664 -rwxrwxrwx  1 SP-808  Roland   851968 20 Sep  1999 TAKE0207.VS2
+1600 -rwxrwxrwx  1 SP-808  Roland   819200 20 Sep  1999 TAKE0208.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0209.VS2
+2432 -rwxrwxrwx  1 SP-808  Roland  1245184 20 Sep  1999 TAKE0210.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0211.VS2
+ 896 -rwxrwxrwx  1 SP-808  Roland   458752 20 Sep  1999 TAKE0212.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0213.VS2
+ 896 -rwxrwxrwx  1 SP-808  Roland   458752 20 Sep  1999 TAKE0214.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0215.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0216.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0217.VS2
+2496 -rwxrwxrwx  1 SP-808  Roland  1277952 20 Sep  1999 TAKE0218.VS2
+ 832 -rwxrwxrwx  1 SP-808  Roland   425984 20 Sep  1999 TAKE0219.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0220.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0221.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0222.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0223.VS2
+2368 -rwxrwxrwx  1 SP-808  Roland  1212416 20 Sep  1999 TAKE0224.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0225.VS2
+ 384 -rwxrwxrwx  1 SP-808  Roland   196608 20 Sep  1999 TAKE0226.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0227.VS2
+2432 -rwxrwxrwx  1 SP-808  Roland  1245184 20 Sep  1999 TAKE0228.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0229.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0230.VS2
+ 576 -rwxrwxrwx  1 SP-808  Roland   294912 20 Sep  1999 TAKE0231.VS2
+2304 -rwxrwxrwx  1 SP-808  Roland  1179648 20 Sep  1999 TAKE0232.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0233.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0234.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0235.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0236.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0237.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0238.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0239.VS2
+7680 -rwxrwxrwx  1 SP-808  Roland  3932160 20 Sep  1999 TAKE0240.VS2
+3136 -rwxrwxrwx  1 SP-808  Roland  1605632 20 Sep  1999 TAKE0241.VS2
+7232 -rwxrwxrwx  1 SP-808  Roland  3702784 20 Sep  1999 TAKE0242.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0243.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0244.VS2
+  64 -rwxrwxrwx  1 SP-808  Roland    32768 20 Sep  1999 TAKE0245.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0246.VS2
+ 512 -rwxrwxrwx  1 SP-808  Roland   262144 20 Sep  1999 TAKE0247.VS2
+2432 -rwxrwxrwx  1 SP-808  Roland  1245184 20 Sep  1999 TAKE0248.VS2
+1856 -rwxrwxrwx  1 SP-808  Roland   950272 20 Sep  1999 TAKE0249.VS2
+ 768 -rwxrwxrwx  1 SP-808  Roland   393216 20 Sep  1999 TAKE0250.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0251.VS2
+1024 -rwxrwxrwx  1 SP-808  Roland   524288 20 Sep  1999 TAKE0252.VS2
+ 960 -rwxrwxrwx  1 SP-808  Roland   491520 20 Sep  1999 TAKE0253.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0256.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0259.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0260.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0263.VS2
+ 128 -rwxrwxrwx  1 SP-808  Roland    65536 20 Sep  1999 TAKE0264.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0267.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0273.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0274.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Sep  1999 TAKE0288.VS2
+ 320 -rwxrwxrwx  1 SP-808  Roland   163840 20 Sep  1999 TAKE0290.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0292.VS2
+ 448 -rwxrwxrwx  1 SP-808  Roland   229376 20 Sep  1999 TAKE0294.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0296.VS2
+ 256 -rwxrwxrwx  1 SP-808  Roland   131072 20 Sep  1999 TAKE0297.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 21 Apr  1998 VSNG0000.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Apr  1998 VSNG0001.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Apr  1998 VSNG0002.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Apr  1998 VSNG0003.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304 20 Apr  1998 VSNG0004.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304  9 Sep  1998 VSNG0005.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304  9 Sep  1998 VSNG0006.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304  9 Sep  1998 VSNG0007.VS2
+ 192 -rwxrwxrwx  1 SP-808  Roland    98304  9 Sep  1998 VSNG0010.VS2
+  64 -rwxrwxrwx  1 SP-808  Roland     1024  9 Sep  1998 VSNGLIST.VS2
+  64 -rwxrwxrwx  1 SP-808  Roland    16386 20 Sep  1999 WAVELIST.VS2
+(Roland SP-808) ➜  SONG0000.VS2
+
+SP-808TS25E - 3 directories, 285 files
+[      16384]  sp808
+├── [      32768]  SONG0000.VS2
+│   ├── [      25600]  EFFECT__.VS2
+│   ├── [       1024]  PADBANK_.VS2
+│   ├── [      32768]  SAMPLE__.BAK
+│   ├── [      32768]  SAMPLE__.VS2
+│   ├── [     262144]  TAKE0000.VS2
+│   ├── [     196608]  TAKE0001.VS2
+│   ├── [      98304]  TAKE0002.VS2
+│   ├── [     131072]  TAKE0003.VS2
+│   ├── [     196608]  TAKE0004.VS2
+│   ├── [      98304]  TAKE0005.VS2
+│   ├── [      98304]  TAKE0006.VS2
+│   ├── [     393216]  TAKE0007.VS2
+│   ├── [      98304]  TAKE0008.VS2
+│   ├── [     393216]  TAKE0009.VS2
+│   ├── [     393216]  TAKE0010.VS2
+│   ├── [     753664]  TAKE0011.VS2
+│   ├── [     393216]  TAKE0012.VS2
+│   ├── [     753664]  TAKE0013.VS2
+│   ├── [     753664]  TAKE0014.VS2
+│   ├── [     753664]  TAKE0015.VS2
+│   ├── [     753664]  TAKE0016.VS2
+│   ├── [     753664]  TAKE0017.VS2
+│   ├── [     655360]  TAKE0018.VS2
+│   ├── [     196608]  TAKE0019.VS2
+│   ├── [     524288]  TAKE0020.VS2
+│   ├── [      98304]  TAKE0021.VS2
+│   ├── [     196608]  TAKE0022.VS2
+│   ├── [     196608]  TAKE0023.VS2
+│   ├── [     131072]  TAKE0024.VS2
+│   ├── [     393216]  TAKE0025.VS2
+│   ├── [     393216]  TAKE0026.VS2
+│   ├── [      98304]  TAKE0027.VS2
+│   ├── [     753664]  TAKE0028.VS2
+│   ├── [     753664]  TAKE0029.VS2
+│   ├── [     393216]  TAKE0030.VS2
+│   ├── [     753664]  TAKE0031.VS2
+│   ├── [     393216]  TAKE0032.VS2
+│   ├── [     393216]  TAKE0033.VS2
+│   ├── [      98304]  TAKE0034.VS2
+│   ├── [     196608]  TAKE0035.VS2
+│   ├── [     393216]  TAKE0036.VS2
+│   ├── [      98304]  TAKE0037.VS2
+│   ├── [      98304]  TAKE0038.VS2
+│   ├── [      98304]  TAKE0039.VS2
+│   ├── [      98304]  TAKE0040.VS2
+│   ├── [     196608]  TAKE0041.VS2
+│   ├── [     196608]  TAKE0042.VS2
+│   ├── [     753664]  TAKE0043.VS2
+│   ├── [     131072]  TAKE0044.VS2
+│   ├── [     262144]  TAKE0045.VS2
+│   ├── [     196608]  TAKE0046.VS2
+│   ├── [     196608]  TAKE0047.VS2
+│   ├── [      98304]  TAKE0048.VS2
+│   ├── [     262144]  TAKE0049.VS2
+│   ├── [     229376]  TAKE0050.VS2
+│   ├── [      98304]  TAKE0051.VS2
+│   ├── [     196608]  TAKE0052.VS2
+│   ├── [      65536]  TAKE0053.VS2
+│   ├── [     753664]  TAKE0054.VS2
+│   ├── [      98304]  TAKE0055.VS2
+│   ├── [     786432]  TAKE0056.VS2
+│   ├── [     753664]  TAKE0057.VS2
+│   ├── [     753664]  TAKE0058.VS2
+│   ├── [     196608]  TAKE0059.VS2
+│   ├── [     131072]  TAKE0060.VS2
+│   ├── [      98304]  TAKE0061.VS2
+│   ├── [     229376]  TAKE0062.VS2
+│   ├── [     131072]  TAKE0063.VS2
+│   ├── [      98304]  TAKE0064.VS2
+│   ├── [     753664]  TAKE0065.VS2
+│   ├── [     163840]  TAKE0066.VS2
+│   ├── [     393216]  TAKE0067.VS2
+│   ├── [     393216]  TAKE0068.VS2
+│   ├── [     196608]  TAKE0069.VS2
+│   ├── [     196608]  TAKE0070.VS2
+│   ├── [      65536]  TAKE0071.VS2
+│   ├── [     131072]  TAKE0072.VS2
+│   ├── [     131072]  TAKE0073.VS2
+│   ├── [     131072]  TAKE0074.VS2
+│   ├── [     131072]  TAKE0075.VS2
+│   ├── [     131072]  TAKE0076.VS2
+│   ├── [     753664]  TAKE0077.VS2
+│   ├── [     131072]  TAKE0078.VS2
+│   ├── [      98304]  TAKE0079.VS2
+│   ├── [     131072]  TAKE0080.VS2
+│   ├── [     884736]  TAKE0081.VS2
+│   ├── [    1703936]  TAKE0082.VS2
+│   ├── [     491520]  TAKE0083.VS2
+│   ├── [     196608]  TAKE0084.VS2
+│   ├── [     131072]  TAKE0085.VS2
+│   ├── [     131072]  TAKE0086.VS2
+│   ├── [     360448]  TAKE0087.VS2
+│   ├── [     196608]  TAKE0088.VS2
+│   ├── [     196608]  TAKE0089.VS2
+│   ├── [     262144]  TAKE0090.VS2
+│   ├── [     196608]  TAKE0091.VS2
+│   ├── [    1966080]  TAKE0092.VS2
+│   ├── [     393216]  TAKE0093.VS2
+│   ├── [     196608]  TAKE0094.VS2
+│   ├── [      65536]  TAKE0095.VS2
+│   ├── [      65536]  TAKE0096.VS2
+│   ├── [     131072]  TAKE0097.VS2
+│   ├── [     131072]  TAKE0098.VS2
+│   ├── [     131072]  TAKE0099.VS2
+│   ├── [     131072]  TAKE0100.VS2
+│   ├── [      98304]  TAKE0101.VS2
+│   ├── [     262144]  TAKE0102.VS2
+│   ├── [     131072]  TAKE0103.VS2
+│   ├── [     819200]  TAKE0104.VS2
+│   ├── [      65536]  TAKE0105.VS2
+│   ├── [      98304]  TAKE0106.VS2
+│   ├── [     131072]  TAKE0107.VS2
+│   ├── [      65536]  TAKE0108.VS2
+│   ├── [     131072]  TAKE0109.VS2
+│   ├── [     131072]  TAKE0110.VS2
+│   ├── [      65536]  TAKE0111.VS2
+│   ├── [     131072]  TAKE0112.VS2
+│   ├── [     753664]  TAKE0113.VS2
+│   ├── [     950272]  TAKE0114.VS2
+│   ├── [     229376]  TAKE0115.VS2
+│   ├── [     753664]  TAKE0116.VS2
+│   ├── [     131072]  TAKE0117.VS2
+│   ├── [      98304]  TAKE0118.VS2
+│   ├── [      65536]  TAKE0119.VS2
+│   ├── [     131072]  TAKE0120.VS2
+│   ├── [      98304]  TAKE0121.VS2
+│   ├── [     163840]  TAKE0122.VS2
+│   ├── [     131072]  TAKE0123.VS2
+│   ├── [     131072]  TAKE0124.VS2
+│   ├── [    1015808]  TAKE0125.VS2
+│   ├── [     294912]  TAKE0126.VS2
+│   ├── [     393216]  TAKE0127.VS2
+│   ├── [      98304]  TAKE0128.VS2
+│   ├── [      98304]  TAKE0129.VS2
+│   ├── [      98304]  TAKE0130.VS2
+│   ├── [     393216]  TAKE0131.VS2
+│   ├── [     393216]  TAKE0132.VS2
+│   ├── [     753664]  TAKE0133.VS2
+│   ├── [      98304]  TAKE0134.VS2
+│   ├── [     196608]  TAKE0135.VS2
+│   ├── [     622592]  TAKE0136.VS2
+│   ├── [     393216]  TAKE0137.VS2
+│   ├── [     262144]  TAKE0138.VS2
+│   ├── [     262144]  TAKE0139.VS2
+│   ├── [     425984]  TAKE0140.VS2
+│   ├── [     196608]  TAKE0141.VS2
+│   ├── [     425984]  TAKE0142.VS2
+│   ├── [      65536]  TAKE0143.VS2
+│   ├── [     786432]  TAKE0144.VS2
+│   ├── [      98304]  TAKE0145.VS2
+│   ├── [      98304]  TAKE0146.VS2
+│   ├── [      98304]  TAKE0147.VS2
+│   ├── [     425984]  TAKE0148.VS2
+│   ├── [     458752]  TAKE0149.VS2
+│   ├── [    1245184]  TAKE0150.VS2
+│   ├── [      65536]  TAKE0151.VS2
+│   ├── [      98304]  TAKE0152.VS2
+│   ├── [     425984]  TAKE0153.VS2
+│   ├── [      65536]  TAKE0154.VS2
+│   ├── [     131072]  TAKE0155.VS2
+│   ├── [     131072]  TAKE0156.VS2
+│   ├── [     393216]  TAKE0157.VS2
+│   ├── [     425984]  TAKE0158.VS2
+│   ├── [     131072]  TAKE0159.VS2
+│   ├── [     131072]  TAKE0160.VS2
+│   ├── [      65536]  TAKE0161.VS2
+│   ├── [     131072]  TAKE0162.VS2
+│   ├── [      65536]  TAKE0163.VS2
+│   ├── [    1048576]  TAKE0164.VS2
+│   ├── [     131072]  TAKE0165.VS2
+│   ├── [    2359296]  TAKE0166.VS2
+│   ├── [     131072]  TAKE0167.VS2
+│   ├── [      98304]  TAKE0168.VS2
+│   ├── [     131072]  TAKE0169.VS2
+│   ├── [     229376]  TAKE0170.VS2
+│   ├── [      65536]  TAKE0171.VS2
+│   ├── [      65536]  TAKE0172.VS2
+│   ├── [     131072]  TAKE0173.VS2
+│   ├── [     131072]  TAKE0174.VS2
+│   ├── [     229376]  TAKE0175.VS2
+│   ├── [     131072]  TAKE0176.VS2
+│   ├── [     229376]  TAKE0177.VS2
+│   ├── [     163840]  TAKE0178.VS2
+│   ├── [     229376]  TAKE0179.VS2
+│   ├── [     131072]  TAKE0180.VS2
+│   ├── [     229376]  TAKE0181.VS2
+│   ├── [     229376]  TAKE0182.VS2
+│   ├── [     131072]  TAKE0183.VS2
+│   ├── [      65536]  TAKE0184.VS2
+│   ├── [     262144]  TAKE0185.VS2
+│   ├── [     131072]  TAKE0186.VS2
+│   ├── [     131072]  TAKE0187.VS2
+│   ├── [     229376]  TAKE0188.VS2
+│   ├── [     131072]  TAKE0189.VS2
+│   ├── [    2064384]  TAKE0190.VS2
+│   ├── [     229376]  TAKE0191.VS2
+│   ├── [     131072]  TAKE0192.VS2
+│   ├── [     229376]  TAKE0193.VS2
+│   ├── [     131072]  TAKE0194.VS2
+│   ├── [      65536]  TAKE0195.VS2
+│   ├── [    1376256]  TAKE0196.VS2
+│   ├── [     229376]  TAKE0197.VS2
+│   ├── [     819200]  TAKE0198.VS2
+│   ├── [     425984]  TAKE0199.VS2
+│   ├── [     819200]  TAKE0200.VS2
+│   ├── [      65536]  TAKE0201.VS2
+│   ├── [     163840]  TAKE0202.VS2
+│   ├── [      98304]  TAKE0203.VS2
+│   ├── [     196608]  TAKE0204.VS2
+│   ├── [     131072]  TAKE0205.VS2
+│   ├── [     131072]  TAKE0206.VS2
+│   ├── [     851968]  TAKE0207.VS2
+│   ├── [     819200]  TAKE0208.VS2
+│   ├── [     131072]  TAKE0209.VS2
+│   ├── [    1245184]  TAKE0210.VS2
+│   ├── [     229376]  TAKE0211.VS2
+│   ├── [     458752]  TAKE0212.VS2
+│   ├── [     131072]  TAKE0213.VS2
+│   ├── [     458752]  TAKE0214.VS2
+│   ├── [      65536]  TAKE0215.VS2
+│   ├── [     262144]  TAKE0216.VS2
+│   ├── [     163840]  TAKE0217.VS2
+│   ├── [    1277952]  TAKE0218.VS2
+│   ├── [     425984]  TAKE0219.VS2
+│   ├── [      98304]  TAKE0220.VS2
+│   ├── [     163840]  TAKE0221.VS2
+│   ├── [     163840]  TAKE0222.VS2
+│   ├── [      98304]  TAKE0223.VS2
+│   ├── [    1212416]  TAKE0224.VS2
+│   ├── [     131072]  TAKE0225.VS2
+│   ├── [     196608]  TAKE0226.VS2
+│   ├── [      65536]  TAKE0227.VS2
+│   ├── [    1245184]  TAKE0228.VS2
+│   ├── [     262144]  TAKE0229.VS2
+│   ├── [     163840]  TAKE0230.VS2
+│   ├── [     294912]  TAKE0231.VS2
+│   ├── [    1179648]  TAKE0232.VS2
+│   ├── [     131072]  TAKE0233.VS2
+│   ├── [     262144]  TAKE0234.VS2
+│   ├── [      98304]  TAKE0235.VS2
+│   ├── [      98304]  TAKE0236.VS2
+│   ├── [      98304]  TAKE0237.VS2
+│   ├── [      98304]  TAKE0238.VS2
+│   ├── [      65536]  TAKE0239.VS2
+│   ├── [    3932160]  TAKE0240.VS2
+│   ├── [    1605632]  TAKE0241.VS2
+│   ├── [    3702784]  TAKE0242.VS2
+│   ├── [     131072]  TAKE0243.VS2
+│   ├── [     262144]  TAKE0244.VS2
+│   ├── [      32768]  TAKE0245.VS2
+│   ├── [     131072]  TAKE0246.VS2
+│   ├── [     262144]  TAKE0247.VS2
+│   ├── [    1245184]  TAKE0248.VS2
+│   ├── [     950272]  TAKE0249.VS2
+│   ├── [     393216]  TAKE0250.VS2
+│   ├── [      98304]  TAKE0251.VS2
+│   ├── [     524288]  TAKE0252.VS2
+│   ├── [     491520]  TAKE0253.VS2
+│   ├── [     163840]  TAKE0256.VS2
+│   ├── [      65536]  TAKE0259.VS2
+│   ├── [     131072]  TAKE0260.VS2
+│   ├── [      65536]  TAKE0263.VS2
+│   ├── [      65536]  TAKE0264.VS2
+│   ├── [     131072]  TAKE0267.VS2
+│   ├── [     131072]  TAKE0273.VS2
+│   ├── [     131072]  TAKE0274.VS2
+│   ├── [      98304]  TAKE0288.VS2
+│   ├── [     163840]  TAKE0290.VS2
+│   ├── [     229376]  TAKE0292.VS2
+│   ├── [     229376]  TAKE0294.VS2
+│   ├── [     131072]  TAKE0296.VS2
+│   ├── [     131072]  TAKE0297.VS2
+│   ├── [      98304]  VSNG0000.VS2
+│   ├── [      98304]  VSNG0001.VS2
+│   ├── [      98304]  VSNG0002.VS2
+│   ├── [      98304]  VSNG0003.VS2
+│   ├── [      98304]  VSNG0004.VS2
+│   ├── [      98304]  VSNG0005.VS2
+│   ├── [      98304]  VSNG0006.VS2
+│   ├── [      98304]  VSNG0007.VS2
+│   ├── [      98304]  VSNG0010.VS2
+│   ├── [       1024]  VSNGLIST.VS2
+│   └── [      16386]  WAVELIST.VS2
+├── [        322]  SONGLIST.VS2
+└── [      32768]  System Volume Information
+    └── [         12]  WPSettings.dat
+
 
 Sector   | Hex Header                                      | ASCII
 ---------+-------------------------------------------------+-----------------
