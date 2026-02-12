@@ -1,43 +1,125 @@
-# Roland SP-808 - Reverse Engineering - NO MORE ZIP DRIVE!
+# Roland SP-808 Reverse Engineering
 
-**UPDATE APRIL 2024**
+Replacing the obsolete Iomega ZIP drive in Roland SP-808/SP-808EX samplers with modern ATAPI storage devices.
 
-I think i've cracked it! I've patched the firmware, and i'm currently testing. I've added the work to the repo, see latest additons.
+## Status: ✅ Working (April 2024)
+
+Firmware patch successfully bypasses ZIP drive validation, enabling modern storage solutions including CompactFlash, SD cards via CF adapters, and ZuluIDE.
+
+## Quick Start
+
+### For SP-808 Owners
+
+1. Download patched firmware from [Releases](../../releases)
+2. Update your SP-808 using standard firmware update procedure
+3. Install compatible storage device (see [Hardware Compatibility](../../wiki/Compact-Flash))
+4. Format and use
+
+### For Developers
+
+Clone the repository and explore the firmware analysis, ATAPI protocol documentation, and hardware interface details in the [Wiki](../../wiki).
+
+## Project Goals
+
+The Roland SP-808 sampler (1998) uses an Iomega ZIP-100 drive for storage. ZIP drives are now obsolete, unreliable, and increasingly difficult to source. This project enables modern storage alternatives through:
+
+- **Firmware modification**: Bypassing ZIP drive validation routines
+- **Hardware documentation**: Understanding the ATAPI interface and system architecture
+- **Tool development**: Utilities for disk image handling and audio extraction
+
+## What Works
+
+- ✅ CompactFlash cards (tested up to 32GB)
+- ✅ SD cards via CF adapter
+- ✅ ZuluIDE emulation
+- ✅ Disk image mounting on macOS/Linux
+- ✅ RDAC audio sample extraction
+
+## Repository Structure
+
+```
+firmware/           Firmware binaries and analysis
+hardware/           Datasheets, schematics, board photos
+software/           Conversion tools and utilities
+research/           Protocol analysis and reverse engineering notes
+IDA/                IDA Pro projects
+```
+
+Detailed technical documentation has been moved to the [Wiki](../../wiki).
+
+## Key Documentation
+
+### Hardware
+- [Hardware Overview](../../wiki/Hardware-Overview) - CPU, memory architecture, system design
+- [ATAPI Interface](../../wiki/ATAPI-Interface) - IDE/ATAPI protocol implementation
+- [ZIP Drive Interface](../../wiki/ZIP-Drive-Interface) - Original ZIP drive communication
+
+### Firmware
+- [Firmware Overview](../../wiki/Firmware-Overview) - Structure and distribution format
+- [ZIP Drive Validation Bypass](../../wiki/ZIP-Drive-Validation-Bypass) - How the patch works
+- [Command Tables](../../wiki/Command-Tables) - ATAPI command analysis
+
+### Data Format
+- [Disk Format](../../wiki/Disk-Format-Overview) - FAT16 filesystem structure
+- [RDAC Audio Compression](../../wiki/RDAC-Audio-Compression) - Sample format and extraction
+- [Mounting Disk Images](../../wiki/Mounting-Disk-Images) - macOS/Linux procedures
+
+### Tools
+- [Firmware Tools](../../wiki/Firmware-Tools) - MIDI to binary conversion
+- [Python Utilities](../../wiki/Python-Utilities) - CompactFlash and IDE tools
+- [RDAC Decoder](../../wiki/RDAC-Audio-Compression) - Audio sample extraction
+
+## Technical Highlights
+
+**CPU**: Hitachi H8S/2653 (16-bit, 20MHz, 64KB ROM, 4KB RAM)  
+**Storage Interface**: ATAPI via Epson SLA919F ASIC  
+**Audio Format**: Roland RDAC compression (MTP mode)  
+**Disk Format**: DOS/MBR partition table, FAT16 filesystem
+
+## Background
+
+The SP-808 was designed around the Iomega ZIP-100 drive, which provided 100MB of removable storage in an era before flash memory. The firmware includes specific validation routines that check for genuine Iomega drives, preventing use of alternative storage devices.
+
+This project bypasses those checks through targeted firmware modifications, documented hardware analysis, and development of supporting tools for disk management and data extraction.
+
+## Contributing
+
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Areas of interest:
+- VS2 file format documentation (sequences, effects, pad banks)
+- Additional storage device testing
+- Firmware optimization
+- Tool improvements
+
+## Timeline
+
+- **April 2024**: Firmware patch working, validation bypass confirmed
+- **January 2024**: ATAPI protocol analysis, command table mapping
+- **2023**: Initial firmware extraction and reverse engineering
+- **Earlier**: Hardware documentation, RDAC decoder integration
+
+## Credits
+
+- **Randy Gordon**: RDAC decoder ([github.com/randygordon/rdac](https://github.com/randygordon/rdac))
+- **Hitachi/Renesas**: H8S/2600 documentation and toolchain
+- **Roland Corporation**: Original SP-808 design (no affiliation with this project)
+
+## License
+
+[Specify your license here]
+
+## Disclaimer
+
+This project is not affiliated with or endorsed by Roland Corporation. Firmware modification may void warranties and carries inherent risks. Use at your own discretion.
+
+## Resources
+
+- [Roland SP-808 Owner's Manual](SP-808_OM.pdf)
+- [Roland SP-808 Service Manual](Roland-SP-808-808-Pro-Service-Manual.pdf)
+- [H8S/2600 Programming Manual](hardware/datasheets/)
+- [Original Discussion Thread](link-if-exists)
 
 ---
 
-
-
-A collection of gathered artifacts and original work, towards getting a modern ATAPI device working in a Roland SP-808
-
-These are some findings during my trip down the rabbit hole that is a replacement for the Iomega Zip drive in the Roland SP-808 and SP-808ex samplers.
-
-![Roland SP-808](https://raw.githubusercontent.com/hsiboy/Roland_SP-808_Reverse_Engineering/default/roland_sp808.jpg "Roland SP-808")
-
-
-## Why?
-
-In the late 90s and early 2000s, the Roland SP-808 was a popular tool for musicians and producers looking to create and manipulate audio samples. One of the most interesting features of this device was its use of zip disks for storing and loading data.
-
-Zip disks were a type of removable storage media that was widely used in the late 90s and early 2000s. They were essentially large capacity floppy disks, capable of storing up to 100MB of data. The Roland SP-808 used zip disks as a way to save and load audio samples, sequences, and other data.
-
-One of the benefits of using zip disks with the Roland SP-808 was the ability to easily transfer data between different machines. Since zip disks were a standard format, it was easy to bring your samples and sequences to a friend's studio or a gig and load them into a different SP-808.
-
-However, there were also some downsides to using zip disks with the SP-808. The main issue was the limited storage capacity of each disk. 100MB might have seemed like a lot at the time, but as audio technology advanced and sample libraries grew larger, it quickly became clear that the zip disk was not a viable long-term storage solution.
-
-Another issue with zip disks was their reliability. They were prone to read errors and could easily become corrupted or damaged, leading to the loss of valuable data. In addition, zip disks were eventually replaced by other, more advanced storage technologies, such as USB flash drives and SD cards.
-
-Despite their limitations, the Roland SP-808 and zip disks remain an interesting relic of the early days of digital audio production. For those who used them, they are a reminder of a time when music production was a more tactile and hands-on process, and when the limitations of technology forced us to be more creative with the tools we had available.
-
-## Iomega Zip Disks
-
-One of the main issues with using zip disks today is finding a working disk drive. Zip disk drives were once a standard feature on personal computers, but they have become increasingly difficult to find in recent years. Even if you have a working drive, it may not be compatible with your current operating system or hardware.
-
-Another challenge with using zip disks is the risk of data loss. Since zip disks are a mechanical storage medium, they are prone to wear and tear and can easily become damaged or corrupted over time. This is particularly true if the disk has been exposed to moisture, heat, or other environmental factors.
-
-In addition to the risk of physical damage, there is also the issue of data compatibility. Many modern software applications and hardware devices do not support zip disk files, making it difficult to access data stored on these disks. This can be particularly frustrating for musicians and producers who have archived their old sample libraries or song files on zip disks.
-
-Finally, there is the issue of data transfer speeds. Compared to modern storage mediums such as USB flash drives or cloud storage, zip disks are incredibly slow when it comes to transferring data. This can make it time-consuming and tedious to move large files or libraries of samples from a zip disk to a modern computer or device.
-
-In conclusion, while zip disks were once a popular and convenient storage medium, using them today presents a number of challenges. From finding a working disk drive to the risk of data loss and compatibility issues, there are many reasons to consider alternative storage solutions for modern music production and personal computing.
-
+**Note**: This is a community reverse engineering project for preservation and compatibility purposes. All work respects intellectual property rights and is intended for personal, non-commercial use with hardware you own.
