@@ -115,7 +115,7 @@ This project is not affiliated with or endorsed by Roland Corporation. Firmware 
 - [Roland SP-808 Owner's Manual](SP-808_OM.pdf)
 - [Roland SP-808 Service Manual](Roland-SP-808-808-Pro-Service-Manual.pdf)
 - [H8S/2600 Programming Manual](hardware/datasheets/)
-- [Original Discussion Thread](link-if-exists)
+- [Original Discussion Thread](https://forum.hddguru.com/viewtopic.php?f=13&t=31086)
 
 ---
 
