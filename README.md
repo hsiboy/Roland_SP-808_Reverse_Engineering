@@ -105,9 +105,6 @@ Areas of interest:
 - **Hitachi/Renesas**: H8S/2600 documentation and toolchain
 - **Roland Corporation**: Original SP-808 design (no affiliation with this project)
 
-## License
-
-[Specify your license here]
 
 ## Disclaimer
 
