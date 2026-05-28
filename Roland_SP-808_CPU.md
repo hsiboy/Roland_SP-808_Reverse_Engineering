@@ -1,13 +1,13 @@
 # The SP-808 CPU
 
-The Roland SP-808 groovebox uses a Hitachi HD6432653 or H8S/2655 Series MCU.
+The Roland SP-808 groovebox uses a Hitachi HD6432653 or H8S/2653 Series MCU. The HD6432653 is the H8S/2653 variant (OTP, mask-programmed) — not related to the 2655 series
 
 The "Quick Reference Guide to Hitachi Semiconductor Devices" lists it as H8S/2653 HD6432653 64k ROM and 4k RAM running at 5V with 20MHz clock.
 
 Refer to the H8S/2600 Series and H8S/2000 Series Programming Manual for a detailed description of the instruction set.
-Refer to the H8S/2655 Series manual for hardware specification.
+Refer to the H8S/2653 Series manual for hardware specification.
 
-The Hitachi H8/2655 series is an outdated microcontroller that was widely used in the 1990s and early 2000s. The H8S/2655 series, in particular, was designed to offer a balance between performance, power consumption, and integrated peripherals, making them a versatile choice for embedded systems.
+The Hitachi H8/2653 series is an outdated microcontroller that was widely used in the 1990s and early 2000s. The H8S/2653 series, in particular, was designed to offer a balance between performance, power consumption, and integrated peripherals, making them a versatile choice for embedded systems.
 
 While it is known for its simple architecture and low power consumption, it poses significant challenges when it comes to reverse engineering its firmware.
 
@@ -125,13 +125,13 @@ This means the MCU is running in Advanced mode!
 ## Mode 6
 
 The address space is 16 Mbytes in modes 4 to 7 (advanced modes).
-The on-chip ROM of H8S/2655 contains 128 kbytes, but only 56 kbytes are available in modes 2 and 3 (normal modes).
+The on-chip ROM of H8S/2653 contains 128 kbytes, but only 56 kbytes are available in modes 2 and 3 (normal modes).
 The address space is divided into eight areas for modes 4 to 7.
 
 In Advanced mode, Linear access is provided to a 16-Mbyte maximum address space (architecturally a maximum 16-Mbyte program area and a maximum 4-Gbyte data area, with a maximum of 4 Gbytes for program and data areas combined). 
 
 > [!NOTE]
-> While the CPU’s architecture allows for 4 Gbytes of address space, the H8S/2655 Group can actually accesses a maximum of 16 Mbytes.
+> While the CPU’s architecture allows for 4 Gbytes of address space, the H8S/2653 Group can actually accesses a maximum of 16 Mbytes.
 
 Modes 1, 2, and 4 to 6 are externally expanded modes that allow access to external memory and peripheral devices.
 
@@ -232,7 +232,7 @@ For details of the exception vector table, see section 4, Exception Handling in 
 
 ## RAM
 
-The H8S/2655 Group has 4 kbytes of on-chip high-speed static RAM. The RAM is connected to the CPU by a 16-bit data bus, enabling one-state access by the CPU to both byte data and word data. This makes it possible to perform fast word data transfer.
+The H8S/2653 Group has 4 kbytes of on-chip high-speed static RAM. The RAM is connected to the CPU by a 16-bit data bus, enabling one-state access by the CPU to both byte data and word data. This makes it possible to perform fast word data transfer.
 The on-chip RAM can be enabled or disabled by means of the RAM enable bit (RAME) in the system control register (SYSCR).
 
 | Name | Abbreviation | R/W | Initial Value | Address<sup>*</sup>|
