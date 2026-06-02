@@ -11,8 +11,8 @@ import ida_kernwin
 import ida_segment
 import ida_loader
 
-BASE_ADDRESS = 0x8000  # H8S typical base address
-ACTIVE_CONTENT_END = 0x7C883
+BASE_ADDRESS = 0x100000  # External flash mapped here in H8S/2653 Mode 6
+ACTIVE_CONTENT_END = 0x7C883  # File offset; active content ends at runtime 0x17C883
 VECTOR_TABLE_SIZE = 0x100  # First 256 bytes for vectors
 
 def setup_segments():
@@ -106,7 +106,7 @@ def create_known_strings():
     
     print("\nMarking known strings...")
     for offset, (name, content) in known_strings.items():
-        ea = BASE_ADDRESS + (offset - 0x8000)  # Adjust for base address
+        ea = BASE_ADDRESS + offset  # file offset + load base = runtime address
         print(f"Creating string '{name}' at 0x{ea:X}")
         
         # Create string
@@ -133,8 +133,8 @@ def analyze_device_validation_code():
     print("\nAnalyzing device validation code...")
     
     # Key addresses from known strings
-    device_type_start = BASE_ADDRESS + (0x71abb - 0x8000)  # SELF string
-    vendor_id_start = BASE_ADDRESS + (0x71af0 - 0x8000)    # IOMEGA string
+    device_type_start = BASE_ADDRESS + 0x71abb  # SELF string (runtime 0x171ABB)
+    vendor_id_start = BASE_ADDRESS + 0x71af0   # IOMEGA string (runtime 0x171AF0)
     
     # Look for code patterns around these addresses
     patterns = [
@@ -227,8 +227,8 @@ def main():
     mark_strings_and_tables()
     
     # Add useful comments
-    add_extra_cmt(BASE_ADDRESS + (0x71ac0 - 0x8000), True, "Start of device type validation table")
-    add_extra_cmt(BASE_ADDRESS + (0x71af0 - 0x8000), True, "Start of vendor ID validation strings")
+    add_extra_cmt(BASE_ADDRESS + 0x71ac0, True, "Start of device type validation table")
+    add_extra_cmt(BASE_ADDRESS + 0x71af0, True, "Start of vendor ID validation strings")
     
     print("\nAnalysis complete!")
 

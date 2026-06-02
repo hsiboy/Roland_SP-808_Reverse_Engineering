@@ -60,8 +60,22 @@ case ATAPI_CMD_VENDOR_0x0D: return atapi_zip_disk_0x0D(cmd);
 - SP-808 expects specific block sizes and timing
 
 ### 6. Critical Mode Page
+
+The SP-808 issues `MODE SENSE (0x5A)` with vendor page code `0x2F`. The bus trace
+(`Roland_SP-808_to_ZIP_Drive_sniff.md`, entries 514–517) confirms the real ZIP drive
+returns exactly 4 bytes:
+
+```
+2F 5C FF D9
+```
+
+This is verified directly from the IDE bus capture. The snippet below is from a ZuluIDE
+emulator attempt that returns 6 bytes with different values — **it does not match what the
+real drive returns and should not be used as a reference**:
+
 ```c
-// Unknown vendor page specific to Zip drives
+// NOTE: This does NOT match the real ZIP drive response (2F 5C FF D9).
+// Retained here for historical reference only.
 if (page_idx == 0x2F) {
     buffer[0] = 0x2F;
     buffer[1] = 0x04;
@@ -72,6 +86,9 @@ if (page_idx == 0x2F) {
     return 6;
 }
 ```
+
+The working ZuluIDE configuration (`zuluide.ini`) produces the correct `2F 5C FF D9`
+response through its built-in Zip 100 emulation.
 
 ## Implications
 1. The EPSON ASIC acts as a protocol translator between MCU commands and ATAPI

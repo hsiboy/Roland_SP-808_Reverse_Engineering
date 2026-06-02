@@ -1,7 +1,89 @@
-Here's the "808 to EX" OS firmwware, the last 808 OS and the (windows) software (UpdSMF.zip) to do the update via PC and MIDI interface.
+# Firmware
+
+## Full Workflow: Extract → Patch → Flash
+
+### Step 1 — Extract firmware binary from MIDI files
+
+Unzip `SP-808EX_v.1001_for_SP-808.zip`. It contains 8 MIDI files (`SP8EX#1.mid`…`SP8EX#8.mid`).
+
+```bash
+# Process all 8 files in order (Linux/macOS)
+for f in SP8EX'#'?.mid; do python rolandext.py model=sp808 infil="$f" outfil=SP8EXall.bin; done
+```
+
+Result: `SP8EXall.bin` (786,436 bytes = `0xC0004`).
+
+### Step 2 — Apply the ZIP bypass patch
+
+```bash
+python patch_sp808.py SP8EXall.bin SP8EXall_patched.bin
+```
+
+Changes 1 byte at offset `0x4B523`: `0x05` → `0xFF`. See `RolandSP-808ZIPDriveValidationBypass.md`.
+
+### Step 3 — Convert back to MIDI SysEx
+
+```bash
+python bin2midi.py SP8EXall_patched.bin SP8EX_patched
+```
+
+Creates `SP8EX_patched#1.mid` … `SP8EX_patched#8.mid`.
+
+**Round-trip verify before flashing:**
+```bash
+python rolandext.py model=sp808 infil="SP8EX_patched#1.mid" outfil=verify.bin
+cmp -n 98304 SP8EXall_patched.bin verify.bin   # no output = correct
+```
+
+> **Note**: `bin2midi.py` has not been verified on hardware. The round-trip test confirms
+> correct encoding but does not substitute for a real flash test.
+
+### Step 4 — Flash the SP-808
+
+1. Connect MIDI interface to SP-808 MIDI IN.
+2. Power on SP-808 holding **SHIFT** — display shows `MIDI UPDATE`.
+3. Send `SP8EX_patched#1.mid`. Wait for `Completed`.
+4. Repeat for files #2–#8.
+5. SP-808 restarts automatically after file #8.
 
 ---
 
+## Firmware Binary Layout
+
+| Offset | Content |
+|--------|---------|
+| `0x000000` | Roland container header (32 bytes: `TS25ESYS...RolandEC`) |
+| `0x000020` | H8S/2653 exception vector table (runtime `0x100020`) |
+| `0x0006DF2` | Reset vector target — first executed instruction (runtime `0x106DF2`) |
+| `0x071AD0` | SZHC command table (`ZIP `, `HD  `, `CD  `, vendor strings) |
+| `0x071AF0` | `IOMEGA  ` vendor validation string |
+| `0x04B520` | Device type validation code |
+| `0x04B523` | **Patch location** (`0x05` → `0xFF`) |
+| `0x07C883` | End of active content |
+| `0xBFFE0` | Repeated Roland container header (trailer) |
+| `0xC0004` | End of file |
+
+**IDA Pro**: load with base address `0x100000` (external flash base), processor H8/300H.
+Run `../IDA/SP808_IDA_helper.idc` after loading.
+
+---
+
+## MIDI SysEx Format
+
+Data packets (one per 252-byte binary chunk):
+```
+[delta=0x10] F0 [reclen] 41 10 00 2B 12 [addr(3)] [memadd(5-nibbles)] [7bit-data] [cksm] F7
+```
+
+**7-bit encoding** — 7 binary bytes → 8 SysEx bytes:
+```
+Output: (b0&0x7F) (b1&0x7F) ... (b6&0x7F)  mask_byte
+mask bit 6 = MSB(b0),  bit 5 = MSB(b1),  ... bit 0 = MSB(b6)
+```
+
+---
+
+## rolandext.py — Notes
 
 I've had a go at converting the old BASIC program into Python.
 

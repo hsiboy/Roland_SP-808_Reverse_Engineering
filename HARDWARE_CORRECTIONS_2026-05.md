@@ -1,8 +1,12 @@
 # Roland SP-808 Hardware Corrections - May 2026
 
+> **ARCHIVED** — All corrections in this document have been applied to the source files
+> (June 2026 review). This document is retained for audit trail purposes only.
+> Do not treat it as a source of current truth; read the actual source files instead.
+
 **Date:** May 27, 2026  
-**Status:** Datasheet Review Complete  
-**Author:** Comprehensive Hardware Analysis
+**Applied:** June 2026  
+**Status:** Corrections complete
 
 ---
 
@@ -230,12 +234,12 @@ Both SP-808 and A6 use Roland SysEx container format:
 The following items require further investigation:
 
 ### 1. Firmware Load Address
-- **Status:** Unclear
-- **Options:**
-  - A: Firmware at 0x010000 (after masked ROM)
-  - B: Bootloader in masked ROM (0x000000) jumps to 0x010000
-  - C: IDA load at 0x100000 is arbitrary offset
-- **Resolution:** Dump SRAM/stack at boot to confirm
+- **Status:** RESOLVED (June 2026)
+- **Conclusion:** External flash is at `0x100000`. The reset vector at file offset `0x20`
+  (runtime `0x100020`) contains `01 10 6D F2`; lower 24 bits = `0x106DF2`, which is
+  file offset `0x6DF2` at runtime `0x106DF2` — within bounds. This is consistent with
+  all function addresses cited in `RolandSP-808ZIPDriveValidationBypass.md` (`0x100020`,
+  `0x12E8E0`, etc.). IDA `BASE_ADDRESS` corrected to `0x100000`.
 
 ### 2. Memory Relocation Code
 - **Status:** Unknown location
@@ -287,7 +291,7 @@ The following datasheets are now referenced for verification:
 | MCU | H8S/2655 or 2653 | H8S/2653 | Renesas datasheet |
 | Flash | 8M = 8 MB | 8 Mbit = 1 MB | Sharp datasheet |
 | Address space | 16 MB max | 16 MB (24-bit) + 4 GB extended | H8S architecture |
-| Firmware load | 0x100000 (unclear) | 0x010000 likely (TBD) | H8S memory map |
+| Firmware load | 0x100000 (unclear) | 0x100000 confirmed (reset vector → 0x106DF2) | Reset vector analysis |
 | A6 offset | 0x5FDE (unverified) | 0x5FDE (device strings only) | Cross-reference |
 | ASIC datasheet | Assumed public | Confirmed private | EPSON search |
 
@@ -295,10 +299,13 @@ The following datasheets are now referenced for verification:
 
 ## Files Updated by This Correction
 
-- [ ] Roland_SP-808_CPU.md (change 2655 → 2653)
-- [ ] LH28F800SUT-70.md (clarify 8 Mbit notation)
-- [ ] Roland_SP-808_Notes.md (add memory map section)
-- [ ] H8S_2655_OpCodes.md (rename context if applicable)
+- [x] Roland_SP-808_CPU.md — opening line rewritten to remove ambiguity (June 2026)
+- [x] LH28F800SUT-70.md — capacity table added, Mbit/MB notation clarified (June 2026)
+- [x] Roland_SP-808_Notes.md — memory map section added with load address analysis (June 2026)
+- [x] H8S_2655_OpCodes.md — renamed to H8S_2653_OpCodes.md (June 2026)
+- [x] reset_vector.md — "H8S/2655" corrected to "H8S/2653" (June 2026)
+- [x] IDA/SP808_IDA_helper.idc — BASE_ADDRESS corrected from 0x8000 to 0x100000 (June 2026)
+- [x] Firmware load address — resolved: flash at 0x100000, reset vector target 0x106DF2 (June 2026)
 
 ## Wiki Pages Recommended
 

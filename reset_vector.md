@@ -1,4 +1,4 @@
-The Renesas H8S/2655 harware manual explains that:
+The Renesas H8S/2653 hardware manual explains that:
 
 > The top area starting at H'00000000 is allocated to the exception vector table in units of 32 bits. In each 32 bits, the upper 8 bits are ignored and a branch address is stored in the lower 24 bits.
 
@@ -53,7 +53,11 @@ So, perhaps our vector is at `H'00000020`?
 That would give us `10 6D F2` which is again, still bigger than `C0004`, unless of course, the whole file needs to be offset by `100000`? 
 
 > [!NOTE]
-> We don't know what the memory map is, and IDA doesn't/can't help us, so we will have to make some assumptions.
+> **Resolved (June 2026):** The external flash is mapped at `0x100000`. The reset vector
+> at file offset `0x20` (runtime `0x100020`) reads `01 10 6D F2`. Lower 24 bits = `0x106DF2`,
+> which is file offset `0x6DF2` and runtime address `0x106DF2` — within the binary bounds.
+> This is consistent with all function addresses in `RolandSP-808ZIPDriveValidationBypass.md`.
+> **IDA load address: `0x100000`.**
 
 ---
 

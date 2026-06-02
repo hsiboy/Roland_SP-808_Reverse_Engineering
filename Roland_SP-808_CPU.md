@@ -1,6 +1,6 @@
 # The SP-808 CPU
 
-The Roland SP-808 groovebox uses a Hitachi HD6432653 or H8S/2653 Series MCU. The HD6432653 is the H8S/2653 variant (OTP, mask-programmed) — not related to the 2655 series
+The Roland SP-808 groovebox uses a Hitachi HD6432653 (H8S/2653 series). The HD6432653 is the mask-ROM variant of the H8S/2653 — not related to the H8S/2655 series.
 
 The "Quick Reference Guide to Hitachi Semiconductor Devices" lists it as H8S/2653 HD6432653 64k ROM and 4k RAM running at 5V with 20MHz clock.
 

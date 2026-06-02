@@ -2,22 +2,37 @@
 
 Replacing the obsolete Iomega ZIP drive in Roland SP-808/SP-808EX samplers with modern ATAPI storage devices.
 
-## Status: ✅ Working (April 2024)
+## Status
 
-Firmware patch successfully bypasses ZIP drive validation, enabling modern storage solutions including CompactFlash, SD cards via CF adapters, and ZuluIDE.
+| Area | Status |
+|------|--------|
+| Firmware patch (ZIP bypass) | ✅ Working — validated on hardware (April 2024) |
+| CompactFlash cards | ✅ Tested up to 32GB |
+| SD cards via CF adapter | ✅ Working |
+| ZuluIDE emulation | ✅ Working (use `zuluide.ini`) |
+| Disk image mounting (macOS/Linux) | ✅ Working |
+| MIDI → binary extraction (`rolandext.py`) | ✅ Working |
+| Binary → MIDI conversion (`bin2midi.py`) | ⚠️ Implemented, **not yet tested on hardware** |
+| VS2 file format | ❌ Undocumented |
+| CN7 debug UART | ❌ Not yet investigated |
+| Epson SLA919F ASIC protocol | ⚠️ Partially mapped from bus traces |
+| RDAC audio format | ⚠️ External decoder only (Randy Gordon's `rdac`) |
 
 ## Quick Start
 
 ### For SP-808 Owners
 
-1. Download patched firmware from [Releases](../../releases)
-2. Update your SP-808 using standard firmware update procedure
-3. Install compatible storage device (see [Hardware Compatibility](../../wiki/Compact-Flash))
-4. Format and use
+1. Extract the original firmware from the SP-808EX MIDI update files (see `firmware/README.md`)
+2. Patch with `python firmware/patch_sp808.py SP8EXall.bin SP8EXall_patched.bin`
+3. Convert back to MIDI with `python firmware/bin2midi.py SP8EXall_patched.bin SP8EX_patched`
+4. **Run the round-trip test before flashing** (see `firmware/README.md`) — `bin2midi.py` has not yet been verified on hardware
+5. Flash via MIDI (power on SP-808 holding SHIFT, send files #1–#8 in order)
+6. Install a compatible storage device (CompactFlash, SD via CF adapter, or ZuluIDE)
+7. Use `zuluide.ini` if using ZuluIDE
 
 ### For Developers
 
-Clone the repository and explore the firmware analysis, ATAPI protocol documentation, and hardware interface details in the [Wiki](../../wiki).
+Clone the repository and explore the firmware analysis, ATAPI protocol documentation, and hardware interface details in the docs below.
 
 ## Project Goals
 
@@ -25,49 +40,47 @@ The Roland SP-808 sampler (1998) uses an Iomega ZIP-100 drive for storage. ZIP d
 
 - **Firmware modification**: Bypassing ZIP drive validation routines
 - **Hardware documentation**: Understanding the ATAPI interface and system architecture
-- **Tool development**: Utilities for disk image handling and audio extraction
-
-## What Works
-
-- ✅ CompactFlash cards (tested up to 32GB)
-- ✅ SD cards via CF adapter
-- ✅ ZuluIDE emulation
-- ✅ Disk image mounting on macOS/Linux
-- ✅ RDAC audio sample extraction
+- **Tool development**: Utilities for firmware extraction, patching, and disk image handling
 
 ## Repository Structure
 
 ```
-firmware/           Firmware binaries and analysis
+firmware/           Firmware binaries, extraction and patching tools
+  rolandext.py        MIDI SysEx → binary extraction
+  patch_sp808.py      Apply ZIP bypass patch to firmware binary
+  bin2midi.py         Binary → MIDI SysEx (for reflashing)
 hardware/           Datasheets, schematics, board photos
-software/           Conversion tools and utilities
-research/           Protocol analysis and reverse engineering notes
-IDA/                IDA Pro projects
+IDA/                IDA Pro scripts for H8S/2653 firmware analysis
+Disks/              Disk image analysis and RDAC map
 ```
 
-Detailed technical documentation has been moved to the [Wiki](../../wiki).
+Analysis and protocol documentation is in the root and named files.
 
 ## Key Documentation
 
 ### Hardware
-- [Hardware Overview](../../wiki/Hardware-Overview) - CPU, memory architecture, system design
-- [ATAPI Interface](../../wiki/ATAPI-Interface) - IDE/ATAPI protocol implementation
-- [ZIP Drive Interface](../../wiki/ZIP-Drive-Interface) - Original ZIP drive communication
+- [CPU and Architecture](Roland_SP-808_CPU.md) - H8S/2653, memory map, PCB observations
+- [Flash Memory](LH28F800SUT-70.md) - Sharp LH28F800SUT-70 specifications
+- [Notes and Overview](Roland_SP-808_Notes.md) - Memory map, firmware load address
 
 ### Firmware
-- [Firmware Overview](../../wiki/Firmware-Overview) - Structure and distribution format
-- [ZIP Drive Validation Bypass](../../wiki/ZIP-Drive-Validation-Bypass) - How the patch works
-- [Command Tables](../../wiki/Command-Tables) - ATAPI command analysis
+- [ZIP Drive Validation Bypass](RolandSP-808ZIPDriveValidationBypass.md) - The patch: how and why
+- [SZHC Command Table](SP-808_SZHC_CommandTableAnalysis.md) - ATAPI command table structure
+- [SP-808 vs A6 Firmware](firmware/SP808_Vs_A6_firmware.md) - Comparison that found the patch location
+- [Firmware Workflow](firmware/README.md) - Extract → patch → flash procedure
+
+### Protocol
+- [ATAPI Protocol](ATAPI.md) - IDE/ATAPI reference
+- [ZIP Drive Initialization](SP-808_and_ZIP_Drive.md) - Initialization sequence
+- [Bus Trace](Roland_SP-808_to_ZIP_Drive_sniff.md) - Full IDE bus capture
 
 ### Data Format
-- [Disk Format](../../wiki/Disk-Format-Overview) - FAT16 filesystem structure
-- [RDAC Audio Compression](../../wiki/RDAC-Audio-Compression) - Sample format and extraction
-- [Mounting Disk Images](../../wiki/Mounting-Disk-Images) - macOS/Linux procedures
+- [Disk Structure](Disks/SP-808_Demo_Disk_Analysis.md) - FAT16 filesystem, VS2 filenames
+- [Mounting Disk Images](disk_img.md) - macOS/Linux procedures
+- [CompactFlash Notes](CompactFlashCards.md) - CF card compatibility
 
-### Tools
-- [Firmware Tools](../../wiki/Firmware-Tools) - MIDI to binary conversion
-- [Python Utilities](../../wiki/Python-Utilities) - CompactFlash and IDE tools
-- [RDAC Decoder](../../wiki/RDAC-Audio-Compression) - Audio sample extraction
+### IDA Pro
+- [Using IDA](IDA/using_IDA.md) - Setup guide for H8S firmware analysis
 
 ## Technical Highlights
 
@@ -84,17 +97,20 @@ This project bypasses those checks through targeted firmware modifications, docu
 
 ## Contributing
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and [TODO.md](TODO.md) for open items.
 
-Areas of interest:
-- VS2 file format documentation (sequences, effects, pad banks)
-- Additional storage device testing
-- Firmware optimization
-- Tool improvements
+Priority areas:
+
+- **`bin2midi.py` hardware test** — the round-trip encode/decode is verified correct but the script has not been used to flash a real SP-808. If you try it, report the result.
+- **VS2 file format** — filenames are known (`SONG0000VS2`, `EFFECT__VS2`, `PADBANK_VS2`, etc.), internal format is not documented.
+- **CN7 debug port** — the unpopulated connector breaks out TX1/RX1/XRST from the H8S/2653. A logic analyser session during boot could reveal a debug UART.
+- **Additional storage device testing** — report which CF cards, SD adapters, and ZuluIDE versions work or fail.
+- **Epson SLA919F ASIC** — no public datasheet; vendor commands `0x06` and `0x0D` are partially mapped. Extended bus traces welcome.
 
 ## Timeline
 
-- **April 2024**: Firmware patch working, validation bypass confirmed
+- **June 2026**: Documentation audit; all hardware corrections applied; `bin2midi.py` written; base address resolved (`0x100000`)
+- **April 2024**: Firmware patch working, validation bypass confirmed on hardware
 - **January 2024**: ATAPI protocol analysis, command table mapping
 - **2023**: Initial firmware extraction and reverse engineering
 - **Earlier**: Hardware documentation, RDAC decoder integration
