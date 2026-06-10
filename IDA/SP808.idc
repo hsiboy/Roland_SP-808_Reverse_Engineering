@@ -1,781 +1,306 @@
-// Auto-Disassembly script for Roland SP8080 and Edirol A6 ROMs.
+// SP808_IDA_helper.idc
 //
-// This is based on Acamus's Auto Disassembler.
-// edited for compatibility with ida 7.x by Professor_jonny
-// and ammeded for the Roland/Edirol by hsiboy
+// IDA Pro IDC script for Roland SP-808 / Edirol A6 firmware analysis.
 //
-// vim:foldmethod=syntax foldnestmax=1 sw=2 et smarttab smartindent ft=c
+// Load SP8EXall.bin with:
+//   Processor : H8/300H Advanced (H8S/2653)
+//   Load base : 0x100000
+//   ROM type  : binary
 //
-
+// Then run via File > Script file.
+//
+// All addresses are IDA runtime addresses.
+// Conversion: file_offset = ida_address - 0x100000
+//
+// Authors: hsiboy, Professor_jonny
+//
 
 #include <idc.idc>
-#include <memcpy.idc>
 
-#define H8_ROM_START   0x00000000
-#define H8_CODE_OFFSET 0x00010000
-#define H8_CODE_LENGTH 0x000C0004
+#define BASE_ADDRESS    0x100000
+#define MASK_ROM_END    0x00E800
+#define FLASH_END       0x1C0004
 
-// Set a name for a location if there is not already a manual name set.
-#define SafeMakeName(ea, name) if (name) SafeMakeNameEx(ea, name, SN_NOWARN)
-#define SafeMakeNameEx(ea, name, opts) if (ea != BADADDR && !HasName(ea)) MakeNameEx(ea, name, opts);
-#define HasName(ea) !(Name(ea) == "" || strstr(Name(ea), "off_") == 0 || strstr(Name(ea), "unk_") == 0 || strstr(Name(ea), "sub_") == 0 || strstr(Name(ea), "byte_") == 0 || strstr(Name(ea), "word_") == 0 || strstr(Name(ea), "dword_") == 0)
-
-
-static MakeNameSequence(ea, name) {
-  auto i, fullname;
-  for (i = 1; i < 5000; i++) {
-    fullname = form("%s_%d", name, i);
-    if (LocByName(fullname) == BADADDR) {
-      SafeMakeName(ea, fullname);
-      return;
+// Apply a name only if the location does not already have a meaningful name.
+static SafeMakeName(ea, name) {
+    auto existing;
+    if (ea == BADADDR) return;
+    existing = Name(ea);
+    if (existing == "" ||
+        strstr(existing, "sub_")  == 0 ||
+        strstr(existing, "unk_")  == 0 ||
+        strstr(existing, "off_")  == 0 ||
+        strstr(existing, "byte_") == 0 ||
+        strstr(existing, "word_") == 0 ||
+        strstr(existing, "dword_")== 0) {
+        MakeNameEx(ea, name, SN_NOWARN);
     }
-  }
 }
 
+// Define a byte array of 'count' bytes and name it.
+static MakeByteArray(ea, count, name) {
+    auto i;
+    for (i = 0; i < count; i++)
+        MakeByte(ea + i);
+    MakeArray(ea, count);
+    SafeMakeName(ea, name);
+}
 
+// Name a function and set a comment.
+static NameFunc(ea, name, comment) {
+    if (ea == BADADDR) return;
+    MakeCode(ea);
+    MakeFunction(ea, BADADDR);
+    SafeMakeName(ea, name);
+    if (comment != "")
+        SetFunctionCmt(ea, comment, 0);
+}
 
-
+// ---------------------------------------------------------------------------
+// H8S/2653 internal I/O register names
+// ---------------------------------------------------------------------------
 static H8RegisterNames() {
-    // Interrupt controller - 8 bit
-  SafeMakeName(0xFEC0, "INTC_ICRA");
-  SafeMakeName(0xFEC1, "INTC_ICRB");
-  SafeMakeName(0xFEC2, "INTC_ICRC");
+    // Interrupt controller
+    SafeMakeName(0xFFEC00, "INTC_ICRA");
+    SafeMakeName(0xFFEC01, "INTC_ICRB");
+    SafeMakeName(0xFFEC02, "INTC_ICRC");
+    SafeMakeName(0xFFEC04, "INTC_IPRA");
+    SafeMakeName(0xFFEC05, "INTC_IPRB");
+    SafeMakeName(0xFFEC06, "INTC_IPRC");
+    SafeMakeName(0xFFEC07, "INTC_IPRD");
+    SafeMakeName(0xFFEC08, "INTC_IPRE");
+    SafeMakeName(0xFFEC09, "INTC_IPRF");
+    SafeMakeName(0xFFEC0A, "INTC_IPRG");
+    SafeMakeName(0xFFEC0B, "INTC_IPRH");
+    SafeMakeName(0xFFEC0C, "INTC_IPRI");
+    SafeMakeName(0xFFEC0D, "INTC_IPRJ");
+    SafeMakeName(0xFFEC0E, "INTC_IPRK");
 
-  SafeMakeName(0xFEC4, "INTC_IPRA");
-  SafeMakeName(0xFEC5, "INTC_IPRB");
-  SafeMakeName(0xFEC6, "INTC_IPRC");
-  SafeMakeName(0xFEC7, "INTC_IPRD");
-  SafeMakeName(0xFEC8, "INTC_IPRE");
-  SafeMakeName(0xFEC9, "INTC_IPRF");
-  SafeMakeName(0xFECA, "INTC_IPRG");
-  SafeMakeName(0xFECB, "INTC_IPRH");
-  SafeMakeName(0xFECC, "INTC_IPRI");
-  SafeMakeName(0xFECD, "INTC_IPRJ");
-  SafeMakeName(0xFECE, "INTC_IPRK");
+    // Bus controller
+    SafeMakeName(0xFFED00, "ABWCR");
+    SafeMakeName(0xFFED01, "ASTCR");
+    SafeMakeName(0xFFED02, "WCRH");
+    SafeMakeName(0xFFED03, "WCRL");
+    SafeMakeName(0xFFED04, "BCRH");
+    SafeMakeName(0xFFED05, "BCRL");
+    SafeMakeName(0xFFED06, "MCR");
+    SafeMakeName(0xFFED07, "DRAMCR");
+    SafeMakeName(0xFFED08, "RTCNT");
+    SafeMakeName(0xFFED09, "RTCOR");
 
-// Bus controller - 8 bit
-  SafeMakeName(0xFED0, "ABWCR");
-  SafeMakeName(0xFED1, "ASTCR");
-  SafeMakeName(0xFED2, "WCRH");
-  SafeMakeName(0xFED3, "WCRL");
-  SafeMakeName(0xFED4, "BCRH");
-  SafeMakeName(0xFED5, "BCRL");
-  SafeMakeName(0xFED6, "MCR");
-  SafeMakeName(0xFED7, "DRAMCR");
-  SafeMakeName(0xFED8, "RTCNT");
-  SafeMakeName(0xFED9, "RTCOR");
-  
-  SafeMakeName(0xFEE0, "MAR0AH");
-  SafeMakeName(0xFEE1, "MAR0AH");
-  SafeMakeName(0xFEE2, "MAR0AL");
-  SafeMakeName(0xFEE3, "MAR0AL");
-  SafeMakeName(0xFEE4, "IOAR0A");
-  SafeMakeName(0xFEE5, "IOAR0A");
-  SafeMakeName(0xFEE6, "ETCR0A");
-  SafeMakeName(0xFEE7, "ETCR0A");
-  SafeMakeName(0xFEE8, "MAR0BH");
-  SafeMakeName(0xFEE9, "MAR0BH");
-  
-  SafeMakeName(0xFEEA, "MAR0BL");
-  SafeMakeName(0xFEEB, "MAR0BL");
-  SafeMakeName(0xFEEC, "IOAR0B");
-  SafeMakeName(0xFEED, "IOAR0B");
-  SafeMakeName(0xFEEE, "ETCR0B");
-  SafeMakeName(0xFEEF, "ETCR0B");
-  SafeMakeName(0xFEF0, "MAR1AH");
-  SafeMakeName(0xFEF1, "MAR1AH");
-  SafeMakeName(0xFEF2, "MAR1AL");
-  SafeMakeName(0xFEF3, "MAR1AL");
-  SafeMakeName(0xFEF4, "IOAR1A");
-  SafeMakeName(0xFEF5, "IOAR1A");
-  SafeMakeName(0xFEF6, "ETCR1A");
-  SafeMakeName(0xFEF7, "ETCR1A");
-  SafeMakeName(0xFEF8, "MAR1BH");
-  SafeMakeName(0xFEF9, "MAR1BH");
-  SafeMakeName(0xFEFA, "MAR1BL");
-  SafeMakeName(0xFEFB, "MAR1BL");
-  SafeMakeName(0xFEFC, "IOAR1B");
-  SafeMakeName(0xFEFD, "IOAR1B");
-  SafeMakeName(0xFEFE, "ETCR1B");
-  SafeMakeName(0xFEFF, "ETCR1B");
+    // System control
+    SafeMakeName(0xFFFF38, "SBYCR");
+    SafeMakeName(0xFFFF39, "SYSCR");
+    SafeMakeName(0xFFFF3A, "SCKCR");
+    SafeMakeName(0xFFFF3B, "MDCR");
+    SafeMakeName(0xFFFF3C, "MSTPCRH");
+    SafeMakeName(0xFFFF3D, "MSTPCRL");
 
-  SafeMakeName(0xFF00, "DMAWER");
-  SafeMakeName(0xFF01, "DMATCR");
-  SafeMakeName(0xFF02, "DMACR0A");
-  SafeMakeName(0xFF03, "DMACR0B");
-  SafeMakeName(0xFF04, "DMACR1A");
-  SafeMakeName(0xFF05, "DMACR1B");
-  SafeMakeName(0xFF06, "DMABCRH");
-  SafeMakeName(0xFF07, "DMABCRL");
+    // SCI channel 0 (MIDI)
+    SafeMakeName(0xFFFF78, "SMR0");
+    SafeMakeName(0xFFFF79, "BRR0");
+    SafeMakeName(0xFFFF7A, "SCR0");
+    SafeMakeName(0xFFFF7B, "TDR0");
+    SafeMakeName(0xFFFF7C, "SSR0");
+    SafeMakeName(0xFFFF7D, "RDR0");
+    SafeMakeName(0xFFFF7E, "SCMR0");
 
-  SafeMakeName(0xFF2C, "ISCRH");
-  SafeMakeName(0xFF2D, "ISCRL");
-  SafeMakeName(0xFF2E, "IER");
-  SafeMakeName(0xFF2F, "ISR");
+    // SCI channel 1 (debug / CN7)
+    SafeMakeName(0xFFFF80, "SMR1");
+    SafeMakeName(0xFFFF81, "BRR1");
+    SafeMakeName(0xFFFF82, "SCR1");
+    SafeMakeName(0xFFFF83, "TDR1");
+    SafeMakeName(0xFFFF84, "SSR1");
+    SafeMakeName(0xFFFF85, "RDR1");
+    SafeMakeName(0xFFFF86, "SCMR1");
 
-  SafeMakeName(0xFF30, "DTCER");
-  SafeMakeName(0xFF31, "DTCER");
-  SafeMakeName(0xFF32, "DTCER");
-  SafeMakeName(0xFF33, "DTCER");
-  SafeMakeName(0xFF34, "DTCER");
-  SafeMakeName(0xFF35, "DTCER");
+    // SCI channel 2
+    SafeMakeName(0xFFFF88, "SMR2");
+    SafeMakeName(0xFFFF89, "BRR2");
+    SafeMakeName(0xFFFF8A, "SCR2");
+    SafeMakeName(0xFFFF8B, "TDR2");
+    SafeMakeName(0xFFFF8C, "SSR2");
+    SafeMakeName(0xFFFF8D, "RDR2");
 
-  SafeMakeName(0xFF38, "SBYCR");
-  SafeMakeName(0xFF39, "SYSCR");
-  SafeMakeName(0xFF3A, "SCKCR");
-  SafeMakeName(0xFF3B, "MDCR");
-  SafeMakeName(0xFF3C, "MSTPCRH");
-  SafeMakeName(0xFF3D, "MSTPCRL");
+    // Port data direction
+    SafeMakeName(0xFFFEB0, "P1DDR");
+    SafeMakeName(0xFFFEB1, "P2DDR");
 
-  SafeMakeName(0xFF46, "PCR");
-  SafeMakeName(0xFF47, "PMR");
-  SafeMakeName(0xFF48, "NDERH");
-  SafeMakeName(0xFF49, "NDERL");
-  SafeMakeName(0xFF4A, "PODRH");
-  SafeMakeName(0xFF4B, "PODRL");
-  SafeMakeName(0xFF4C, "NDRH");
-  SafeMakeName(0xFF4D, "NDRL");
-  SafeMakeName(0xFEB0, "P1DDR");
-  SafeMakeName(0xFEB1, "P2DDR");
-  SafeMakeName(0xFF3C, "MSTPCR");
-  SafeMakeName(0xFFB0,"TCR0");
-  SafeMakeName(0xFFB2, "TCSR0");
-  SafeMakeName(0xFFB4, "TCORA0");
+    // Timer
+    SafeMakeName(0xFFFFB0, "TCR0");
+    SafeMakeName(0xFFFFB2, "TCSR0");
+    SafeMakeName(0xFFFFB4, "TCORA0");
 
-  SafeMakeName(0xFF78, "SMR0");
-  SafeMakeName(0xFF79, "BRR0");
-  SafeMakeName(0xFF7A, "SCR0");
-  SafeMakeName(0xFF7B, "TDR0");
-  SafeMakeName(0xFF7C, "SSR0");
-  SafeMakeName(0xFF7D, "RDR0");
-  SafeMakeName(0xFF7E, "SCMR0");
-  SafeMakeName(0xFF80, "SMR1");
-  SafeMakeName(0xFF81, "BRR1");
-  SafeMakeName(0xFF82, "SCR1");
-  SafeMakeName(0xFF83, "TDR1");
-  SafeMakeName(0xFF84, "SSR1");
-  SafeMakeName(0xFF85, "RDR1");
-  SafeMakeName(0xFF86, "SCMR1");
-  SafeMakeName(0xFF88, "SMR2");
-  SafeMakeName(0xFF89, "BRR2");
-  SafeMakeName(0xFF8A, "SCR2");
-  SafeMakeName(0xFF8B, "TDR2");
-  SafeMakeName(0xFF8C, "SSR2");
-  SafeMakeName(0xFF8D, "RDR2");
-  SafeMakeName(0xFF3C, "MSTPCR");
-
+    Message("H8S/2653 register names applied.\n");
 }
 
-static ByteRegister(ea, name, comment) {
-  MakeByte(ea);
-  if (!HasName(ea))
-    MakeNameEx(ea, name, SN_NOLIST);
-  if (comment != "")
-    MakeComm(ea, comment);
-  return ea;
-}
+// ---------------------------------------------------------------------------
+// Exception vector table
+// H8S/2600 Advanced Mode: vectors at 0x000000, 4 bytes each
+// ---------------------------------------------------------------------------
+static FixupVectorTable() {
+    auto i, target;
 
-static WordRegister(ea, name, comment) {
-  MakeWord(ea);
-  if (!HasName(ea))
-    MakeNameEx(ea, name, SN_NOLIST);
-  if (comment != "")
-    MakeComm(ea, comment);
-  return ea;
-}
+    Message("Processing exception vector table...\n");
 
-static LongRegister(ea, name, comment) {
-  MakeDword(ea);
-  if (!HasName(ea))
-    MakeNameEx(ea, name, SN_NOLIST);
-  if (comment != "")
-    MakeComm(ea, comment);
-  return ea;
-}
-
-static ReservedSpaceArray(start, end) {
-  MakeByte(start);
-  MakeArray(start, end - start + 1);
-  SetArrayFormat(start, AP_ALLOWDUPS, 0, -1);
-  MakeComm(start, "Reserved");
-  return start;
-}
-
-static RegisterArray(ea, count) {
-  MakeArray(ea, count);
-  SetArrayFormat(ea, AP_ALLOWDUPS, count, -1);
-}
-
-static AddVTEntry(ea, name, funcname) {
-  auto j;
-  j = Dword(ea);
-  SafeMakeNameEx(ea, "e" + name, SN_NOLIST);
-  SafeMakeName(j, funcname);
-  MakeFunction(j, BADADDR);
-}
-
-/* 
-  
-  H8S/2600 Exception Vector Table (Advanced Mode)
-
-Exception Source	Vector  Address
-Power-on reset	    0	    H'0000 to H'0003
-Manual reset	    1	    H'0004 to H'0007
-Reserved for system	2	    H'0008 to H'000B
-    -:-	            3	    H'000C to H'000F
-    -:-	            4   	H'0010 to H'0013
-Trace	            5	    H'0014 to H'0017
-Reserved for system	6	    H'0018 to H'001B
-External intrpt NMI	7	    H'001C to H'001F
-Trap instruction	8	    H'0020 to H'0023
-    -:-	            9	    H'0024 to H'0027
-    -:-	            10	    H'0028 to H'002B
-    -:-	            11	    H'002C to H'002F
-Reserved for system 12	    H'0030 to H'0033
-    -:-	            13	    H'0034 to H'0037
-    -:-	            14	    H'0038 to H'003B
-    -:-	            15	    H'003C to H'003F
-External interrupt		
-IRQ0	            16	    H'0040 to H'0043
-IRQ1	            17	    H'0044 to H'0047
-IRQ2	            18	    H'0048 to H'004B
-IRQ3	            19	    H'004C to H'004F
-IRQ4	            20	    H'0050 to H'0053
-IRQ5	            21	    H'0054 to H'0057
-IRQ6	            22	    H'0058 to H'005B
-IRQ7	            23	    H'005C to H'005F
-Internal interrupt2	24	    H'0060 to H'0063
-    -:-	            ↓	            ↓
-    -:-	            91	    H'016C to H'016F
-  */
-
-static Fixup_VT(segoffset, romstart) {
-  auto i, j, errcode;
-
-  // fixup all vector table entries
-  for (i = segoffset; i < (segoffset + romstart); i = i + 4) {
-    MakeDword(i);
-    OpOff(i, 0, 0);
-    // These are stack pointers, not code
-    if (i == 0x04 || i == 0x0C)
-      continue;
-    j = Dword(i);
-    MakeCode(j);
-    AutoMark(j, AU_PROC);
-  }
-
-  // Define known VT entries
-  AddVTEntry(0x00000000, "v_power_on_reset", "init");
-  AddVTEntry(0x00000004, "v_manual_reset", "init");
-
-  AddVTEntry(0x00000010, "TRAP0", "trap");
-  AddVTEntry(0x00000012, "TRAP1", "trap");
-  AddVTEntry(0x00000014, "TRAP2", "trap");
-  AddVTEntry(0x00000016, "TRAP3", "trap");
-  AddVTEntry(0x00000040, "IRQ0", "IRQ");
-  AddVTEntry(0x00000044, "IRQ0", "IRQ");
-  AddVTEntry(0x00000048, "IRQ0", "IRQ");
-  AddVTEntry(0x0000004C, "IRQ0", "IRQ");
-  AddVTEntry(0x00000050, "IRQ0", "IRQ");
-  AddVTEntry(0x00000054, "IRQ0", "IRQ");
-  AddVTEntry(0x00000058, "IRQ0", "IRQ");
-  AddVTEntry(0x0000005C, "IRQ0", "IRQ");
-
-}
-
-
-
-static FixupJumps(void) {
-  auto ea, end, indexa, indexj, xref_from, xref_to;
-
-  ea = 0;
-  end = SegEnd(ea);
-  Message("Fixing jmp from %x to %x... ", ea, end);
-
-  for (ea; ea <= end; ea = NextAddr(ea)) {
-    if (ea == BADADDR) {
-      // Message("No more hits\n");
-      break;
-    }
-
-    // Check for "mova"
-    if (GetMnem(ea) == "mova") {
-      // Message("mova @ %x\n", ea);
-      if (Word(GetOperandValue(ea, 0)) == 0xFFFF)
-        indexa = GetOperandValue(ea, 0);
-      else
-        indexa = NextHead(ea, end) + GetOperandValue(ea, 0);
-      //Message("mova initial @ %x\n", indexa);
-
-      while (Word(indexa) == 0xFFFF) {
-        MakeWord(indexa);
-        indexa = indexa + 2;
-      }
-      //Message("mova points to @ %x\n", indexa);
-      do {
-        ea = NextAddr(ea);
-        if (GetMnem(ea) == "jmp") {
-          xref_from = ea;
-          //Message("jmp @ %x\n", xref_from);
-          break;
+    // Vectors 0x00 to 0x16F (92 vectors x 4 bytes)
+    for (i = 0x000000; i < 0x000170; i = i + 4) {
+        MakeDword(i);
+        OpOff(i, 0, 0);
+        target = Dword(i) & 0x00FFFFFF;  // H8S: upper byte ignored
+        if (target >= BASE_ADDRESS && target < FLASH_END) {
+            MakeCode(target);
+            AutoMark(target, AU_PROC);
         }
-
-      } while (ea != BADADDR);
-
-      indexj = indexa;
-      while (isUnknown(GetFlags(indexj))) {
-        MakeWord(indexj);
-        xref_to = indexa + Word(indexj);
-        MakeCode(xref_to);
-        AddCodeXref(xref_from, xref_to, fl_JN);
-        //Message("Adding jump from %x to %x\n", xref_from, xref_to);
-        MakeComm(indexj, "jsr " + NameEx(indexj, xref_to));
-        indexj = indexj + 2;
-        ea = indexj;
-      }
     }
-  }
-  Message("Done\n");
+
+    // Named vectors
+    SafeMakeName(0x000000, "vec_power_on_reset");
+    SafeMakeName(0x000004, "vec_manual_reset");
+    SafeMakeName(0x00001C, "vec_nmi");
+    SafeMakeName(0x000020, "vec_trap0");
+    SafeMakeName(0x000024, "vec_trap1");
+    SafeMakeName(0x000028, "vec_trap2");
+    SafeMakeName(0x00002C, "vec_trap3");
+    SafeMakeName(0x000040, "vec_irq0");
+    SafeMakeName(0x000044, "vec_irq1");
+    SafeMakeName(0x000048, "vec_irq2");
+    SafeMakeName(0x00004C, "vec_irq3");
+    SafeMakeName(0x000050, "vec_irq4");
+    SafeMakeName(0x000054, "vec_irq5");
+    SafeMakeName(0x000058, "vec_irq6");
+    SafeMakeName(0x00005C, "vec_irq7");
+
+    Message("Vector table done.\n");
 }
 
-static Fix_Missing_Code(ea, end, is_byte_check) {
-  if (ea == BADADDR || end == BADADDR) {
-    Message("nothing selected\n");
-    return;
-  }
-  Message("Fixing missing code from %x to %x... ", ea, end);
+// ---------------------------------------------------------------------------
+// Known functions
+// ---------------------------------------------------------------------------
+static LabelFunctions() {
+    NameFunc(0x12A808, "ide_init",
+        "Zeros device state arrays, programs EPSON SLA919F ASIC registers");
+    NameFunc(0x12A956, "device_probe",
+        "Top-level device probe. Contains ZIP-only gate at 0x12AA14 (patch target)");
+    NameFunc(0x12AA72, "atapi_cmd_sequence_full",
+        "Runs SZHC ATAPI command table from entry 0 (06 00 00 00 00 00 00)");
+    NameFunc(0x12AAF2, "atapi_cmd_sequence_partial",
+        "Runs SZHC ATAPI command table from START/STOP UNIT onwards");
+    NameFunc(0x12ACB0, "device_validate",
+        "Validates ATAPI response; dispatches on device geometry/type byte");
+    NameFunc(0x12AE88, "device_classifier",
+        "Classifies drive from IDENTIFY data; writes type 1/2/3 to device_type_by_slot");
+    NameFunc(0x12B150, "zip_device_init",
+        "Post-classification device init (originally ZIP-specific; review for HDD compat)");
+    NameFunc(0x12B712, "atapi_command_handler",
+        "Core ATAPI command send/receive via EPSON SLA919F");
 
-  for (ea; ea <= end; ea = NextAddr(ea)) {
-    if (ea == BADADDR)
-      break;
-
-    if (isUnknown(GetFlags(ea)) && (is_byte_check || Byte(ea) == 0x2F || Byte(ea) == 0x4F)) {
-      AddEntryPoint(ea, ea, "", 1);
-      //MakeCode(ea);
-    }
-  }
-  Message("Done\n");
+    Message("Function names applied.\n");
 }
 
-  auto ea, end, i, mutname;
+// ---------------------------------------------------------------------------
+// Patch target labels
+// ---------------------------------------------------------------------------
+static LabelPatchTarget() {
+    SafeMakeName(0x12AA12, "dc_check_type1");
+    MakeComm(0x12AA12, "cmp.b #1, r0l  -- test for ZIP device type (type 1)");
 
-  ea = 0;
-  end = SegEnd(ea);
-  Message("Searching for MUT table %x to %x... ", ea, end);
+    SafeMakeName(0x12AA14, "dc_branch_if_not_type1");
+    MakeComm(0x12AA14,
+        "PATCH TARGET (file offset 0x2AA14): "
+        "change 46 10 (bne, rejects non-ZIP) to 40 00 (bra, allows all types). "
+        "Allows HDD types 2 and 3 through the ZIP-only gate.");
 
-  for (ea; ea <= end && ea != BADADDR; ea = NextAddr(ea)) {
-    // Check for "mov.w"
-    if (GetMnem(ea) == "mov.w") {
-      //Message("Found mov.w at 0x%x\n", ea);
-      if ((GetOperandValue(ea, 0) == 0xBF || Word(NextHead(NextHead(ea, end) + GetOperandValue(ea, 0), end)) == 0xBF) && GetMnem(ea + 6) == "shll2") {
-        if (Word(NextHead(NextHead(ea, end) + GetOperandValue(ea, 0), end)) == 0xBF)
-          ea = Dword(NextAddr(NextAddr(ea + 8) + GetOperandValue(ea + 8, 0)));
-        else
-          ea = GetOperandValue(ea + 8, 0);
-        //Message("Found at 0x%x... ", ea);
-        break;
-      }
-    }
-  }
-
-  if (ea == end || ea == BADADDR) {
-    Warning("MUT table not found");
-    return;
-  }
-
-  i = 0;
-  for (ea; ea <= end; ea = ea + 4) {
-    if (ea == BADADDR || end == BADADDR) {
-      Message("No more matches...\n");
-      return;
-    }
-    if (Dword(ea) == 0xFFFFFFFF)
-      break;
-    MakeDword(ea);
-    mutname = form("808_%02X", i++);
-    SafeMakeName(Dword(ea), mutname);
-  }
-
-  // Common MUT requests
-  LabelMutVar("MUT_04", "TimingAdv", "Timing Advance Interpolated");
-  LabelMutVar("MUT_06", "TimingAdv", "Timing Advance Scaled");
-  LabelMutVar("MUT_06", "TimingAdv", "Timing Advance");
-  LabelMutVar("MUT_07", "CoolantTemp", "Coolant Temp");
-  LabelMutVar("MUT_0C", "LTFTLo", "Fuel Trim Low (LTFT)");
-  LabelMutVar("MUT_0D", "LTFTMid", "Fuel Trim Mid (LTFT)");
-  LabelMutVar("MUT_0E", "LTFTHigh", "Fuel Trim High (LTFT)");
-  LabelMutVar("MUT_0F", "STFT", "Oxygen Feedback Trim (STFT)");
-  LabelMutVar("MUT_10", "CoolantTempScaled", "Coolant Temp Scaled");
-  LabelMutVar("MUT_11", "MAFAirTempScaled", "MAF Air Temp Scaled");
-  LabelMutVar("MUT_12", "EGRTemp", "EGR Temperature");
-  LabelMutVar("MUT_13", "O2Sensor", "Front Oxygen Sensor");
-  LabelMutVar("MUT_14", "Battery", "Battery Level");
-  LabelMutVar("MUT_15", "Baro", "Barometer");
-  LabelMutVar("MUT_16", "ISCSteps", "ISC Steps");
-  LabelMutVar("MUT_17", "TPS", "Throttle Position");
-  LabelMutVar("MUT_18", "", "Open Loop Bit Array");
-  LabelMutVar("MUT_19", "", "Startup Check Bits");
-  LabelMutVar("MUT_1A", "AirFlow", "Air Flow - (TPS Idle Adder ?)");
-  LabelMutVar("MUT_1A", "", "TPS Idle Adder");
-  LabelMutVar("MUT_1C", "Load", "ECULoad");
-  LabelMutVar("MUT_1D", "AccelEnrich", "Acceleration Enrichment - (Manifold_Absolute_Pressure_Mean ?)");
-  LabelMutVar("MUT_1F", "PrevLoad", "ECU Load Previous");
-  LabelMutVar("MUT_20", "RPM_Idle_Scaled", "Engine RPM Idle Scaled");
-  LabelMutVar("MUT_21", "RPM", "Engine RPM");
-  LabelMutVar("MUT_22", "", "Idle Related Value (unknown)");
-  LabelMutVar("MUT_24", "TargetIdleRPM", "Target Idle RPM");
-  LabelMutVar("MUT_25", "ISCV_Value", "Idle Stepper Value");
-  LabelMutVar("MUT_26", "KnockSum", "Knock Sum");
-  LabelMutVar("MUT_27", "OctaneFlag", "Octane Level");
-  LabelMutVar("MUT_29", "InjPulseWidth", "Injector Pulse Width (LSB)");
-  LabelMutVar("MUT_2A", "InjPulseWidth", "Injector Pulse Width (MSB)");
-  LabelMutVar("MUT_2C", "AirVol", "Air Volume");
-  LabelMutVar("MUT_2D", "", "Ignition Battery Trim");
-  LabelMutVar("MUT_2E", "", "Vehicle speed Frequency");
-  LabelMutVar("MUT_2F", "Speed", "Speed");
-  LabelMutVar("MUT_30", "Knock", "Knock Voltage");
-  LabelMutVar("MUT_31", "VE", "Volumetric Efficiency");
-  LabelMutVar("MUT_32", "AFRMAP", "Air/Fuel Ratio (Map reference)");
-  LabelMutVar("MUT_33", "Corr_TimingAdv", "Corrected Timing Advance");
-  LabelMutVar("MUT_34", "", "MAP Index");
-  LabelMutVar("MUT_35", "", "Limp Home Fuel TPS Based");
-  LabelMutVar("MUT_36", "", "Active Fault Count");
-  LabelMutVar("MUT_37", "Stored Fault Count", "Count");
-  LabelMutVar("MUT_38", "MAP", "Boost (MDP)");
-  LabelMutVar("MUT_39", "", "Fuel Tank Pressure");
-  LabelMutVar("MUT_3A", "UnscaledAirTemp", "Unscaled Air Temperature");
-  LabelMutVar("MUT_3B", "", "Masked Map Index");
-  LabelMutVar("MUT_3C", "O2Sensor2", "Rear Oxygen Sensor #1");
-  LabelMutVar("MUT_3D", "", "Front Oxygen Sensor #2");
-  LabelMutVar("MUT_3E", "", "Rear Oxygen Sensor #2");
-  LabelMutVar("MUT_3F", "", "Short Term Fuel Feedback Trim O2 Map Index");
-  LabelMutVar("MUT_40", "", "Stored Faults Lo");
-  LabelMutVar("MUT_41", "", "Stored Faults Hi");
-  LabelMutVar("MUT_42", "", "Stored Faults Lo 1");
-  LabelMutVar("MUT_43", "", "Stored Faults Hi 1");
-  LabelMutVar("MUT_44", "", "Stored Faults Lo 2");
-  LabelMutVar("MUT_45", "", "Stored Faults Hi 2");
-  LabelMutVar("MUT_47", "", "Active Faults Lo");
-  LabelMutVar("MUT_48", "", "Active Faults Hi");
-  LabelMutVar("MUT_49", "ACRelaySw", "Air Conditioning Relay");
-  LabelMutVar("MUT_4A", "PurgeDuty", "Purge Solenoid Duty Cycle");
-  LabelMutVar("MUT_4C", "", "Fuel Trim Low Bank 2");
-  LabelMutVar("MUT_4D", "", "Fuel Trim Mid Bank 2");
-  LabelMutVar("MUT_4E", "", "Fuel Trim High Bank 2");
-  LabelMutVar("MUT_4F", "", "Oxygen Feedback Trim Bank 2");
-  LabelMutVar("MUT_50", "", "Long Fuel Trim Bank 1");
-  LabelMutVar("MUT_51", "", "Long Fuel Trim Bank 2");
-  LabelMutVar("MUT_52", "", "Rear Long Fuel Trim Bank 1");
-  LabelMutVar("MUT_53", "", "Rear Long Fuel Trim Bank 2");
-  LabelMutVar("MUT_54", "AccelEnrichTPS", "Acceleration Enrichment (increasing TPS)");
-  LabelMutVar("MUT_55", "DecelLeanTPS", "Deceleration Enleanment (decreasing TPS)");
-  LabelMutVar("MUT_56", "AccelLoadChg", "Acceleration Load Change");
-  LabelMutVar("MUT_57", "DecelLoadChg", "Deceleration Load Change");
-  LabelMutVar("MUT_58", "", "AFR Ct Adder");
-  LabelMutVar("MUT_5B", "", "Rear O2 Voltage");
-  LabelMutVar("MUT_5C", "", "ADC Rear O2 Voltage");
-  LabelMutVar("MUT_60", "", "Rear O2 Trim - Low");
-  LabelMutVar("MUT_61", "", "Rear O2 Trim - Mid");
-  LabelMutVar("MUT_62", "", "Rear O2 Trim - High");
-  LabelMutVar("MUT_63", "", "Rear O2 Feedback Trim");
-  LabelMutVar("MUT_6A", "knock_adc", "knock adc processed");
-  LabelMutVar("MUT_6B", "knock_base", "knock base");
-  LabelMutVar("MUT_6C", "knock_var", "knock var (AKA Knock Sum Addition)");
-  LabelMutVar("MUT_6D", "knock_change", "knock change");
-  LabelMutVar("MUT_6E", "knock_dynamics", "knock dynamics");
-  LabelMutVar("MUT_6F", "knock_flag", "knock flag (AKA Knock Acceleration)");
-  LabelMutVar("MUT_70", "", "Array of Serial Receive Data Register 2 RDR 2 Values");
-  LabelMutVar("MUT_71", "", "Sensor Error");
-  LabelMutVar("MUT_72", "", "Knock Present");
-  LabelMutVar("MUT_73", "", "Throttle Position Delta 1");
-  LabelMutVar("MUT_74", "", "Throttle Position Delta 2");
-  LabelMutVar("MUT_76", "ISCV % Demand", "ISCV % Demand (Columns)");
-  LabelMutVar("MUT_79", "InjectorLatency", "Injector Latency");
-  LabelMutVar("MUT_7A", "", "Continuous Monitor Completion Status 1");
-  LabelMutVar("MUT_7B", "", "Continuous Monitor Completion Status 2");
-  LabelMutVar("MUT_7C", "", "Continuous Monitor Completion Status 3");
-  LabelMutVar("MUT_7D", "", "Non Continuous Monitor Completion Status OBD");
-  LabelMutVar("MUT_7E", "", "Continuous Monitor Completion Status Low 4");
-  LabelMutVar("MUT_7F", "", "Continuous Monitor Completion Status High 4");
-  LabelMutVar("MUT_80", "", "ECU ID Type (LSB)");
-  LabelMutVar("MUT_81", "", "ECU ID Type (MSB)");
-  LabelMutVar("MUT_82", "", "ECU ID Version");
-  LabelMutVar("MUT_83", "", "ADC Channel F");
-  LabelMutVar("MUT_84", "ThermoFanDuty", "Thermo Fan Dutycycle");
-  LabelMutVar("MUT_85", "EgrDuty", "EGR Dutycycle");
-  LabelMutVar("MUT_86", "WGDC", "Wastegate Duty Cycle");
-  LabelMutVar("MUT_87", "FuelTemperature", "Fuel Temperature");
-  LabelMutVar("MUT_88", "FuelLevel", "Fuel Level");
-  LabelMutVar("MUT_89", "", "ADC Channel 8 2");
-  LabelMutVar("MUT_8A", "LoadError", "Load Error - (Throttle Position Corrected ?)");
-  LabelMutVar("MUT_8B", "WGDCCorr", "WGDC Correction");
-  LabelMutVar("MUT_8E", "", "Solenoid Duty");
-  LabelMutVar("MUT_90", "", "Timer Status Register 9 TSR9");
-  LabelMutVar("MUT_96", "MAF_ADC", "RAW MAF ADC value");
-  LabelMutVar("MUT_9A", "ACClutch", "AC clutch");
-  LabelMutVar("MUT_9B", "", "Output Pins");
-  LabelMutVar("MUT_A2", "CrankPulse", "Crankshaft sensor pulse");
-  LabelMutVar("MUT_A2", "MafPulse", "MAF sensor pulse");
-  LabelMutVar("MUT_A2", "CamPulse", "Camshaft sensor pulse");
-  LabelMutVar("MUT_A8", "ATInShaftPulse", "Input shaft speed pulse (A/T)");
-  LabelMutVar("MUT_A8", "ATOutShaftPulse", "Output shaft speed pulse (A/T)");
-  LabelMutVar("MUT_A8", "ATGearL", "Gear: Low (A/T)");
-  LabelMutVar("MUT_A8", "ATGear2", "Gear: 2 (A/T)");
-  LabelMutVar("MUT_A8", "ATGear3", "Gear: 3 (A/T)");
-  LabelMutVar("MUT_A9", "O2HeaterFrontLeft", "Front O2 heater bank 1 (left)");
-  LabelMutVar("MUT_A9", "O2HeaterRearLeft", "Rear O2 heater bank 1 (left)");
-  LabelMutVar("MUT_A9", "O2HeaterFrontRight", "Front O2 heater bank 2 (right)");
-  LabelMutVar("MUT_A9", "O2HeaterRearRight", "Rear O2 heater bank 2 (right)");
-  LabelMutVar("MUT_AA", "Braking", "Brakes Pressed");
-  LabelMutVar("MUT_B3", "ATGearNeutral", "Gear: Neutral (A/T)");
-  LabelMutVar("MUT_B3", "ATGearDrive", "Gear: Drive (A/T)");
-  LabelMutVar("MUT_B4", "ATGearPark", "Gear: Park (A/T)");
-  LabelMutVar("MUT_B4", "ATGearRev", "Gear: Reverse (A/T)");
-  LabelMutVar("MUT_B7", "O2HeaterBrokenFrRt", "front O2 heater circuit open (broken): bank 2 (right)");
-  LabelMutVar("MUT_B8", "O2HeaterBrokenFrLt", "front O2 heater circuit open (broken): bank 1 (left)");
-  LabelMutVar("MUT_B8", "NewACSwitch", "Air Conditioning Switch (Mattjin)");
-  LabelMutVar("MUT_B8", "PowerSteering", "Power Steering");
-  LabelMutVar("MUT_B9", "O2HeaterBrokenRearRt", "rear O2 heater circuit open (broken): bank 2 (right)");
-  LabelMutVar("MUT_BA", "O2HeaterBrokenRearLt", "rear O2 heater circuit open (broken): bank 1 (left)");
-
-  // Common MUT commands
-  LabelMutVar("MUT_C3", "", "SAS (Speed Adjusting Screw)");
-  LabelMutVar("MUT_C5", "", "Purge solenoid venting");
-  LabelMutVar("MUT_CA", "", "Invalid command");
-  LabelMutVar("MUT_CB", "", "Invalid command");
-  LabelMutVar("MUT_CD", "", "A/C fan high");
-  LabelMutVar("MUT_CE", "", "A/C fan low");
-  LabelMutVar("MUT_CF", "", "Main fan high");
-  LabelMutVar("MUT_D0", "", "Main fan low");
-  LabelMutVar("MUT_D2", "", "Lower RPM");
-  LabelMutVar("MUT_D3", "", "Boost control solenoid");
-  LabelMutVar("MUT_D5", "", "EGR solenoid");
-  LabelMutVar("MUT_D6", "", "Fuel pressure solenoid");
-  LabelMutVar("MUT_D7", "", "Purge solenoid");
-  LabelMutVar("MUT_D8", "", "Fuel pump");
-  LabelMutVar("MUT_D9", "", "Fix timing at 5 degrees");
-  LabelMutVar("MUT_DA", "", "Disable injector 1");
-  LabelMutVar("MUT_DB", "", "Disable injector 2");
-  LabelMutVar("MUT_DC", "", "Disable injector 3");
-  LabelMutVar("MUT_DD", "", "Disable injector 4");
-  LabelMutVar("MUT_DE", "", "Disable injector 5 (unused)");
-  LabelMutVar("MUT_DF", "", "Disable injector 6 (unused)");
-  LabelMutVar("MUT_EC", "", "Calibration F6A");
-  LabelMutVar("MUT_ED", "", "Calibration");
-  LabelMutVar("MUT_EE", "", "Calibration");
-  LabelMutVar("MUT_EF", "", "Calibration");
-  LabelMutVar("MUT_F3", "", "Cancel previously-active command (ie. SAS mode)");
-  LabelMutVar("MUT_F9", "", "some keep alive function to keep the accuator engaged. response is 0xff");
-  LabelMutVar("MUT_FA", "", "Clear active and stored faults");
-  LabelMutVar("MUT_FB", "", "Force tests to run");
-  LabelMutVar("MUT_FC", "", "Clear active faults");
-  LabelMutVar("MUT_FE", "", "Immobilizer");
-  LabelMutVar("MUT_FF", "", "Init code");
-
-  Message("Done\n");
+    Message("Patch target labelled at 0x12AA14.\n");
 }
 
-static FixDataOffsets(void) {
-  auto ea, end, disass;
+// ---------------------------------------------------------------------------
+// RAM: per-slot arrays and scalar device state
+// ---------------------------------------------------------------------------
+static LabelRAM() {
+    // Per-slot arrays (8 bytes each, indexed by slot number 0-7)
+    MakeByteArray(0x426C82, 8, "device_type_by_slot");
+    MakeComm(0x426C82, "type codes: 0=none, 1=ZIP, 2=HDD-small, 3=HDD-large");
 
- /*  ea = 0;
-  end = SegEnd(ea);
-  if (ea == BADADDR || end == BADADDR) {
-    Message("nothing selected\n");
-    return;
-  }
-  Message("Fixing offsets from %x to %x... ", ea, end);
+    MakeByteArray(0x426C0A, 8, "slot_flag_A");
+    MakeByteArray(0x426C12, 8, "slot_flag_B");
+    MakeByteArray(0x426C1A, 8, "slot_flag_C");
+    MakeByteArray(0x426C22, 8, "slot_flag_D");
+    MakeByteArray(0x426C2A, 8, "slot_flag_E");
+    MakeByteArray(0x426C32, 8, "slot_media_accepted");
+    MakeComm(0x426C32, "non-zero = device accepted for this slot");
+    MakeByteArray(0x426C3A, 8, "slot_device_flags");
 
-  for (ea; ea <= end; ea = NextAddr(ea)) {
-    if (ea == BADADDR)
-      break;
+    // Scalars
+    MakeByte(0x426C8A);  SafeMakeName(0x426C8A, "active_slot");
+    MakeWord(0x40101E);  SafeMakeName(0x40101E, "device_status_reg");
+    MakeComm(0x40101E,
+        "ATAPI status codes: "
+        "0x8001=not init, 0x8003=no device, 0x8007=device found, "
+        "0x8008=success/ZIP accepted, 0x8009=unknown type, "
+        "0x800B=wrong device, 0x8015=rejected");
+    MakeByte(0x426BF8);  SafeMakeName(0x426BF8, "atapi_status_hi");
+    MakeByte(0x426BF9);  SafeMakeName(0x426BF9, "atapi_status_lo");
+    MakeByte(0x426BFC);  SafeMakeName(0x426BFC, "ide_init_done");
+    MakeByte(0x426BFD);  SafeMakeName(0x426BFD, "atapi_result");
+    MakeByte(0x426BFE);  SafeMakeName(0x426BFE, "classify_lock");
 
-    // Check for loc_, off_xxx + y
-    disass = GetDisasm(ea);
-
-    if ((strstr(disass, ".data.l loc_") != -1 && strstr(disass, "+") != -1) ||
-        (strstr(disass, ".data.l off_") != -1 && strstr(disass, "+") != -1)) {
-      //Message("fixing %s  @0x%x\n", disass, ea);
-      MakeWord(ea);
-    }
-  } */
-  Message("Done\n");
+    Message("RAM labels applied.\n");
 }
 
-static FixConstants(void) {
-  auto ea, end, disass;
+// ---------------------------------------------------------------------------
+// ROM: device type strings, vendor strings, SZHC table, error strings
+// ---------------------------------------------------------------------------
+static LabelROMData() {
+    // Device type string table (0x171ABB)
+    MakeStr(0x171ABB, BADADDR); SafeMakeName(0x171ABB, "str_dev_self");
+    MakeStr(0x171AC0, BADADDR); SafeMakeName(0x171AC0, "str_dev_zip");
+    MakeStr(0x171AC5, BADADDR); SafeMakeName(0x171AC5, "str_dev_hd");
+    MakeStr(0x171ACA, BADADDR); SafeMakeName(0x171ACA, "str_dev_cd");
+    MakeStr(0x171ACF, BADADDR); SafeMakeName(0x171ACF, "str_szhc");
 
-/*   ea = 0x1500;
-  end = 0x3500;
+    // SZHC ATAPI command table (4 x 7-byte entries, base 0x171AD4)
+    SafeMakeName(0x171AD4, "szhc_cmd_table");
+    MakeComm(0x171AD4, "SZHC ATAPI command table: 4 entries x 7 bytes");
+    MakeComm(0x171AD4, "entry 0: 06 00 00 00 00 00 00  (reset/null)");
+    MakeComm(0x171ADB, "entry 1: 06 1B 00 00 00 00 00  (START/STOP UNIT)");
+    MakeComm(0x171AE2, "entry 2: 06 1E 00 00 00 00 00  (PREVENT/ALLOW MEDIA REMOVAL)");
+    MakeComm(0x171AE9, "entry 3: 06 03 00 00 00 00 00  (REQUEST SENSE)");
 
-  Message("Fixing constants from %x to %x... ", ea, end);
-  for (ea; ea <= end && ea != BADADDR; ea = NextAddr(ea)) {
-    if (Name(ea) == "" || strstr(Name(ea), "unk_") == 0)
-      MakeWord(ea);
-  } */
-  Message("Done\n");
+    // Vendor/product strings
+    MakeStr(0x171AF0, BADADDR); SafeMakeName(0x171AF0, "str_vendor_iomega_upper");
+    MakeStr(0x171AF9, BADADDR); SafeMakeName(0x171AF9, "str_vendor_iomega_lower");
+    MakeStr(0x171B02, BADADDR); SafeMakeName(0x171B02, "str_product_zip");
+    MakeStr(0x171B90, BADADDR); SafeMakeName(0x171B90, "str_vendor_roland");
+
+    // Filesystem/disk strings
+    MakeStr(0x174BDF, BADADDR); SafeMakeName(0x174BDF, "str_err_not_sp808");
+    MakeStr(0x174CB7, BADADDR); SafeMakeName(0x174CB7, "str_err_wrong_disk");
+    MakeStr(0x174CD6, BADADDR); SafeMakeName(0x174CD6, "str_err_wrong_size");
+    MakeStr(0x175233, BADADDR); SafeMakeName(0x175233, "str_media_100mb");
+    MakeStr(0x175245, BADADDR); SafeMakeName(0x175245, "str_media_250mb");
+
+    Message("ROM data labels applied.\n");
 }
 
-
-static WellKnownFunc(ea, name, comment) {
-  if (ea == BADADDR)
-    return;
-  /* SafeMakeName(ea, name);
-  MakeCode(ea);
-  SetFunctionFlags(ea, 0);
-  MakeFunction(ea, BADADDR);
-  if (comment != "" && GetFunctionCmt(ea, 0) == "")
-    SetFunctionCmt(ea, comment, 0); */
-}
-
-static LabelLibraryFuncs() {
-  auto start, ea, i, end;
-
-/*
-  WellKnownFunc(0xDD2, "ZIP_DISK_DETECT", "Reads WORD at (R4 + (MAPindex * 4)) into R0");
-  */
-
-  {
-    // Look for the main() function, it should be the only sub called from 'init'
-    start = Dword(0);
-    end = GetFunctionAttr(start, FUNCATTR_END);
-    for (i = start; i != BADADDR; i = NextHead(i, end)) {
-      if (GetMnem(i) == "jsr") {
-        start = Rfirst0(i);
-        // Message("Real init starts at %x\n", start);
-        WellKnownFunc(start, "main", "ROM entry point");
-        break;
-      }
-    }
-  }
-}
-
-
-//-----------------------------------------------------------------------
-// Get name of the current processor
-static get_processor(void) {
-  auto i, procname, chr;
-
-  procname = "";
-  for (i = 0; i < 8; i++) {
-    chr = GetCharPrm(INF_PROCNAME + i);
-    if (chr == 0) break;
-    procname = procname + chr;
-  }
-  return procname;
-}
-
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
 static main() {
-  auto processor, newaf;
+    Message("\n=== SP-808 IDA helper ===\n");
+    Message("Base address : 0x%X\n", BASE_ADDRESS);
+    Message("Mask ROM end : 0x%X (code below here is not patchable)\n", MASK_ROM_END);
+    Message("Flash end    : 0x%X\n\n", FLASH_END);
 
-  SetLongPrm(INF_MAXREF, 16);
-  SetCharPrm(INF_INDENT, 22);
-  SetCharPrm(INF_COMMENT, 70);
-  SetCharPrm(INF_MARGIN, 120);
-  SetCharPrm(INF_PREFFLAG, PREF_SEGADR | PREF_FNCOFF); // show segment and function prefixes
+    H8RegisterNames();
+    FixupVectorTable();
+    LabelFunctions();
+    LabelPatchTarget();
+    LabelRAM();
+    LabelROMData();
 
-  SetCharPrm(INF_CMTFLAG, SW_ALLCMT);                  // show all comments
-  SetCharPrm(INF_ASMTYPE, 0);                          // use GNU asm format
-  {
-    // Disable some analysis options that don't suit the SH2/SH4 code
-    newaf = newaf & ~AF_MARKCODE; // Mark typical code sequences as code
-    newaf = newaf & ~AF_PROCPTR;  // Create function if data xref->code32 exists
-    newaf = newaf & ~AF_LVAR;     // Create stack variables
-    newaf = newaf & ~AF_TRACE;    // Trace stack pointer
-    newaf = newaf & ~AF_ASCII;    // Create ascii string if data xref exists
-    newaf = newaf & ~AF_FINAL;    // Final pass of analysis
-  //  SetShortPrm(INF_START_AF, newaf);
-
-    newaf = GetShortPrm(INF_AF2);
-    newaf = newaf & ~AF2_JUMPTBL; // Locate and create jump tables
-    newaf = newaf & ~AF2_DODATA;  // Coagulate data segs in final pass
-    newaf = newaf & ~AF2_CHKUNI;  // Check for unicode strings
-    SetShortPrm(INF_AF2, newaf);
-  }
-
-
- // MakeName	(0X10601354,	"show_dialog_box?");
-
-
-
-/*
-           ┌──────────────────────────────────┐
-H'00000000 │                                  │
-           │                                  │
-           │                                  │
-           │                                  │
-           │          On-chip ROM             │
-           │           64 kbytes              │
-           │                                  │
-           │                                  │
-H'0000FFFF │                                  │
-           ├──────────────────────────────────┤
-H'00010000 │                                  │
-           │                                  │
-           │                                  │
-           │                                  │
-           │                                  │
-           │  On-chip ROM / external address  │
-           │        space/reserved area*      │
-           │                                  │
-           │                                  │
-           │                                  │
-H'0001FFFF │                                  │
-           ├──────────────────────────────────┤
-H'00020000 │                                  │
-           ≡       External address space     ≡ 
-           │                                  │
-           ├──────────────────────────────────┤
-H'00FFEC00 │                                  │
-           │           On Chip RAM            │
-H'00FFFBFF │            4 Kbytes              │
-           ├──────────────────────────────────┤
-H'00FFFC00 │      External address space      │
-           ├──────────────────────────────────┤
-H'00FFFE3F │     Internal I/O Registers       │
-           ├──────────────────────────────────┤
-H'00FFFF08 │      External address space      │
-           ├──────────────────────────────────┤
-H'00FFFF28 │      Internal I/O Registers      │
-H'00FFFFFF └──────────────────────────────────┘
-*/
-
-  processor = get_processor_name();
-  if {(processor == "h8") {
-    Message("H8 create segment %x-%x\n", 0x10000, 0x1ffff);
-    SegCreate(0x10000, 0x1ffff, 0x0, 0, 1, 2);
-    SegRename(0x10000, "seg001");
-    SegClass (0x10000, "CODE");
-    SegDefReg(0x10000, "br", 0x0);
-    SegDefReg(0x10000, "dp", 0x1);
-    SetSegmentType(0x10000, 2);
-
-    //Message("H8/500 create segment %x-%x\n", 0x14000, 0x1ffff);
-    //SegCreate(0x14000, 0x20000, 0x0, 0, 1, 2);
-    //SegRename(0x14000, "seg001");
-    //SegClass (0x14000, "CODE");
-    //SegDefReg(0x14000, "br", 0x0);
-    //SegDefReg(0x14000, "dp", 0x1);
-    //SetSegmentType(0x14000, 2);
-
-    Message("H8/500 create segment %x-%x\n", 0x20000, 0x2ffff);
-    SegCreate(0x20000, 0x2ffff, 0x0, 0, 1, 2);
-    SegRename(0x20000, "seg002");
-    SegClass (0x20000, "CODE");
-    SegDefReg(0x20000, "br", 0x0);
-    SegDefReg(0x20000, "dp", 0x2);
-    SetSegmentType(0x20000, 2);
-
-    Message("H8/500 Creating RAM\n");
-    SegCreate(0xEE80, 0xFFFF, 0, 1, saRelWord, 0);
-    SegRename(0XEE80, "RAM");
-
-    MakeNameEx(0x0001021A, "rom_id", SN_NOLIST);
-    MakeDword(0x0001021A);
-
-    LowVoids(0);
-    HighVoids(H8_CODE_OFFSET);
-  } else {
-    Message("Unknown processor type %s\n", processor);
-  }
+    Message("\n=== Done ===\n");
+    Message("Patch target : 0x12AA14  (file offset 0x2AA14)\n");
+    Message("  Original   : 46 10  (bne +0x10, rejects non-ZIP devices)\n");
+    Message("  Patched    : 40 00  (bra +0x00, allows all classified devices)\n");
 }
