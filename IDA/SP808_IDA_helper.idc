@@ -1,236 +1,190 @@
-from ida_bytes import *
-from ida_segment import *
-from ida_auto import auto_wait
-from ida_idp import *
-from ida_name import *
-from ida_funcs import *
-from ida_search import *
-import ida_ua
-import ida_idaapi
-import ida_kernwin
-import ida_segment
-import ida_loader
+"""
+SP808_IDA_helper.py — IDA Pro analysis script for Roland SP-808 firmware
 
-BASE_ADDRESS = 0x100000  # External flash mapped here in H8S/2653 Mode 6
-ACTIVE_CONTENT_END = 0x7C883  # File offset; active content ends at runtime 0x17C883
-VECTOR_TABLE_SIZE = 0x100  # First 256 bytes for vectors
+Load SP8EXall.bin with:
+  Processor : H8/300H Advanced (H8S/2653)
+  Load base : 0x100000
+  ROM type  : binary
 
-def setup_segments():
-    """Setup memory segments based on firmware structure"""
-    # Create the main code segment
-    seg = ida_segment.segment_t()
-    seg.start_ea = BASE_ADDRESS
-    seg.end_ea = BASE_ADDRESS + ACTIVE_CONTENT_END
-    seg.sel = 0
-    seg.bitness = 1  # 32-bit
-    seg.align = ida_segment.saRelByte
-    seg.comb = ida_segment.scPub
-    ida_segment.add_segm_ex(seg, "ROM", "CODE", ida_segment.ADDSEG_OR_DIE)
-    
-    # Set segment permissions
-    ida_segment.set_segm_attr(seg.start_ea, SEGATTR_PERM, SEGPERM_READ | SEGPERM_EXEC)
+Then run this script via File > Script file.
 
-def process_vector_table():
-    """Process and mark the exception vector table"""
-    print("\nProcessing vector table...")
-    
-    for offset in range(0, VECTOR_TABLE_SIZE, 4):
-        vector_ea = BASE_ADDRESS + offset
-        
-        # Read the 32-bit vector
-        vector_bytes = get_bytes(vector_ea, 4)
-        if not vector_bytes:
-            continue
-            
-        # Extract the lower 24 bits (ignore upper 8)
-        target_addr = int.from_bytes(vector_bytes[1:4], 'big')
-        
-        # Validate the target address is within our firmware
-        if BASE_ADDRESS <= target_addr <= (BASE_ADDRESS + ACTIVE_CONTENT_END):
-            # Mark as code and try to create function
-            create_insn(target_addr)
-            add_func(target_addr)
-            
-            # Name the vector and create cross-reference
-            vector_name = f"vector_{offset:02X}"
-            set_name(vector_ea, vector_name)
-            add_dref(vector_ea, target_addr, XREF_USER|dr_O)
-            
-            print(f"Vector at 0x{vector_ea:X} -> 0x{target_addr:X}")
+All IDA addresses are runtime addresses (file offset + 0x100000).
+Conversion: file_offset = ida_address - 0x100000
+"""
 
-def find_szhc_tables():
-    """Find and mark SZHC tables"""
-    print("\nLocating SZHC tables...")
-    ea = BASE_ADDRESS
-    
-    while True:
-        ea = find_binary(ea, SEARCH_DOWN, "53 5A 48 43")  # "SZHC"
-        if ea == BADADDR or ea >= (BASE_ADDRESS + ACTIVE_CONTENT_END):
-            break
-            
-        print(f"Found SZHC table at 0x{ea:X}")
-            
-        # Mark the SZHC header
-        create_strlit(ea, 4, STRTYPE_C)
-        set_name(ea, f"SZHC_table_{ea:X}")
-        
-        # Analyze the table structure (7-byte command entries)
-        cmd_ea = ea + 4
-        for i in range(12):  # Typical number of commands
-            create_data(cmd_ea, FF_BYTE, 1, BADADDR)
-            create_data(cmd_ea + 1, FF_BYTE, 1, BADADDR)  # Command byte
-            create_data(cmd_ea + 2, FF_BYTE, 5, BADADDR)  # Parameters
-            add_extra_cmt(cmd_ea, True, f"Command entry {i}")
-            cmd_ea += 7
-            
-        ea = ea + 4
+from idc import *
+from idaapi import *
+from idautils import *
+import idc
+import idaapi
+import idautils
 
-def create_known_strings():
-    """Mark known string locations and create cross-references"""
-    known_strings = {
-        0x71259: ("str_keep_power", "KEEP POWER ON!"),
-        0x71275: ("str_image", "IMAGE"),
-        0x71aa0: ("str_ts25e_sys", "TS25ESYSTEMPRMxxBAK"),
-        0x71abb: ("str_dev_self", "SELF"),
-        0x71ac0: ("str_dev_zip", "ZIP "),
-        0x71ac5: ("str_dev_hd", "HD  "),
-        0x71aca: ("str_dev_cd", "CD  "),
-        0x71af0: ("str_vendor_iomega1", "IOMEGA  "),
-        0x71af9: ("str_vendor_iomega2", "iomega  "),
-        0x71b90: ("str_vendor_roland", "Roland  "),
-        0x74bdf: ("str_err_not_sp808", "Not SP-808 Disk."),
-        0x74cd6: ("str_err_wrong_size", "Wrong Media Size."),
-        0x75233: ("str_media_100mb", "SP808 100MB Disk."),
-        0x75245: ("str_media_250mb", "SP808EX 250MB Disk.")
-    }
-    
-    print("\nMarking known strings...")
-    for offset, (name, content) in known_strings.items():
-        ea = BASE_ADDRESS + offset  # file offset + load base = runtime address
-        print(f"Creating string '{name}' at 0x{ea:X}")
-        
-        # Create string
-        create_strlit(ea, len(content), STRTYPE_C)
-        set_name(ea, name)
-        
-        # Find references to this string
-        refs = find_string_references(ea, len(content))
-        for ref in refs:
-            print(f"  Reference from 0x{ref.offset:X}")
-            # Try to create function around reference
-            create_insn(ref.offset)
-            potential_func_start = ref.offset - 32
-            if add_func(potential_func_start):
-                if "err_" in name:
-                    set_name(potential_func_start, f"handle_{name[4:]}")
-                elif "dev_" in name:
-                    set_name(potential_func_start, f"check_{name[4:]}")
-                elif "media_" in name:
-                    set_name(potential_func_start, f"validate_{name[6:]}")
-                    
-def analyze_device_validation_code():
-    """Analyze code around device validation strings"""
-    print("\nAnalyzing device validation code...")
-    
-    # Key addresses from known strings
-    device_type_start = BASE_ADDRESS + 0x71abb  # SELF string (runtime 0x171ABB)
-    vendor_id_start = BASE_ADDRESS + 0x71af0   # IOMEGA string (runtime 0x171AF0)
-    
-    # Look for code patterns around these addresses
-    patterns = [
-        (device_type_start, 32),    # Search 32 bytes around device type strings
-        (vendor_id_start, 32),      # Search 32 bytes around vendor ID strings
-    ]
-    
-    for start_ea, window in patterns:
-        refs = find_code_references(start_ea, window)
-        for ref in refs:
-            print(f"Found validation code at 0x{ref.offset:X}")
-            # Create function and add comment
-            if add_func(ref.offset):
-                set_name(ref.offset, f"device_validation_{ref.offset:X}")
-                set_cmt(ref.offset, "Device validation routine", 1)
+BASE = 0x100000   # IDA load base = external flash runtime address
 
-def identify_command_handlers():
-    """Identify command processing routines"""
-    print("\nLocating command handlers...")
-    # Common H8S command processing patterns
-    patterns = [
-        "6F 60 00 06",  # Command dispatch
-        "6F E0 00 06",  # Alternative dispatch
-    ]
-    
-    for pattern in patterns:
-        ea = BASE_ADDRESS
-        while True:
-            ea = find_binary(ea, SEARCH_DOWN, pattern)
-            if ea == BADADDR or ea >= (BASE_ADDRESS + ACTIVE_CONTENT_END):
-                break
-                
-            print(f"Found command handler at 0x{ea:X}")
-            # Mark as code
-            create_insn(ea)
-            # Try to create function
-            func_start = ea - 16  # Look back for function start
-            if add_func(func_start):
-                set_name(func_start, f"cmd_handler_{func_start:X}")
-                
-            ea = ea + 4
 
-def mark_strings_and_tables():
-    """Find and mark common string tables and data structures"""
-    print("\nMarking strings and tables...")
-    strings = [
-        "IOMEGA",
-        "iomega",
-        "Roland",
-        "FAT12",
-        "FAT16",
-        "SP-808",
-        "SYSTEM",
-        "TS25E",
-    ]
-    
-    for s in strings:
-        ea = BASE_ADDRESS
-        while True:
-            ea = find_text(ea, 0, 0, s.encode('ascii'), SEARCH_DOWN)
-            if ea == BADADDR or ea >= (BASE_ADDRESS + ACTIVE_CONTENT_END):
-                break
-                
-            print(f"Found string '{s}' at 0x{ea:X}")
-            create_strlit(ea, len(s), STRTYPE_C)
-            set_name(ea, f"str_{s.lower()}_{ea:X}")
-            ea = ea + len(s)
+# ---------------------------------------------------------------------------
+# Named locations — (ida_address, name, comment)
+# ---------------------------------------------------------------------------
+
+NAMES = [
+    # --- Functions ---
+    (0x12A808, "ide_init",                    "Zeros device state arrays, programs ASIC registers"),
+    (0x12A956, "device_probe",                "Top-level device probe; contains ZIP-only gate at 0x12AA14"),
+    (0x12AA72, "atapi_cmd_sequence_full",     "Runs SZHC command table from entry 0 (06 00...)"),
+    (0x12AAF2, "atapi_cmd_sequence_partial",  "Runs SZHC command table from START/STOP UNIT onwards"),
+    (0x12ACB0, "device_validate",             "Validates ATAPI response, dispatches on device geometry/type"),
+    (0x12AE88, "device_classifier",           "Classifies drive; writes type 1/2/3 to device_type_by_slot"),
+    (0x12B150, "zip_device_init",             "Post-classification init (originally ZIP-specific; review for HDD)"),
+    (0x12B712, "atapi_command_handler",       "Core ATAPI command send/receive"),
+
+    # --- Patch target ---
+    (0x12AA12, "dc_check_type1",              "cmp.b #1, r0l — test for ZIP device type"),
+    (0x12AA14, "dc_branch_if_not_type1",      "bne — rejects non-ZIP; PATCH TARGET (46 10 -> 40 00)"),
+
+    # --- RAM: per-slot arrays (8 bytes each, indexed by slot number) ---
+    (0x426C82, "device_type_by_slot",         "8-slot array: 0=none 1=ZIP 2=HDD-small 3=HDD-large"),
+    (0x426C0A, "slot_flag_A",                 "8-slot flag array"),
+    (0x426C12, "slot_flag_B",                 "8-slot flag array"),
+    (0x426C1A, "slot_flag_C",                 "8-slot flag array"),
+    (0x426C22, "slot_flag_D",                 "8-slot flag array"),
+    (0x426C2A, "slot_flag_E",                 "8-slot flag array"),
+    (0x426C32, "slot_media_accepted",         "8-slot array: non-zero = device accepted for this slot"),
+    (0x426C3A, "slot_device_flags",           "8-slot device flags array"),
+
+    # --- RAM: scalars ---
+    (0x426C8A, "active_slot",                 "Currently active device slot index"),
+    (0x40101E, "device_status_reg",           "ATAPI command status codes (0x8001/8003/8007/8008/800B/8015)"),
+    (0x426BF8, "atapi_status_hi",             ""),
+    (0x426BF9, "atapi_status_lo",             ""),
+    (0x426BFC, "ide_init_done",               "Non-zero once IDE hardware initialised"),
+    (0x426BFD, "atapi_result",                ""),
+    (0x426BFE, "classify_lock",               "Guards single-entry into device_validate"),
+
+    # --- ROM: device/vendor strings ---
+    (0x171ABB, "str_dev_self",                "SELF"),
+    (0x171AC0, "str_dev_zip",                 "ZIP "),
+    (0x171AC5, "str_dev_hd",                  "HD  "),
+    (0x171ACA, "str_dev_cd",                  "CD  "),
+    (0x171ACF, "str_szhc",                    "-SZHC"),
+    (0x171AF0, "str_vendor_iomega_upper",     "IOMEGA  "),
+    (0x171AF9, "str_vendor_iomega_lower",     "iomega  "),
+    (0x171B02, "str_product_zip",             "ZIP"),
+
+    # --- ROM: filesystem/disk strings ---
+    (0x171B90, "str_vendor_roland",           "Roland  "),
+    (0x174BDF, "str_err_not_sp808",           "Not SP-808 Disk."),
+    (0x174CB7, "str_err_wrong_disk",          "Wrong Disk."),
+    (0x174CD6, "str_err_wrong_size",          "Wrong Media Size."),
+    (0x175233, "str_media_100mb",             "SP808 100MB Disk."),
+    (0x175245, "str_media_250mb",             "SP808EX 250MB Disk."),
+]
+
+
+# ---------------------------------------------------------------------------
+# ATAPI command table entries — (ida_address, command_byte, description)
+# SZHC signature at 0x171ACF; command entries begin at 0x171AD4
+# ---------------------------------------------------------------------------
+
+ATAPI_CMDS = [
+    (0x171AD4, 0x00, "reset/null"),
+    (0x171ADB, 0x1B, "START/STOP UNIT"),
+    (0x171AE2, 0x1E, "PREVENT/ALLOW MEDIA REMOVAL"),
+    (0x171AE9, 0x03, "REQUEST SENSE"),
+]
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def set_name_safe(ea, name, comment=""):
+    """Rename address, skipping if already taken by a different address."""
+    existing = idc.get_name_ea_simple(name)
+    if existing != idc.BADADDR and existing != ea:
+        print(f"  SKIP rename {name!r}: already used at 0x{existing:X}")
+        return
+    idc.set_name(ea, name, idc.SN_NOWARN | idc.SN_NOCHECK)
+    if comment:
+        idc.set_cmt(ea, comment, 0)
+
+
+def make_array_bytes(ea, count, name, comment=""):
+    """Define a byte array and name it."""
+    for i in range(count):
+        idc.create_byte(ea + i)
+    set_name_safe(ea, name, comment)
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 def main():
-    print(f"\nStarting SP-808 firmware analysis...")
-    print(f"Base Address: 0x{BASE_ADDRESS:X}")
-    print(f"Content End: 0x{ACTIVE_CONTENT_END:X}")
-    
-    # Wait for initial auto-analysis
-    auto_wait()
-    
-    # Setup memory segments
-    setup_segments()
-    
-    # Process vector table first
-    process_vector_table()
-    
-    # Create known strings and find their references
-    create_known_strings()
-    
-    # Find and mark key structures
-    find_szhc_tables()
-    analyze_device_validation_code()
-    identify_command_handlers()
-    mark_strings_and_tables()
-    
-    # Add useful comments
-    add_extra_cmt(BASE_ADDRESS + 0x71ac0, True, "Start of device type validation table")
-    add_extra_cmt(BASE_ADDRESS + 0x71af0, True, "Start of vendor ID validation strings")
-    
-    print("\nAnalysis complete!")
+    print("\n=== SP-808 IDA helper ===")
+    print(f"Base address: 0x{BASE:X}\n")
 
-if __name__ == '__main__':
+    # 1. Apply names and comments
+    print("Applying names...")
+    for ea, name, comment in NAMES:
+        set_name_safe(ea, name, comment)
+
+    # 2. Mark per-slot arrays as byte arrays (8 bytes each)
+    SLOT_ARRAYS = [
+        (0x426C82, "device_type_by_slot"),
+        (0x426C0A, "slot_flag_A"),
+        (0x426C12, "slot_flag_B"),
+        (0x426C1A, "slot_flag_C"),
+        (0x426C22, "slot_flag_D"),
+        (0x426C2A, "slot_flag_E"),
+        (0x426C32, "slot_media_accepted"),
+        (0x426C3A, "slot_device_flags"),
+    ]
+    print("Defining slot arrays...")
+    for ea, name in SLOT_ARRAYS:
+        make_array_bytes(ea, 8, name)
+
+    # 3. Mark ATAPI command entries and add comments
+    print("Marking ATAPI command table entries...")
+    for ea, cmd, desc in ATAPI_CMDS:
+        for i in range(7):
+            idc.create_byte(ea + i)
+        idc.set_cmt(ea,     f"marker (0x06)", 0)
+        idc.set_cmt(ea + 1, f"command 0x{cmd:02X}: {desc}", 0)
+        for i in range(2, 7):
+            idc.set_cmt(ea + i, "param", 0)
+
+    # 4. Mark known ASCII strings
+    print("Marking known strings...")
+    STRING_LOCS = [
+        (0x171ABB, 4,  "SELF"),
+        (0x171AC0, 4,  "ZIP "),
+        (0x171AC5, 4,  "HD  "),
+        (0x171ACA, 4,  "CD  "),
+        (0x171ACF, 5,  "-SZHC"),
+        (0x171AF0, 8,  "IOMEGA  "),
+        (0x171AF9, 8,  "iomega  "),
+        (0x171B02, 3,  "ZIP"),
+        (0x171B90, 8,  "Roland  "),
+        (0x174BDF, 16, "Not SP-808 Disk."),
+        (0x174CB7, 11, "Wrong Disk."),
+        (0x174CD6, 17, "Wrong Media Size."),
+        (0x175233, 17, "SP808 100MB Disk."),
+        (0x175245, 19, "SP808EX 250MB Disk."),
+    ]
+    for ea, length, content in STRING_LOCS:
+        idc.create_strlit(ea, ea + length + 1, idc.STRTYPE_C)
+
+    # 5. Mark patch location prominently
+    patch_ea = 0x12AA14
+    idc.set_cmt(patch_ea,
+        "PATCH TARGET: change 46 10 (bne) to 40 00 (bra) to allow HDD types 2/3 "
+        "through the ZIP-only gate. File offset 0x2AA14.", 1)
+
+    print("\nDone.")
+    print("Patch target : 0x12AA14 (file offset 0x2AA14)")
+    print("  Original   : 46 10  (bne +0x10, rejects non-ZIP)")
+    print("  Patched    : 40 00  (bra +0x00, allows all classified devices)")
+
+
+if __name__ == "__main__":
     main()
