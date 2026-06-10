@@ -1,25 +1,79 @@
-# Firmware
+# Roland SP-808 — HDD/CF Storage Mod
 
-## Full Workflow: Extract → Patch → Flash
+Reverse engineering and firmware patching to enable non-Zip IDE storage on the
+Roland SP-808 groovebox.
 
-### Step 1 — Extract firmware binary from MIDI files
+The SP-808 uses an Iomega Zip drive as its primary storage. The hardware is
+fully capable of driving a plain IDE HDD or CF adapter — the identical Edirol
+A6 hardware ships with HDD support. The restriction is purely firmware.
 
-Unzip `SP-808EX_v.1001_for_SP-808.zip`. It contains 8 MIDI files (`SP8EX#1.mid`…`SP8EX#8.mid`).
+---
+
+## Current Status
+
+A patch has been identified and is ready for hardware testing. A single 2-byte
+change in the flash firmware removes the ZIP-only gate in the device probe
+function, allowing any classified IDE device (HDD, CF adapter) to proceed to
+the init path.
+
+**The patch has not yet been confirmed on hardware.**
+
+---
+
+## How It Works
+
+The SP-808 firmware classifies attached IDE devices into three types:
+
+| Type | Meaning                              |
+|------|--------------------------------------|
+| 1    | ZIP (IOMEGA vendor string matched)   |
+| 2    | HDD, small (geometry < 0x951229)    |
+| 3    | HDD, large (geometry >= 0x951229)   |
+
+The classifier (`device_classifier`, IDA 0x12AE88) correctly identifies and
+types any drive, including plain HDDs and CF adapters. However, the calling
+function (`device_probe`, IDA 0x12A956) contains a gate that rejects anything
+that is not type 1:
+
+```asm
+cmp.b  #1, r0l       ; is device type ZIP?
+bne    loc_12AA26    ; reject if not  ← patch target
+```
+
+The patch changes this `bne` (branch if not ZIP) to `bra` (branch always),
+allowing types 2 and 3 through.
+
+| File offset | Original   | Patched    | Effect                     |
+|-------------|------------|------------|----------------------------|
+| `0x2AA14`   | `46 10`    | `40 00`    | `bne +0x10` → `bra +0x00` |
+
+---
+
+## Quick Start
+
+### Requirements
+
+- SP-808 firmware update ZIP: `SP-808EX_v.1001_for_SP-808.zip`
+- Python 3
+- MIDI interface connected to SP-808 MIDI IN
+- `rolandext.py`, `patch_sp808.py`, `bin2midi.py` (this repo)
+
+### Step 1 — Extract firmware binary
 
 ```bash
-# Process all 8 files in order (Linux/macOS)
 for f in SP8EX'#'?.mid; do python rolandext.py model=sp808 infil="$f" outfil=SP8EXall.bin; done
 ```
 
-Result: `SP8EXall.bin` (786,436 bytes = `0xC0004`).
+Produces `SP8EXall.bin` (786,436 bytes, MD5: `d744a9cd4a2790ac68d165fd7849b5d8`).
 
-### Step 2 — Apply the ZIP bypass patch
+### Step 2 — Apply patch
 
 ```bash
 python patch_sp808.py SP8EXall.bin SP8EXall_patched.bin
 ```
 
-Changes 1 byte at offset `0x4B523`: `0x05` → `0xFF`. See `RolandSP-808ZIPDriveValidationBypass.md`.
+The script verifies the input MD5, confirms patch bytes before writing, and
+prints the output MD5.
 
 ### Step 3 — Convert back to MIDI SysEx
 
@@ -27,139 +81,66 @@ Changes 1 byte at offset `0x4B523`: `0x05` → `0xFF`. See `RolandSP-808ZIPDrive
 python bin2midi.py SP8EXall_patched.bin SP8EX_patched
 ```
 
-Creates `SP8EX_patched#1.mid` … `SP8EX_patched#8.mid`.
+Produces `SP8EX_patched#1.mid` … `SP8EX_patched#8.mid`.
 
 **Round-trip verify before flashing:**
+
 ```bash
 python rolandext.py model=sp808 infil="SP8EX_patched#1.mid" outfil=verify.bin
-cmp -n 98304 SP8EXall_patched.bin verify.bin   # no output = correct
+cmp -n 98304 SP8EXall_patched.bin verify.bin   # no output = match
 ```
 
-> **Note**: `bin2midi.py` has not been verified on hardware. The round-trip test confirms
-> correct encoding but does not substitute for a real flash test.
-
-### Step 4 — Flash the SP-808
+### Step 4 — Flash
 
 1. Connect MIDI interface to SP-808 MIDI IN.
 2. Power on SP-808 holding **SHIFT** — display shows `MIDI UPDATE`.
 3. Send `SP8EX_patched#1.mid`. Wait for `Completed`.
-4. Repeat for files #2–#8.
-5. SP-808 restarts automatically after file #8.
+4. Repeat for files `#2` through `#8`.
+5. SP-808 restarts automatically after file `#8`.
 
 ---
 
-## Firmware Binary Layout
+## Known Issues / Next Steps
 
-| Offset | Content |
-|--------|---------|
-| `0x000000` | Roland container header (32 bytes: `TS25ESYS...RolandEC`) |
-| `0x000020` | H8S/2653 exception vector table (runtime `0x100020`) |
-| `0x0006DF2` | Reset vector target — first executed instruction (runtime `0x106DF2`) |
-| `0x071AD0` | SZHC command table (`ZIP `, `HD  `, `CD  `, vendor strings) |
-| `0x071AF0` | `IOMEGA  ` vendor validation string |
-| `0x04B520` | Device type validation code |
-| `0x04B523` | **Patch location** (`0x05` → `0xFF`) |
-| `0x07C883` | End of active content |
-| `0xBFFE0` | Repeated Roland container header (trailer) |
-| `0xC0004` | End of file |
+The success path after the gate calls `zip_device_init` (IDA 0x12B150), which
+was written for ZIP drives and may issue Iomega-specific ATAPI commands. If it
+does, a plain HDD or CF adapter will not respond correctly and init may stall.
+This requires investigation once the gate patch is tested.
 
-**IDA Pro**: load with base address `0x100000` (external flash base), processor H8/300H.
-Run `../IDA/SP808_IDA_helper.idc` after loading.
+The unit also exhibits a ~1 second lag per operation when a CF adapter is
+attached with unpatched firmware. Whether this is caused by the gate rejection
+loop, a timeout in the mask ROM ATAPI primitive, or something else is not yet
+determined.
+
+See `Project_Summary.md` for the full inquiry list.
 
 ---
 
-## MIDI SysEx Format
+## Repository Contents
 
-Data packets (one per 252-byte binary chunk):
-```
-[delta=0x10] F0 [reclen] 41 10 00 2B 12 [addr(3)] [memadd(5-nibbles)] [7bit-data] [cksm] F7
-```
-
-**7-bit encoding** — 7 binary bytes → 8 SysEx bytes:
-```
-Output: (b0&0x7F) (b1&0x7F) ... (b6&0x7F)  mask_byte
-mask bit 6 = MSB(b0),  bit 5 = MSB(b1),  ... bit 0 = MSB(b6)
-```
+| File                  | Description                                          |
+|-----------------------|------------------------------------------------------|
+| `patch_sp808.py`      | Applies the gate patch to `SP8EXall.bin`             |
+| `rolandext.py`        | Extracts firmware binary from Roland MIDI SysEx files|
+| `bin2midi.py`         | Converts patched binary back to MIDI SysEx files     |
+| `Project_Summary.md`  | Detailed verified findings and open inquiry list     |
 
 ---
 
-## rolandext.py — Notes
+## Hardware
 
-I've had a go at converting the old BASIC program into Python.
+- MCU: Hitachi/Renesas H8S/2653, A-mask, mask-ROM variant (`6432653A11F`)
+- IDE ASIC: EPSON SLA919F
+- External flash: LH28F800-class, 1 MB
+- Mask ROM boundary: 0x00E800 (code below this address is not patchable)
 
-> [!WARNING]
-> While i've copied the functionality of the original BASIC program, I can not verify that the original BASIC program worked as intened. There have only been two people who have attempted to decompile or reverse engineer the resulting firmware binary generated by the BASIC program and I am one of those people. Loading the binary into a decompiler does not give expected results. While there are things in the file that look like legitimate H8 op codes, and there are legible ASCII strings, there are segmnets of code that make no sense, they can not be decompiled to an H8 Op code and it's not known if these segments are code (or data/parameter tables) for other chips in the SP808 (like the DSP) or, they are artifacts of a bad binary extraction (especially given we're doing some 7bit to 8bit slight of hand).
+IDA Pro setup: load `SP8EXall.bin` with base address `0x100000`, processor
+`H8/300H Advanced`. Run `SP808_IDA_helper.idc` after loading.
 
-## Key Features of the Updated Script
-Model Configuration: The script uses a dictionary to store the configuration for each model, making it easy to add new models.
-Model Argument: The user can specify the model name (sp808, a6, vs880, integra7), and the script will use the appropriate IDs and command.
-File Handling: The script processes multiple input files matching a pattern and appends the extracted data to a single output file.
+---
 
-## Usage Example
-To use the script for the Roland VS-880, you would run:
+## References
 
-```python rolandext.py model=vs880 infil=VS880A-1.mid outfil=VS880A.bin```
-This command will process the specified input file and extract the firmware data to the output file using the IDs configured for the VS-880 model. You can adapt the configuration for different models as needed.
-
-### Overview of the Roland MIDI Firmware Extraction Script
-
-This script extracts firmware binary data from Roland MIDI update files and converts them into a single binary file. It supports various Roland models by allowing the user to specify the model name as a command-line argument. The script handles the extraction and parsing of SysEx (System Exclusive) messages, ensuring correct handling of manufacturer ID, device ID, model ID, and command ID based on the specified model.
-
-### Supported Models
-
-The script supports the following Roland models, with their respective IDs configured:
-
-- **SP-808**: `model=sp808`
-- **Edirol A6**: `model=a6`
-- **VS-880**: `model=vs880`
-- **Integra-7**: `model=integra7`
-
-### Configuration
-
-The script uses a dictionary to store configuration details for each model, including the manufacturer ID, device ID, model ID, and command ID. You can easily add new models by updating the `MODEL_CONFIG` dictionary in the script.
-
-### How the Script Works
-
-1. **Parameter Parsing**:
-   - The script reads the model name, input file pattern, and output file name from the command-line arguments.
-   - It retrieves the configuration details (IDs and command) for the specified model from the `MODEL_CONFIG` dictionary.
-
-2. **File Handling**:
-   - The script uses the `glob` module to find all input files matching the specified pattern.
-   - It opens each input file in binary mode for reading and the output file in binary append mode.
-
-3. **MIDI Header and Track Chunk Validation**:
-   - The script checks for the "MThd" marker and validates the header length, SMF type, and number of tracks.
-   - It verifies the "MTrk" marker and checks the file size.
-
-4. **SysEx Event Parsing**:
-   - The script reads and processes SysEx events, validating the manufacturer ID, device ID, model ID, and command ID.
-   - It calculates the record length and checksum, ensuring data integrity.
-
-5. **Firmware Data Extraction**:
-   - For data packets, the script decodes 7-bit data bytes into 8-bit bytes and writes them to the output file.
-   - For metadata packets, the script extracts and prints memory parameters, file numbers, and other relevant information.
-
-6. **Completion**:
-   - The script prints a completion message after processing all input files.
-
-### Error Handling
-
-- The script includes some error handling for unrecognized markers, invalid IDs, unexpected data lengths, and non-zero checksums.
-- If an error is encountered, the script prints an error message and the file offset where the error occurred, then aborts the conversion process.
-
-### Adding New Models
-
-To add a new model, update the `MODEL_CONFIG` dictionary with the appropriate IDs and command for the new model:
-
-```python
-MODEL_CONFIG = {
-    'newmodel': {
-        'RmanfID': 0x41,  # Manufacturer ID
-        'MdevID': 0x10,   # Device ID
-        'RmodID': 0xXX,   # Model ID
-        'Mdataset1': 0x12 # Command ID
-    }
-}
-```
-
+- H8S/2653 Hardware Manual (Renesas)
+- EPSON SLA919F datasheet
+- Iomega Zip ATAPI specification
