@@ -484,12 +484,21 @@ static LabelROMData() {
         "ESP test display descriptor. NG/OK strings at +4/+7. "
         "7-byte display records: [str_ptr:24][type:8][subtype:8][idx:16].");
 
-SafeMakeName(0x17C454, "init_data_src_start");
-MakeRptCmt(0x17C454, "Start of .data section copied to DRAM at 0x403000 on boot. "
-    "Size: 0x42D bytes (1069). Ends at init_data_src_end (0x17C881).");
-
 SafeMakeName(0x17C881, "init_data_src_end");
 MakeRptCmt(0x17C881, "End of .data section. Destination: ram_clear_start (0x403000).");
+
+SafeMakeName(0x17C454, "init_data_src_start");
+MakeRptCmt(0x17C454, 
+    "Start of .data section. Copied to DRAM 0x403000-0x40342D at boot. "
+    "0x403000 begins with function pointer dispatch table (~44 entries). "
+    "Followed by envelope curves, voice flags, EQ params, D-Beam strings.");
+
+SafeMakeName(0x403000, "dispatch_table_base");
+MakeRptCmt(0x403000,
+    "Function pointer dispatch table. ~44 entries x 4 bytes. "
+    "Populated from init_data_src_start (0x17C454) at boot. "
+    "Each entry is a 24-bit flash handler address (0x15xxxx/0x16xxxx range). "
+    "Read by main_loop_entry RAM dispatcher to service events.");
 
     MakeStr(0x171ABB, BADADDR); SafeMakeName(0x171ABB, "str_dev_self");
     MakeStr(0x171AC0, BADADDR); SafeMakeName(0x171AC0, "str_dev_zip");
