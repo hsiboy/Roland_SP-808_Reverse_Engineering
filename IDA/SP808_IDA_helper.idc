@@ -484,6 +484,13 @@ static LabelROMData() {
         "ESP test display descriptor. NG/OK strings at +4/+7. "
         "7-byte display records: [str_ptr:24][type:8][subtype:8][idx:16].");
 
+SafeMakeName(0x17C454, "init_data_src_start");
+MakeRptCmt(0x17C454, "Start of .data section copied to DRAM at 0x403000 on boot. "
+    "Size: 0x42D bytes (1069). Ends at init_data_src_end (0x17C881).");
+
+SafeMakeName(0x17C881, "init_data_src_end");
+MakeRptCmt(0x17C881, "End of .data section. Destination: ram_clear_start (0x403000).");
+
     MakeStr(0x171ABB, BADADDR); SafeMakeName(0x171ABB, "str_dev_self");
     MakeStr(0x171AC0, BADADDR); SafeMakeName(0x171AC0, "str_dev_zip");
     MakeStr(0x171AC5, BADADDR); SafeMakeName(0x171AC5, "str_dev_hd");
