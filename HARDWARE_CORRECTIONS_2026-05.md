@@ -1,323 +1,815 @@
-# Roland SP-808 Hardware Corrections - May 2026
+# Roland SP-808 Hardware and Architecture Corrections --- October 2026
 
-> **ARCHIVED** — All corrections in this document have been applied to the source files
-> (June 2026 review). This document is retained for audit trail purposes only.
-> Do not treat it as a source of current truth; read the actual source files instead.
+> \*\*CURRENT CONSOLIDATED CORRECTION RECORD\*\*
+>
+> This document supersedes the archived May 2026 hardware-corrections
+> document. It separates manufacturer/documented facts, directly
+> observed firmware or hardware evidence, inference, and unresolved
+> questions.
+>
+> \*\*Evidence labels\*\*
+>
+> -   \*\*OBSERVED\*\* --- directly supported by firmware
+>     bytes/instructions, schematic/service documentation, bus captures,
+>     or physical hardware observation.
+> -   \*\*STRONGLY INFERRED\*\* --- best explanation supported by multiple
+>     independent observations.
+> -   \*\*HYPOTHESIZED\*\* --- plausible interpretation requiring additional
+>     verification.
+> -   \*\*UNRESOLVED\*\* --- evidence is insufficient.
+> -   \*\*SUPERSEDED / CONTRADICTED\*\* --- older project interpretation
+>     should no longer be used.
 
-**Date:** May 27, 2026  
-**Applied:** June 2026  
-**Status:** Corrections complete
+**Date:** 4 October 2026  
+**Scope:** SP-808 / SP-808EX hardware architecture, firmware mapping,
+storage architecture, and relevant development-interface findings.
 
----
+\---
 
-## Executive Summary
+## 1\. Executive Summary
 
-This document corrects inconsistencies and errors identified in the SP-808 reverse engineering project documentation through systematic cross-reference with manufacturer datasheets. Three critical hardware specifications required correction: MCU model designation, flash memory capacity notation, and memory address space clarification.
+The following foundational hardware conclusions are retained:
 
----
+* **OBSERVED:** The SP-808 uses the Hitachi **HD6432653BA11F**, an
+H8S/2653-family MCU.
+* **OBSERVED:** The main-board CPU crystal X1 is **20.000 MHz**.
+* **OBSERVED:** The Sharp **LH28F800SUT** flash is an 8-Mbit device,
+i.e. **1 MiB** total capacity.
+* **OBSERVED:** The application flash image is mapped at runtime
+beginning at **0x100000**.
+* **OBSERVED:** The H8 application uses a 24-bit address space for the
+relevant external-memory map.
+* **OBSERVED:** The SP-808 contains physically distinct internal
+IDE/ATAPI and optional external SCSI hardware paths.
+* **OBSERVED:** The SLA919FF0J gate array has IDE control and
+DMA-related signals. The former claim that the design has "no DMA
+support / DDRQ and DDRACK not connected" is **CONTRADICTED** by the
+Roland schematic.
+* **CONTRADICTED:** The Iomega/ZIP recognition logic previously
+documented as a global "device validation flow" must not be applied
+to the internal IDE device. It belongs to the target-indexed
+external-style storage path.
+* **CONTRADICTED:** RAM word `0x4033E4` is not a ZIP/device-validation
+result variable.
+* **SUPERSEDED:** A6 HDD support no longer needs to be inferred from
+supposed device-type values. The A6 application contains a directly
+recovered ATA HDD driver.
+* **OBSERVED / STRONGLY INFERRED:** The application contains a
+separate H8 SCI1 proprietary serial interface exposed at the
+unpopulated CN7 footprint and configured for approximately **62,500
+baud**. Its relationship to Status+FX C Develop Monitor remains
+unresolved.
 
-## Critical Corrections
+\---
 
-### 1. MCU Model Designation: H8S/2653 (Not 2655)
+## 2\. MCU Identification
 
-**Status:** ✓ CORRECTED
+### 2.1 Device
 
-**Previous Documentation:** 
-- Mixed references to both H8S/2655 and H8S/2653
-- Inconsistent designation across multiple files
-- Part number HD6432653 never clarified to 2653 series
+**OBSERVED:** Roland's service documentation identifies main-board IC7
+as:
 
-**Correction:**
-The SP-808 uses the **Hitachi HD6432653**, which is the **H8S/2653 variant** (OTP/mask-programmed), NOT the H8S/2655 series.
+`HD6432653BA11F`
 
-| Specification | H8S/2653 | H8S/2655 |
-|---|---|---|
-| **Internal ROM** | 64 KB | Different variant |
-| **Internal RAM** | 4 KB | Different variant |
-| **Architecture** | 16-bit single-chip | Different core |
-| **CPU Core** | H8S/2600 (Advanced) | Different CPU |
-| **Max Frequency** | 20 MHz (SP-808) | Varies |
-| **Part Number** | HD6432653 | HD6472655 |
+This establishes the processor as the **Hitachi H8S/2653-family**
+device. References in older project material to the H8S/2655 as the
+installed MCU are **SUPERSEDED**.
 
-**Source:** Renesas H8S/2653 Hardware Manual, Software Manual (1091 pages)
+The CPU core belongs to the H8S/2600 architecture.
 
-**Action Items:**
-- Replace all instances of H8S/2655 with H8S/2653
-- Update Roland_SP-808_CPU.md to clarify variant
-- Correct H8S_2655_OpCodes.md filename reference (applies to 2653)
+### 2.2 Clock
 
----
+**OBSERVED:** The Roland main-board schematic identifies crystal X1 as:
 
-### 2. Flash Memory Capacity: 8 Mbit = 1 MB (Not 8 MB)
+`20.000 MHz`
 
-**Status:** ✓ CORRECTED
+This is the documented SP-808 CPU clock source used in current
+hardware/firmware correlation.
 
-**Previous Documentation:**
-- "LH28F800SUT is 8M and organized as 512K x 16"
-- Confusing mixing of Mbit (megabits) and MB (megabytes)
-- Implied 8 MB total capacity
+The same value independently produces the recovered SCI1 baud rate from
+the actual SCI register programming; see §10.
 
-**Correction:**
-The Sharp LH28F800SUT is **8 Mbit (1 MByte)** total capacity, configurable as:
-- **1M × 8-bit:** 1 Megabyte width 8 bits (most common)
-- **512K × 16-bit:** 512 Kilobytes width 16 bits (alternative)
+### 2.3 Internal ROM and RAM
 
-| Organization | Total Bits | Total Bytes | Address Lines | Data Width |
-|---|---|---|---|---|
-| 1M × 8 | 8 Megabits | 1 MB | 20 (A0–A19) | 8-bit |
-| 512K × 16 | 8 Megabits | 1 MB | 19 (A0–A18) | 16-bit |
+The H8S/2653 documentation describes on-chip ROM/RAM resources for the
+relevant device variant.
 
-**SP-808 Configuration:**
-- Firmware size: 786,436 bytes (0xC0004 hex)
-- Flash capacity: 1 MB total
-- Utilization: ~79% of available space
-- Likely configuration: 1M × 8-bit with A0 disconnected (word-aligned access)
+These specifications should be described as **MCU/device
+characteristics** rather than evidence that the internal ROM contents
+have been recovered.
 
-**Source:** Sharp LH28F800SUT-70 Datasheet
+**OBSERVED:** The internal mask/OTP ROM contents are not available in
+the current reverse-engineering corpus.
 
-**Action Items:**
-- Update LH28F800SUT-70.md with corrected specifications
-- Add capacity calculation table
-- Clarify bit vs. byte notation throughout documentation
+**Methodological rule:** unavailable internal ROM is treated as an
+opaque lower layer. Application-visible service contracts are
+reconstructed from callers, shared state, register effects, and hardware
+behaviour. Internal-ROM extraction is not a prerequisite for the storage
+work.
 
----
+\---
 
-### 3. Memory Address Space Architecture
+## 3\. Flash Memory
 
-**Status:** ✓ CLARIFIED
+### 3.1 Capacity
 
-**Previous Documentation:**
-- "16MB address space (architectural max 4GB)" — confusing
-- Firmware loading at 0x100000 — basis unclear
-- 0x1000 offset mentioned without context
+**OBSERVED:** Main-board flash is a Sharp `LH28F800SUT`.
 
-**Correction:**
+The device capacity is:
 
-The H8S/2653 in Mode 6 (MD2=1, MD1=1, MD0=0) provides:
+* 8 Mbit
+* 1 MiB total
+* commonly expressible as 1M × 8 or 512K × 16 depending on
+organization
 
-| Address Range | Component | Size | Notes |
-|---|---|---|---|
-| 0x000000–0x00FFFF | On-chip ROM | 64 KB | Bootloader/masked ROM |
-| 0x010000–0xFFFFFF | External address space | ~16 MB | Flash firmware starts here |
-| 0x00FFEC00–0x00FFFBFF | Internal RAM | 4 KB | When RAME=1 |
-| 0x00FFFE3F–0x00FFFFFF | I/O & internal regs | | System registers |
+The historical interpretation "8M = 8 MB" is **CONTRADICTED**.
 
-**Architectural Limits:**
-- **24-bit addressing:** 0x000000 to 0xFFFFFF = 16 MB (used in Mode 6)
-- **32-bit extended:** H8S/2600 CPU supports up to 4 GB (rarely used)
+### 3.2 Firmware image
 
-**Firmware Loading Question:** Requires further investigation
-- Theory A: Firmware at 0x010000 (after masked ROM) — most likely
-- Theory B: Bootloader in masked ROM (0x000000) jumps to 0x010000
-- Theory C: IDA load address 0x100000 is arbitrary offset for analysis
+The analysed SP-808EX firmware binary is approximately `0xC0004` bytes
+including its container/header material, and therefore fits within the
+1-MiB flash device.
 
-**Source:** Renesas H8S/2653 Hardware Manual, H8S/2600 CPU Architecture
+Do not infer the electrical bus organization solely from firmware file
+size.
 
-**Action Items:**
-- Document in Roland_SP-808_Notes.md
-- Add memory map diagram to Wiki
-- Create separate page: Memory-Architecture.md
+\---
 
----
+## 4\. Application Runtime Mapping
 
-## String Address Offset Analysis
+### 4.1 Flash base
 
-**Status:** ✓ CONFIRMED (with caveat)
+**OBSERVED:** The application firmware is coherently mapped at runtime
+beginning at:
 
-**Previous Documentation:**
-- A6 firmware strings "offset by ~0x5FDE from SP-808"
-- Inconsistent offset values suggested
+`0x100000`
 
-**Confirmation:**
+This is no longer merely an IDA convenience or speculative relocation.
 
-Device type strings show consistent offset:
+The mapping is supported by reset/vector analysis and by the extensive
+coherent absolute code/data references recovered throughout the
+application.
+
+For the current firmware image, file-to-runtime mapping for application
+contents follows the established firmware-container/header relationship;
+individual calculations should continue to be checked against the actual
+image layout.
+
+### 4.2 Address-space interpretation
+
+**OBSERVED:** The relevant H8S operating configuration uses 24-bit
+addresses for the application-visible external map.
+
+Therefore the working architectural address range is:
+
+`0x000000–0xFFFFFF`
+
+Do not describe the SP-808 application as using a flat 32-bit/4-GiB
+physical address map merely because the CPU architecture contains 32-bit
+registers or broader architectural capabilities.
+
+### 4.3 Internal-ROM boundary
+
+The low address region contains processor-internal resources including
+unavailable ROM.
+
+**UNRESOLVED:** The complete power-on execution sequence inside the
+internal ROM.
+
+This does not prevent reconstruction of the application-visible
+`0x400xxx` service ABI.
+
+\---
+
+## 5\. Startup RAM Initialization
+
+Earlier project notes described the relocation of `0x17xxxx` data into
+`0x40xxxx` RAM as unknown. That is **SUPERSEDED**.
+
+**OBSERVED:** Application startup routine `0x12CC54` clears the
+application RAM region and copies:
+
+`0x17C454–0x17C880 → 0x403000–0x40342C`
+
+Length:
+
+`0x42D` bytes
+
+The byte immediately after the destination, `0x40342D`, remains outside
+that copied initialized-data range.
+
+This mapping is important because apparent ROM and RAM addresses must
+not be conflated without identifying the actual startup copy.
+
+\---
+
+## 6\. Correction: `0x4033E4` Is Not Device Type / ZIP Validation State
+
+The old interpretation of `0x4033E4` as a ZIP/device-validation result
+is **CONTRADICTED**.
+
+**OBSERVED:** Startup copies ROM bytes at `0x17C838–0x17C839` to RAM
+`0x4033E4–0x4033E5`.
+
+Those bytes are:
+
+`2E E0`
+
+which form word:
+
+`0x2EE0 = 12000`
+
+Adjacent RAM `0x4033E6–0x4033ED` is initialized from:
+
+`3F F0 00 00 00 00 00 00`
+
+which represents binary64 `1.0`.
+
+**OBSERVED:** Later application arithmetic loads the word at `0x4033E4`,
+adds 5, extends it, and divides by 10.
+
+Consequently:
+
+> `0x4033E4` belongs to numerical/application state and must not be used
+> as evidence for ZIP recognition, device type, media type, or storage
+> acceptance.
+
+Any older documentation assigning storage semantics to this location is
+superseded.
+
+\---
+
+## 7\. SLA919FF0J Gate Array and IDE Hardware
+
+### 7.1 Documentation status
+
+The SLA919FF0J is a custom gate-array/ASIC used by the SP-808.
+
+**UNRESOLVED:** No public programming datasheet has been established in
+the project corpus.
+
+This should be stated as "no public datasheet found," not "confirmed
+private."
+
+### 7.2 Schematic evidence
+
+**OBSERVED:** The Roland main-board schematic exposes SLA919FF0J signals
+including:
+
+* `IDECS`
+* `IDECS0`
+* `IDECS1`
+* `IDERD`
+* `IDEWR`
+* `IDE\_A1`
+* `IDE\_A2`
+* `IDE\_A3`
+* `DMAR`
+* `DMAW`
+* `WAIT`
+* `INTO`
+* `RESET`
+
+The internal 40-pin IDE connector carries standard ATA/ATAPI-related
+signals including:
+
+* `DD00–DD15`
+* `DA0–DA2`
+* `CS0/CS1`
+* `DIOR`
+* `DIOW`
+* `DMARQ`
+* `DMACK`
+* `IORDY`
+* `INTRQ`
+* `RESET`
+* `IOCS16`
+* `PDIAG`
+* `DASP`
+
+### 7.3 DMA correction
+
+The old statement:
+
+> "No DMA support (DDRQ, DDRACK not connected)"
+
+is **CONTRADICTED** by the official schematic.
+
+**OBSERVED:** Physical DMA-handshake and DMA-related resources exist in
+the stock SP-808 hardware.
+
+This does **not** by itself prove that a particular storage transaction
+uses ATA bus-master DMA, nor that the A6 transfer engine maps one-to-one
+onto a standard ATA DMA mode.
+
+A distinction must be maintained between:
+
+1. physical DMA-capable signalling/resources;
+2. H8/gate-array memory-transfer channels;
+3. ATA protocol transfer mode.
+
+\---
+
+## 8\. Internal IDE/ATAPI vs External SCSI Architecture
+
+This is a major correction to the old "complete device validation flow."
+
+### 8.1 Hardware separation
+
+**OBSERVED:** Roland service documentation distinguishes:
+
+* an **internal IDE** Zip test; and
+* a separate **SCSI** test requiring the optional SP808-OP1 and an
+external SCSI Zip drive.
+
+The optional SCSI board contains a dedicated NCR53CF92 SCSI controller.
+
+Therefore the internal Zip and external target path are physically
+distinct.
+
+### 8.2 Internal physical IDE path
+
+Bus captures of the stock internal drive show:
+
+1. IDE software reset assertion/release;
+2. signature reads including `14/EB`, the ATAPI packet signature;
+3. device select;
+4. `A1` IDENTIFY PACKET DEVICE;
+5. `EF` SET FEATURES attempts;
+6. `A0` PACKET commands;
+7. SCSI/ATAPI packet operations such as REQUEST SENSE, START/STOP,
+INQUIRY, MODE SENSE(10), MODE SELECT(10), and vendor commands.
+
+**OBSERVED:** Stock internal Zip operation is therefore an
+IDE/ATAPI-side path.
+
+### 8.3 Target-indexed path
+
+The visible target-indexed application backend uses:
+
+* target IDs;
+* per-target state;
+* SCSI-like command descriptor blocks;
+* INQUIRY;
+* MODE SENSE/SELECT;
+* READ CAPACITY;
+* READ(10)/WRITE(10);
+* controller registers around `0x800000–0x80000E`;
+* transfer hardware around `0x880000`.
+
+The path recognizes Iomega/ZIP identity and has its own media-state
+machinery.
+
+**STRONGLY INFERRED:** This is the external SCSI-style backend
+associated with the optional external storage architecture.
+
+### 8.4 Historical validation-flow correction
+
+The old documentation treated Iomega/ZIP recognition as a complete
+global storage-device acceptance flow.
+
+That interpretation is **CONTRADICTED**.
+
+The Iomega/ZIP gate must not be projected onto the internal IDE/ATAPI
+backend.
+
+Consequently, bypassing the visible Iomega/ZIP target check is **not
+established as an internal HDD-enablement patch**.
+
+\---
+
+## 9\. Edirol A6 Control Case and HDD Support
+
+Earlier documentation speculated that A6-specific device types such as
+`0x07/0x08` represented HDD support. That inference is **SUPERSEDED** by
+direct recovery of the A6 storage implementation.
+
+### 9.1 Internal ATA driver
+
+**OBSERVED:** A6 application firmware contains an application-side
+internal ATA driver using hardware registers around:
+
+`0x600000–0x60001C`
+
+Recovered functionality includes:
+
+* reset/control sequencing;
+* signature probing;
+* handler registration;
+* `EC` IDENTIFY DEVICE;
+* IDENTIFY response processing;
+* cylinder/head/sector geometry;
+* a linear-addressing capability selector;
+* ATA read command `20`;
+* ATA write command `30`;
+* CHS addressing;
+* 28-bit linear addressing;
+* sector-count and task-file programming;
+* asynchronous transfer handlers.
+
+### 9.2 Routing
+
+A6 retains the same upper storage-context/routing architecture used by
+SP firmware but substitutes its application ATA backend for ordinary
+internal filesystem I/O.
+
+SP internal read/write paths call opaque services `0x4003A8/0x4003AC`.
+
+A6 homologues instead call the recovered application ATA routines.
+
+This is the central software differential relevant to HDD enablement.
+
+### 9.3 Meaning for the project
+
+> A6 HDD support is established by executable ATA-driver behaviour, not
+> by inferred string or device-type values.
+
+The existence of the A6 driver on hardware closely related to the SP-808
+is the primary control case for the HDD transplant work.
+
+\---
+
+## 10\. SCI1 / CN7 Proprietary Serial Interface
+
+### 10.1 Physical connection
+
+**OBSERVED:** The H8S/2653 pin `P31/TXD1` is routed as `TX1` to CN7. CN7
+also exposes `RX1` and `XRST`.
+
+**OBSERVED (physical unit):** CN7 is unpopulated on the examined
+production PCB, but its pads show witness marks consistent with pogo-pin
+contact.
+
+**STRONGLY INFERRED:** CN7 was intended to be contacted by
+production/development equipment.
+
+### 10.2 SCI1 configuration
+
+Application routine `0x107A72` programs SCI1:
+
+``` text
+SMR1 = 0x00
+BRR1 = 0x09
+SCR1 = 0xF0
 ```
-SP-808 0x171AF0 ("IOMEGA  ") + 0x5FDE = 0x177ACE (A6) ✓
-SP-808 0x171B02 ("ZIP") + 0x5FDE = 0x177AE0 (A6) ✓
+
+`SCR1=F0` enables:
+
+* transmit-data-empty interrupt;
+* receive/error interrupt;
+* transmitter;
+* receiver.
+
+It leaves multiprocessor and transmit-end interrupt enables clear.
+
+Using the documented 20 MHz clock and the H8 normal asynchronous
+formula:
+
+``` text
+baud = φ / \[32 × 4^n × (BRR + 1)]
+     = 20,000,000 / \[32 × 1 × 10]
+     = 62,500 baud
 ```
 
-**Caveat:** The offset may not apply uniformly to all strings
-- Device identification strings: 0x5FDE confirmed
-- Error/UI strings: Needs verification in complete A6 dump
-- Likely cause: Different build configurations or localization
+**STRONGLY INFERRED:** SCI1 operates at approximately **62,500 baud** in
+this configuration.
 
-**Action Items:**
-- Cross-reference complete A6 firmware dump
-- Create comprehensive string map (SP-808 vs. A6)
-- Document in Device-Validation-Analysis.md
+### 10.3 Buffers and handlers
 
----
+**OBSERVED:**
 
-## EPSON SLA919F ASIC Status
+* RX ring: `0x4102AA`, 512 bytes.
+* RX indices: `0x4104AA/0x4104AC`.
+* TX ring: `0x40FAAA`, 2048 bytes.
+* TX indices: `0x4104AE/0x4104B0`.
 
-**Status:** ✓ DOCUMENTED AS NO PUBLIC DATASHEET
+Handlers registered through `0x40020C`:
 
-**Finding:**
-The EPSON SLA919F appears to be a **custom ASIC with no publicly available datasheet**. This is not an error but a limitation of available resources.
+&#x20;   Selector      Handler Behaviour
 
-**What We Know:**
-- IDE/ATAPI interface controller
-- 7-byte command format: `06 XX 00 00 00 00 00` (XX = ATAPI command)
-- No DMA support (DDRQ, DDRACK not connected)
-- Identical in SP-808 and Edirol A6
+\---
 
-**Recovery Options:**
-1. Reverse-engineer from bus traces (partially done)
-2. Compare with public IDE controller implementations
-3. Analyze MCU register access patterns
-4. Contact EPSON legacy support (low probability)
+&#x20;    `0x150`   `0x107BCA` receive/error status
+     `0x154`   `0x107BEE` receive byte into ring
+     `0x158`   `0x107C2E` transmit queued byte
 
-**Action Items:**
-- Document as "ASIC — custom design, no public documentation"
-- Create ASIC-Protocol-Analysis.md page in Wiki
-- Reference existing bus trace analysis
 
----
+### 10.4 Wire grammar
 
-## Device Validation Flow (Complete)
+Recovered transactions include:
 
-**Location:** Function 0x12E8E0 (SP-808), similar in A6
-
-```
-1. ASIC provides INQUIRY response (includes vendor string)
-2. Compare vendor string at buffer+8 against "IOMEGA  " (8 bytes, case-sensitive)
-   → MATCH: Set validation flag (0x41E8AC), ACCEPT
-   → NO MATCH: Continue to step 3
-
-3. Compare vendor string against "iomega  " (8 bytes, lowercase)
-   → MATCH: Set validation flag, ACCEPT
-   → NO MATCH: Continue to step 4
-
-4. Compare device type string at buffer+16 against "ZIP" (3 bytes)
-   → MATCH: Initialize device, ACCEPT
-   → NO MATCH: REJECT with error "Not SP-808 Disk"
-
-Result register: 0x4033E4 (SP-808) / 0x403462 (A6)
-Status array: 0x41E864 base address
-Shadow register: 0x43B7C3 / 0x43B7C4
+``` text
+82 10 8E
+9D 9E
+9D 05 ...        response
+99 <arg> 9E
+92 <addr21> <length> 9E
+90 <addr21> <packed-data> 9E
+95 ... 9E
+96 ... 9E
 ```
 
-**SP-808 vs A6 Difference:**
-- SP-808: Only device type 0x05 (ZIP) accepted
-- A6: Additional code path (0x2E900) supports types 0x07 and 0x08 (likely HDD)
+The address-like argument is transmitted as three seven-bit chunks,
+least-significant first:
 
+``` text
+arg \& 0x7F
+(arg >> 7) \& 0x7F
+(arg >> 14) \& 0x7F
+```
+
+Arbitrary eight-bit data is encoded using low-seven-bit data bytes plus
+a bitmap carrying the original high bits.
+
+**OBSERVED:** In the inspected read path the SP sends a `92` request and
+waits for a `90` response.
+
+**STRONGLY INFERRED:** This is a proprietary request/reply protocol in
+which the SP acts as a client/requester for the recovered
+address-oriented operations.
+
+### 10.5 Not ordinary MIDI
+
+The normal MIDI implementation independently exhibits:
+
+* MIDI channel-status decoding;
+* running status;
+* realtime handling;
+* `F0/F7` SysEx;
+* Roland manufacturer byte `41`;
+* device/model checks;
+* modulo-128 checksum handling.
+
+SCI1 instead has its own fixed-token grammar, `9E` termination, 21-bit
+arguments, different arbitrary-byte encoding, and a 62.5-kbaud
+configuration.
+
+**STRONGLY INFERRED:** SCI1/CN7 is separate from the SP-808's ordinary
+MIDI transport.
+
+A MIDI-inspired historical design remains possible but is **UNRESOLVED**
+and should not be treated as an architectural fact.
+
+\---
+
+## 11\. Status+FX C Develop Monitor
+
+Experimentally observed boot combinations include:
+
+* Status + FX C → Develop Monitor
+* Status + FX D → Diagnostic Mode
+
+### 11.1 Diagnostic Mode
+
+**OBSERVED:** The D-mode diagnostic decision is visible in application
+startup.
+
+`0x1258D8` uses button-query routine `0x1381BC`; the successful
+diagnostic path calls `0x1463C6` and then application diagnostic entry
+`0x123994`.
+
+The application diagnostic implementation is therefore visible flash
+code, although it uses opaque lower-level services.
+
+### 11.2 Develop Monitor
+
+**UNRESOLVED:** No equivalent C-mode detector has yet been located in
+visible application code.
+
+The contiguous logical button group suggests a possible C combination,
+but the expected application-side test has not been recovered.
+
+Possible architectures include:
+
+1. selection before the external application entry;
+2. selection inside an opaque startup service;
+3. a computed or otherwise unrecovered application path;
+4. a split design in which an early ROM component selects a replaceable
+flash implementation.
+
+None is currently proven.
+
+**Important correction:** absence of a readable `"Develop Monitor"`
+ASCII string does not establish that the monitor resides in mask ROM.
+
+### 11.3 Relationship to SCI1
+
+**UNRESOLVED:** No connection between Status+FX C and the SCI1/CN7
+protocol has been established.
+
+The two investigations must remain separate until supported by
+reachability evidence or hardware observation.
+
+A useful low-risk experiment is passive capture of CN7 `TX1` during:
+
+* ordinary boot;
+* Status+FX C boot;
+* Status+FX D boot.
+
+Decode at approximately 62,500 baud, 8N1. Static firmware predicts
+`82 10 8E` as one recognizable SCI1 sequence.
+
+\---
+
+## 12\. String-Address Differential Between SP-808 and A6
+
+A historical `+0x5FDE` shift was observed for a class of
+device-identification strings.
+
+This remains useful as a **local correlation**, not as a global
+relocation rule.
+
+Examples from the current analysis include corresponding `SELF`, `ZIP`,
+`HD`, `CD`, and `IOMEGA` strings in the two images with the same local
+displacement.
+
+**Rule:** never relocate arbitrary code/data between SP and A6 by adding
+`0x5FDE`. Each correspondence requires independent structural
+verification.
+
+\---
+
+## 13\. Firmware Container / Update Format
+
+The project contains evidence that Roland distributes firmware through
+MIDI/SysEx-compatible update material and that the reconstructed binary
+contains a header before the mapped application image.
+
+However, exact historical claims about every header field and container
+semantic should be retained only where independently verified from the
+binary/update implementation.
+
+**OBSERVED:** The current reverse engineering uses the established
+application mapping at `0x100000`; the analysed binary includes
+non-application header bytes before the mapped executable content.
+
+**OBSERVED:** The application contains a MIDI SysEx firmware-update
+receiver with explicit Roland manufacturer/model checking and checksum
+handling.
+
+Do not infer storage architecture from the update container format.
+
+\---
+
+## 14\. Current Storage Architecture Summary
+
+\---
+
+Layer                   SP-808                  Edirol A6
+
+\---
+
+Main storage context    `0x401000`              `0x401000`
+
+Internal-device         opaque `0x400xxx`       recovered application
+implementation          services                ATA driver
+
+Internal hardware       lower layer / physical  `0x600000–0x60001C`
+register family         IDE-ATAPI observed      application-visible ATA
+
+Internal read           `0x4003A8`              application ATA read
+
+Internal write          `0x4003AC`              application ATA write
+
+Internal addressing     unavailable in opaque   CHS / 28-bit linear
+layer
+
+External target         `0x800000–0x80000E`     same family
+controller
+
+External transfer       `0x880000`              same family
+hardware
+
+External protocol       target-indexed          target-indexed
+SCSI-style              SCSI-style
+
+Ordinary external       Iomega/ZIP-oriented     Iomega/ZIP-oriented
+acceptance
+
+HDD evidence            stock internal path     direct application ATA
+remains                 HDD implementation
+Zip/ATAPI-oriented
 ---
 
-## Firmware Container Format (Verified)
+This separation is fundamental. Internal IDE/ATAPI observations and
+external target-indexed SCSI-style logic must not be merged.
 
-**Status:** ✓ VERIFIED
+\---
 
-Both SP-808 and A6 use Roland SysEx container format:
+## 15\. Superseded Claims
 
-| Offset | Content | Meaning |
-|---|---|---|
-| 0x00–0x03 | 5A 12 CC 54 | Roland magic + signature |
-| 0x04–0x0B | TS25ESYS | Total System 25 Enhanced |
-| 0x0C–0x13 | [version] | Build information |
-| 0x14–0x1B | RolandEC | Roland Electronics Corp |
-| 0x20+ | CODE | Exception vectors begin (H8 format) |
+The following historical claims must not be reintroduced as established
+facts:
 
-**Exception Vector Table:**
-- First 4 bytes (0x20–0x23): Reset vector (24-bit address in upper 24 bits)
-- Subsequent 4-byte entries: Exception handlers
-- First executable instruction: Target of reset vector
+* H8S/2655 is the installed SP-808 MCU.
+* 8-Mbit flash means 8 MB.
+* `0x4033E4` is a ZIP/device-type/result variable.
+* the Iomega/ZIP target recognition gate is the global internal-drive
+whitelist.
+* bypassing that gate establishes internal HDD support.
+* the target-indexed backend and physical internal IDE/ATAPI backend
+are the same path.
+* the SLA919F/IDE hardware has no DMA-related signalling.
+* A6 HDD support is established by inferred device-type values
+`0x07/0x08`.
+* `0x17xxxx → 0x40xxxx` startup relocation is wholly unknown.
+* lack of readable Develop Monitor strings proves mask-ROM
+implementation.
+* SCI1/CN7 is ordinary MIDI.
+* SCI1/CN7 is already established as the Develop Monitor interface.
+* "no public SLA919F datasheet found" proves that no datasheet exists.
 
-**Delivery Format:**
-- Firmware split into 8 MIDI SysEx files for update delivery
-- Single binary after reassembly
-- Container allows MIDI-compatible distribution
+\---
 
----
+## 16\. Current Outstanding Questions
 
-## Outstanding Questions for Future Investigation
+### Storage / A6 transplant
 
-The following items require further investigation:
+* Can SP's runtime environment safely provide the descriptor state
+used through low RAM words `0x450/0x458`?
+* What owns selectors `0x48`, `0xA0`, and `0xB0` before a transplanted
+ATA driver registers them?
+* Are the corresponding transfer channels safe and compatible on stock
+SP hardware?
+* Can warm timeout recovery guarantee quiescence before reusing
+`0x5D0000` as ATA scratch?
+* What are the exact application-visible contracts of the remaining
+necessary opaque services?
 
-### 1. Firmware Load Address
-- **Status:** RESOLVED (June 2026)
-- **Conclusion:** External flash is at `0x100000`. The reset vector at file offset `0x20`
-  (runtime `0x100020`) contains `01 10 6D F2`; lower 24 bits = `0x106DF2`, which is
-  file offset `0x6DF2` at runtime `0x106DF2` — within bounds. This is consistent with
-  all function addresses cited in `RolandSP-808ZIPDriveValidationBypass.md` (`0x100020`,
-  `0x12E8E0`, etc.). IDA `BASE_ADDRESS` corrected to `0x100000`.
+### Develop Monitor / CN7
 
-### 2. Memory Relocation Code
-- **Status:** Unknown location
-- **Issue:** Strings at 0x17xxxx accessed at 0x4xxxxx runtime
-- **Need:** Find code that copies strings during initialization
+* Where is Status+FX C detected?
+* Does C-mode execute the recovered SCI1 subsystem?
+* What is the peer at the other end of the CN7 proprietary protocol?
+* What does its 21-bit argument address?
+* What are commands `0x95`, `0x96`, and `0x99`?
+* What is the direction and role of `XRST`?
+* Is the monitor application-resident, internal-ROM-resident, or
+split?
 
-### 3. Masked ROM Boot Sequence
-- **Status:** Inaccessible (masked ROM)
-- **Need:** Trace execution from power-up
-- **Option:** Use logic analyzer on address bus
+### Internal ROM
 
-### 4. A6 Device Type Codes
-- **Status:** Types 0x07 and 0x08 suspected HDD support
-- **Need:** Complete A6 firmware analysis to confirm
+* Exact implementations of the `0x400xxx` service routines remain
+unavailable.
+* Their application-visible contracts can continue to be reconstructed
+without making ROM extraction a dependency.
 
-### 5. Complete ASIC Protocol
-- **Status:** Partial (bus trace ~30KB)
-- **Need:** Extended trace of full boot sequence
-- **Option:** Replay in emulator or oscilloscope capture
+\---
 
----
+## 17\. Evidence Discipline
 
-## Datasheet References Added
+Future analysis should use this hierarchy:
 
-The following datasheets are now referenced for verification:
+1. **Primary evidence:** firmware bytes and instructions, direct
+control flow, constants in context, strings in context, hardware
+experiments, official service documentation, applicable manufacturer
+manuals.
+2. **Derived technical evidence:** IDA boundaries/xrefs, reconstructed
+call graphs, structures, scripts, and differential maps, verified
+against primary evidence.
+3. **Existing semantic annotations:** hypotheses/navigation aids.
+4. **Historical project prose:** leads only.
 
-1. **Renesas H8S/2653** (Software Manual)
-   - Part: REN_rej09b0138_h8s2653_um_20041028.pdf (or similar revision)
-   - Pages: ~500
-   - Location: hardware/datasheets/
+For every important conclusion:
 
-2. **Sharp LH28F800SUT-70** (Flash Memory Datasheet)
-   - File Size: ~300 KB
-   - Pages: 28
-   - Contains: 512K×16 and 1M×8 organization details
-   - Location: hardware/datasheets/
+> \*\*Evidence → domain context → hypothesis → attempted verification\*\*
 
-3. **EPSON SLA919F**
-   - Status: No public datasheet
-   - Note: Custom ASIC design
-   - Recovery: Reverse engineering only
+Existing function names, comments, older Markdown, and previous LLM
+analysis must not be used as independent confirmation of a claim they
+originally introduced.
 
----
+\---
 
-## Summary Table: Before & After
+## 18\. Current Bottom Line
 
-| Item | Before | After | Source |
-|---|---|---|---|
-| MCU | H8S/2655 or 2653 | H8S/2653 | Renesas datasheet |
-| Flash | 8M = 8 MB | 8 Mbit = 1 MB | Sharp datasheet |
-| Address space | 16 MB max | 16 MB (24-bit) + 4 GB extended | H8S architecture |
-| Firmware load | 0x100000 (unclear) | 0x100000 confirmed (reset vector → 0x106DF2) | Reset vector analysis |
-| A6 offset | 0x5FDE (unverified) | 0x5FDE (device strings only) | Cross-reference |
-| ASIC datasheet | Assumed public | Confirmed private | EPSON search |
+The SP-808 hardware picture is now substantially clearer than in the May
+2026 correction record.
 
----
+The machine uses an H8S/2653 at 20 MHz, 1-MiB external flash mapped into
+the application at `0x100000`, a custom SLA919FF0J gate array with real
+IDE and DMA-related hardware signalling, an internal IDE/ATAPI Zip path,
+and a physically separate optional external SCSI architecture.
 
-## Files Updated by This Correction
+The Edirol A6 control case establishes that closely related hardware can
+run a full application-side ATA HDD driver while retaining the same
+broad upper storage architecture. That executable differential---not the
+historical ZIP string gate---is the relevant basis for the HDD
+transplant.
 
-- [x] Roland_SP-808_CPU.md — opening line rewritten to remove ambiguity (June 2026)
-- [x] LH28F800SUT-70.md — capacity table added, Mbit/MB notation clarified (June 2026)
-- [x] Roland_SP-808_Notes.md — memory map section added with load address analysis (June 2026)
-- [x] H8S_2655_OpCodes.md — renamed to H8S_2653_OpCodes.md (June 2026)
-- [x] reset_vector.md — "H8S/2655" corrected to "H8S/2653" (June 2026)
-- [x] IDA/SP808_IDA_helper.idc — BASE_ADDRESS corrected from 0x8000 to 0x100000 (June 2026)
-- [x] Firmware load address — resolved: flash at 0x100000, reset vector target 0x106DF2 (June 2026)
+Separately, the SP application contains a proprietary interrupt-driven
+SCI1 protocol at approximately 62,500 baud, physically exposed on an
+unpopulated CN7 footprint that shows pogo-contact evidence. It is
+distinct from normal MIDI. Its peer and its relationship, if any, to
+Status+FX C Develop Monitor remain unresolved.
 
-## Wiki Pages Recommended
+Those boundaries should be preserved until new primary evidence moves
+them.
 
-- Memory-Architecture.md (new)
-- ASIC-Protocol-Analysis.md (new)
-- Device-Validation-Analysis.md (update)
-- Datasheet-References.md (new)
+## Addendum — historical ATAPI traces and format failure
 
----
+Historical emulator/sniffer captures reinforce the corrected separation between the internal IDE/ATAPI path and the application-visible target-indexed backend. The internal path physically uses ATA PACKET with `5A/55/0D/23/A8/AA` among its operations; the target-indexed path uses the distinct `1A/15/06/25/28/2A` family.
 
-**End of Corrections Document**
+A previously puzzling format experiment is now explained by application control flow. The formatter's first allocation table can occupy nine 512-byte blocks beginning at LBA `0x21`; if that write fails, later partition structures are skipped but block 0 is still written. Higher UI code can ignore the formatter's failure and display completion. Therefore the old sequence `WRITE(12) 0x21 x9 -> failure -> WRITE(12) 0 x1 -> apparent completion -> no usable space` is evidence of an incomplete format, not a successful format followed by a media-capacity rejection.
 
-Generated: May 27, 2026  
-Verified against: Renesas datasheets, Sharp datasheets, H8S documentation  
-Status: Ready for repository update
+The exact emulator-side cause of that WRITE(12) failure remains unresolved and is not on the critical path for transplanting the A6 native ATA backend.
+
