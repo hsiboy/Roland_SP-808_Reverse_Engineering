@@ -1,4 +1,17 @@
 # SP-808 Analysis Report for SP-808TS25E.ima
+
+> **Correction (2026-10-05).** The "Directory Table" / extractor output in the fenced block below
+> (sizes like `SONGLISTVS2 … 190523188 (93028.90 MB)` on a 96 MB disk) is **WRONG**. It came from the
+> old `sp808_disc_extractor*.py` scripts, which invented a proprietary record format (start-LBA @ 20,
+> size @ 24). Those offsets actually land on **FAT date/cluster/time** fields, producing garbage.
+>
+> The disk is a **standard DOS MBR + FAT12 volume** (partition at sector 32, 32 KiB clusters; the
+> `0x06` partition type and macOS both call it "FAT16", but by cluster count it is FAT12). The
+> `mount -t msdos` listing further down is the *correct* contents. Extract with
+> [`Tools/sp808_fat_extract.py`](Tools/sp808_fat_extract.py), which was verified against
+> `../Roland-SP808-Demo_Disk_100mb.img` (269 files, all sizes matching the mounted listing). The
+> broken extractor scripts have been removed — see `Tools/README.md`.
+
 | Metric | Value |
 | :--- | :--- |
 | Total Size | 96.00 MB |
