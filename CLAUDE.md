@@ -43,11 +43,13 @@ raw binary firmware. The current reference image `SP8EXall.bin` is 786,436 bytes
 `d744a9cd4a2790ac68d165fd7849b5d8`: a 32-byte container header followed by the executable image from
 file offset `0x20`.
 
-### CompactFlash utilities
+### CompactFlash / ATA IDENTIFY utilities (`scripts/`)
 
-- `compactflash.py` — sends ATA IDENTIFY command over serial, decodes Word 0 flags
-- `compactflash_ide.py` — same via `ata` library IDE interface
-- `ECh.py` — ATA IDENTIFY device command analysis across all buses
+Host-side tools for querying a candidate storage device's ATA IDENTIFY response:
+
+- `scripts/cf_identify_serial.py` — sends ATA IDENTIFY over serial, decodes Word 0 flags (was `compactflash.py`)
+- `scripts/cf_identify_ide.py` — same via the `ata` library IDE interface (was `compactflash_ide.py`)
+- `scripts/ata_identify_scan.py` — ATA IDENTIFY (`ECh`) device scan across all buses (was `ECh.py`)
 
 ### ZuluIDE configuration
 
