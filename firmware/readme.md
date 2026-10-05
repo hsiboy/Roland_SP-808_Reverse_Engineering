@@ -7,6 +7,13 @@ The SP-808 uses an Iomega Zip drive as its primary storage. The hardware is
 fully capable of driving a plain IDE HDD or CF adapter — the identical Edirol
 A6 hardware ships with HDD support. The restriction is purely firmware.
 
+> **Experimental candidate images — DO NOT FLASH.** Files named
+> `SP8EXall_LinkPlan_v*_*.bin` here are the A6 native-ATA transplant experiment
+> (see `../analysis/Link_Plan_v3_*.md`). Their *bytes* are independently verified
+> against the manifest and they are regenerable with `../analysis/link_plan_v3.py`,
+> but `runtime_validation` is **UNRESOLVED** — never hardware-tested, not a release.
+> Flashing one is at your own risk and may brick the unit.
+
 ---
 
 ## Current Status
