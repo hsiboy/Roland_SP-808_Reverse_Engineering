@@ -48,12 +48,12 @@ below and anything in `superseded/`) is a lead, not a premise.**
 
 | Area | Status |
 |------|--------|
-| MIDI → binary firmware extraction (`firmware/rolandext.py`) | Working — reproduces `SP8EXall.bin` (786,436 B, MD5 `d744a9cd4a2790ac68d165fd7849b5d8`) |
+| MIDI → binary firmware extraction (`firmware/rolandext.py`) | Decodes the original update set to `SP8EXall.bin` (786,436 B, MD5 `d744a9cd4a2790ac68d165fd7849b5d8`). **Its re-encode path is buggy** (append-mode seek → wrong size); don't use it to repack. |
 | ZuluIDE emulating a genuine Iomega ZIP-100 (`zuluide.ini`) | Configuration provided; targets the **stock internal ATAPI ZIP path** — not yet independently hardware-confirmed in this repo |
 | IDA Pro firmware analysis (H8S/2653) | Working — see [`IDA/README.md`](IDA/README.md) |
 | Internal HDD/CF via a **firmware patch** | **Not demonstrated** — see the status box above |
-| A6 native-ATA transplant ("Link Plan v2") | Planned, **not applied**; unresolved runtime blockers remain (see `CLAUDE.md`) |
-| `firmware/bin2midi.py` (binary → MIDI reflash) | Implemented; round-trip encode verified, **not yet used to flash real hardware** |
+| A6 native-ATA transplant (Link Plan v2 → v3) | A v3 **candidate image** and a MIDI **deployment set** now exist (`analysis/Link_Plan_v3_*`, `firmware/LinkPlan_v3_SMF_*`), byte/payload-verified to reconstruct the candidate (MD5 `9d38db7f…`). **Untested on hardware — not applied, not a release.** Unresolved runtime blockers remain (see `CLAUDE.md`). |
+| MIDI reflash converter | Use the audited `analysis/smf_v3_deployment_audit.py`. The older `firmware/bin2midi.py` and the `firmware/Bin2Mid.md` example are **NOT correct** (SMF audit: malformed SysEx length, invented packet layout, dropped metadata) — do not use them to build an update set. |
 
 ## Two storage paths — do not conflate them
 

@@ -101,3 +101,42 @@ Useful follow-up questions include:
 - Is the routine used during unrelated storage operations?
 
 The objective is not to eliminate inference. It is to make inference **traceable and testable**.
+
+## Repository and artifact discipline (durable working rules)
+
+These rules apply to all work in this repo, independent of any single investigation.
+
+### Authoritative sources; everything else is a lead
+
+The current authoritative documents are the **newest dated revisions** of the evidence ledger
+(`SP-808EX_Evidence_Ledger_*`), the architecture reference
+(`SP-808EX_Observed_Architecture_Technical_Reference_*`), and the hardware corrections
+(`Roland_SP-808_Hardware_Architecture_Corrections_*`), all in the repo root (see `CLAUDE.md` →
+"Document authority"). Treat every other document — older dated revisions, anything under
+`superseded/`, prose notes — and all existing IDA/semantic names as **leads, not premises**.
+Agreement between an IDA name, a helper script, and a Markdown note is not independent confirmation
+when they share one origin. When documents conflict, newer firmware/data-flow reconstruction wins
+over inherited names and older prose.
+
+### Evidence labels
+
+Label claims with one of **OBSERVED / STRONGLY INFERRED / HYPOTHESIZED / UNRESOLVED / SUPERSEDED** —
+the scheme used throughout the ledger and corrections docs. (The "Inferred" / "Speculative" levels
+described above map onto STRONGLY INFERRED / HYPOTHESIZED; add UNRESOLVED for insufficient evidence
+and SUPERSEDED/CONTRADICTED for retired interpretations.)
+
+### Source and artifact integrity
+
+- Treat the source firmware images (`firmware/SP8EXall.bin`, `firmware/A6_all.bin`) and any IDA
+  database as **read-only**; never patch them in place.
+- Emit derived artifacts (candidate images, deployment sets, reports) under **unique, dated or
+  hash-stamped names**; never overwrite a source or a prior artifact.
+- Record the **MD5/SHA-256 of every input and output**, plus the verification method and result,
+  alongside the artifact.
+
+### Byte-level verification is not hardware success
+
+A passing byte/payload verification proves only that an artifact matches its manifest/source — it
+says nothing about functional correctness or safety. Keep `runtime_validation` explicitly
+**UNRESOLVED** until a change is exercised on real hardware, and never describe an untested candidate
+as a release or as safe to flash.

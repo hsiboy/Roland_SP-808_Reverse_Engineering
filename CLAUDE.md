@@ -43,6 +43,13 @@ raw binary firmware. The current reference image `SP8EXall.bin` is 786,436 bytes
 `d744a9cd4a2790ac68d165fd7849b5d8`: a 32-byte container header followed by the executable image from
 file offset `0x20`.
 
+> **Repacking caveat (SMF audit, 2026-10-06).** `rolandext.py` is reliable only for *decoding* the
+> original update set; its re-encode path has an append-mode bug (produces 786,464 B, not 786,436).
+> `firmware/bin2midi.py` and the `firmware/Bin2Mid.md` example produce **malformed** SMFs (bad SysEx
+> length, invented packet layout, dropped metadata) — do not use them. To build a MIDI update set
+> from a modified image, use the audited `analysis/smf_v3_deployment_audit.py`
+> (see `analysis/Link_Plan_v3_SMF_audit_2026-10-06.md`).
+
 ### CompactFlash / ATA IDENTIFY utilities (`scripts/`)
 
 Host-side tools for querying a candidate storage device's ATA IDENTIFY response:
@@ -130,6 +137,15 @@ relocation rule; verify each correspondence structurally.
   upper filesystem and the external Zip path intact. **Do not patch yet** — unresolved runtime blockers:
   warm ownership of `0x5D0000`, init of the `0x450/0x458` DTC descriptors and selectors `0x48/0xA0/0xB0`,
   the `0xFFFFF0DF[1:2]` transfer-quiescence protocol, and shared `0xFFFFFFC0` users.
+- **Status update — a v3 candidate now exists (2026-10-05/06), still NOT applied/flashed:** a
+  conservative variant ("cold init + `EC` IDENTIFY + one `READ SECTORS` of LBA 0 → `0x5D0000`, no media
+  writes, then park") has been generated as a candidate image
+  (`firmware/SP8EXall_LinkPlan_v3_readonly_*.bin`, reconstruct MD5 `9d38db7f…`) plus a MIDI deployment
+  set (`firmware/LinkPlan_v3_SMF_*`). Both are independently **byte/payload-verified** against the
+  manifest; the omitted code island `[0x7D000,0x7E298)` is transmitted by 25 added packets in file #8.
+  Design/manifest/generator/audits live in `analysis/Link_Plan_v3_*`. **Runtime/hardware execution is
+  UNRESOLVED — not a release, do not flash.** Generating these artifacts does not resolve the v2
+  blockers above.
 
 ### MODE SENSE / SZHC spoof
 
