@@ -5,8 +5,8 @@ Offsets are file offsets into the assembled binary (add `0x100000` for runtime a
 A6 strings are offset from SP-808 by `+0x5FDE` for device/vendor strings (confirmed);
 offset for other string classes is unverified.
 
-Sources: `SP-808EX_strings.md`, `firmware/SP808_Vs_A6_firmware.md`, `A6_firmware_strings.txt`,
-`SP-808_SZHC_CommandTableAnalysis.md`.
+Sources: `SP-808EX_strings.md` (this dir), `../firmware/SP808_Vs_A6_firmware.md`,
+`A6_firmware_strings.txt`, `SP-808_SZHC_CommandTableAnalysis.md` (this dir).
 
 | String | SP-808EX (offset) | SP-808 (offset) | A6 (offset) | Notes |
 |:-------|:-----------------:|:---------------:|:-----------:|:------|

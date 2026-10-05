@@ -76,34 +76,39 @@ research goal (the A6 transplant), not a finished feature.
 
 ```
 firmware/   Firmware images, extraction/patch/reflash tools, encoding notes
-hardware/   Datasheets, board notes
+hardware/   CPU/flash/opcode references, datasheets, board notes
+protocols/  ATA/ATAPI and ZIP-drive protocol references and bus traces
+analysis/   Firmware reverse-engineering analysis (SZHC table, strings, patch studies)
+Disks/      Disk-image, filesystem, and CF/storage-media analysis
 IDA/        IDA Pro scripts and setup for H8S/2653 analysis
-Disks/      Disk-image and filesystem analysis
 superseded/ Prior dated doc revisions, retained for audit trail only — NOT current
 ```
+The authoritative evidence ledger, architecture reference, and hardware-corrections record (the
+three dated files listed under "Document authority") stay in the repo root alongside `CLAUDE.md`,
+`AGENTS.md`, `README.md`, `TODO.md`, and `things.md`.
 
 ## Key documentation
 
 ### Hardware
-- [CPU and Architecture](Roland_SP-808_CPU.md) — H8S/2653, memory map, PCB observations *(check against the corrections doc)*
-- [Flash Memory](LH28F800SUT-70.md) — Sharp LH28F800SUT-70 (8 Mbit = 1 MiB)
-- [Notes and Overview](Roland_SP-808_Notes.md) — memory map, firmware load address
+- [CPU and Architecture](hardware/Roland_SP-808_CPU.md) — H8S/2653, memory map, PCB observations *(check against the corrections doc)*
+- [Flash Memory](hardware/LH28F800SUT-70.md) — Sharp LH28F800SUT-70 (8 Mbit = 1 MiB)
+- [Notes and Overview](hardware/Roland_SP-808_Notes.md) — memory map, firmware load address
 
 ### Firmware
 - [Firmware Workflow](firmware/readme.md) — extract → (experimental) patch → reflash procedure
-- [ZIP Drive Validation Bypass](RolandSP-808ZIPDriveValidationBypass.md) — **mostly SUPERSEDED** historical patch analysis
-- [SZHC Command Table](SP-808_SZHC_CommandTableAnalysis.md) — ATAPI command-table structure
+- [ZIP Drive Validation Bypass](analysis/RolandSP-808ZIPDriveValidationBypass.md) — **mostly SUPERSEDED** historical patch analysis
+- [SZHC Command Table](analysis/SP-808_SZHC_CommandTableAnalysis.md) — ATAPI command-table structure
 - [SP-808 vs A6 Firmware](firmware/SP808_Vs_A6_firmware.md) — cross-model comparison
 
 ### Protocol
-- [ATAPI reference](ATAPI.md)
-- [ZIP Drive Initialization](SP-808_and_ZIP_Drive.md)
-- [Full IDE bus trace](Roland_SP-808_to_ZIP_Drive_sniff.md) — SP-808 ↔ internal ZIP
+- [ATAPI reference](protocols/ATAPI.md)
+- [ZIP Drive Initialization](protocols/SP-808_and_ZIP_Drive.md)
+- [Full IDE bus trace](protocols/Roland_SP-808_to_ZIP_Drive_sniff.md) — SP-808 ↔ internal ZIP
 
 ### Data format
 - [Disk structure](Disks/SP-808_Demo_Disk_Analysis.md) — FAT16, VS2 filenames
-- [Mounting disk images](disk_img.md)
-- [CompactFlash notes](CompactFlashCards.md)
+- [Mounting disk images](Disks/disk_img.md)
+- [CompactFlash notes](Disks/CompactFlashCards.md)
 
 ## Hardware at a glance
 

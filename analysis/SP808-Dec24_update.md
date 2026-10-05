@@ -5,14 +5,18 @@ What we know so far.
 The Roland SP-808 uses an IOMEGA ZIP drive for storage, the Roland firmware includes a validation sequence. The system uses an EPSON SLA919F ASIC to handle IDE/ATAPI interface between the MCU (H8S/2653) and the storage device.
 
 ## Hardware Architecture
-- **MCU**: Hitachi H8S/2653
-  - 64k ROM and 4k RAM
+- **MCU**: Hitachi H8S/2653 (`HD6432653BA11F`, H8S/2600 core)
+  - 64 KiB on-chip ROM; **1 KiB** on-chip RAM (`0xFFF800–0xFFFBFF`)
+    *(earlier "4k RAM" here was wrong — corrected per the authoritative hardware doc)*
   - 5V with 20MHz clock
   - Operating in `Mode 6` (Advanced mode)
-- **IDE Interface**: 
-  - Handled by EPSON SLA919F ASIC
-  - No DMA support (DDRQ and DDRACK not connected)
-  - MCU communicates with ASIC rather than direct IDE control
+- **IDE Interface**:
+  - Handled by EPSON/Roland SLA919FF0J ASIC
+  - MCU communicates with the ASIC rather than driving IDE directly
+  - **NOTE (SUPERSEDED):** an earlier claim here said "No DMA support (DDRQ/DDRACK not connected)."
+    That is **CONTRADICTED** by the schematic, which exposes DMA-related signals
+    (`DMAR/DMAW/WAIT`, and the ATA connector's `DMARQ/DMACK/IORDY`). See the authoritative
+    hardware-corrections doc in the repo root.
 
 ## Key Findings
 
@@ -62,7 +66,7 @@ case ATAPI_CMD_VENDOR_0x0D: return atapi_zip_disk_0x0D(cmd);
 ### 6. Critical Mode Page
 
 The SP-808 issues `MODE SENSE (0x5A)` with vendor page code `0x2F`. The bus trace
-(`Roland_SP-808_to_ZIP_Drive_sniff.md`, entries 514–517) confirms the real ZIP drive
+(`../protocols/Roland_SP-808_to_ZIP_Drive_sniff.md`, entries 514–517) confirms the real ZIP drive
 returns exactly 4 bytes:
 
 ```

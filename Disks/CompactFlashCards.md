@@ -217,3 +217,28 @@ I've queried a bunch of CF cards that i tried in place of a zip drive.
 | Toshiba MK2006GAL HDD                     | 0040        | 0000        | 0000        | 746B         | 7D09         | ?            | No             |
 | Toshiba MK8007GAH HDD                     | 0040        | 0000        | 0000        | 746B         | 7F09         | ?            | No             |
 | Toshiba MK8011GAH HDD                     | 0040        | 0000        | 0000        | 306B         | 5000         | ?            | No             |
+
+---
+
+## Boot-outcome test log (CF / SD-via-CF adapters)
+
+Hands-on results trying to run various CF cards and microSD→CF adapters in place of the Zip drive
+with **stock (unpatched) firmware**. (Merged in from the former `Compact_Flash.md`.) These all failed
+before the storage requirements were understood — consistent with the finding that the SP-808 expects
+a ZIP-class device on the internal ATAPI path. Reports of specific CF cards "just working" on stock
+firmware have not been reproduced here; treat such claims with skepticism.
+
+| Card | Outcome |
+| --- | --- |
+| Kingston 16GB CF card | freezes at boot |
+| Sandisk 4GB CF card | freezes at boot |
+| Sandisk 2GB CF card | freezes at boot |
+| INIC-2051 based microSD→CF reader (8/16/32 GB microSD) | tries to format, errors out |
+| FC-1307 based microSD→CF reader (8/16/32 GB microSD) | tries to format, wants to re-format on next boot |
+| Verbatim 128MB CF card | ??? |
+| Kingston A400 120GB | freezes at boot |
+| Kingston KC600 256GB | freezes at boot |
+| HP S700 250GB | freezes at boot |
+| Adata SU655 120GB | freezes at boot |
+| Samsung 860 EVO 500GB | formats |
+| Kingston HyperX 240GB SHFS37A/240G | (untested outcome) |

@@ -9,5 +9,5 @@
 ## Missing Datasheets
 
 - **H8S/2653 Hardware Manual** — the definitive reference for the actual SP-808 MCU. Not included; download from Renesas/Hitachi archives if available.
-- **Epson SLA919F** — the IDE/ATAPI ASIC on the SP-808 PCB. No public datasheet is known to exist. Protocol has been partially reverse-engineered from bus traces (see `Roland_SP-808_to_ZIP_Drive_sniff.md`).
-- **Sharp LH28F800SUT-70** — the 1MB flash chip. See `LH28F800SUT-70.md` in the repo root for specifications from the datasheet.
+- **Epson SLA919F** — the IDE/ATAPI ASIC on the SP-808 PCB. No public datasheet is known to exist. Protocol has been partially reverse-engineered from bus traces (see `../../protocols/Roland_SP-808_to_ZIP_Drive_sniff.md`).
+- **Sharp LH28F800SUT-70** — the 1MB flash chip. See `../LH28F800SUT-70.md` for specifications from the datasheet.

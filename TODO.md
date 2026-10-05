@@ -74,23 +74,29 @@ The round-trip encode/decode test confirms correct encoding but does not substit
 ### RDAC audio format documentation
 The README credits Randy Gordon's external `rdac` project but there is no documentation of the Roland RDAC compression format in this repo. A brief doc describing the format structure and pointing to the decoder would help contributors.
 
-### Repo restructuring
-The root directory has ~20 markdown files with no grouping. A suggested layout:
+### Repo restructuring — DONE (2026-10-05)
+Root markdown docs were grouped into topical directories (categorised by actual content, not
+filename — e.g. the former `disks.md` was really an ATAPI INQUIRY trace and went to `protocols/`):
 ```
-protocols/    ATAPI.md, PIO_Mode.md, Programming_ATA_And_ATAPI.md,
-              SP-808_and_ZIP_Drive.md, Roland_SP-808_to_ZIP_Drive_sniff.md
-hardware/     Roland_SP-808_CPU.md, Roland_SP-808_Notes.md, LH28F800SUT-70.md,
-              H8S_2653_OpCodes.md, H8_300-Op-Codes.md, FX.md
-disks/        (merge with Disks/) disk_img.md, disks.md, Zip_Disks.md,
-              Zip_drives.md, CompactFlashCards.md, Compact_Flash.md
-analysis/     SP-808_SZHC_CommandTableAnalysis.md, RolandSP-808ZIPDriveValidationBypass.md,
-              SP-808_ZIP_DriveInitializationSequenceAnalysis.md, interestingStrings.md,
-              SP-808EX_strings.md, A6_firmware_strings.txt, SP808-Dec24_update.md
+protocols/  ATAPI.md, PIO_Mode.md, Programming_ATA_And_ATAPI.md, SP-808_and_ZIP_Drive.md,
+            Roland_SP-808_to_ZIP_Drive_sniff.md, SP-808_ATAPI_inquiry_notes.md (was disks.md),
+            Zip_Disks.md, Zip_drives.md
+hardware/   Roland_SP-808_CPU.md, Roland_SP-808_Notes.md, LH28F800SUT-70.md,
+            H8S_2653_OpCodes.md, H8_300-Op-Codes.md, FX.md
+analysis/   SP-808_SZHC_CommandTableAnalysis.md, RolandSP-808ZIPDriveValidationBypass.md,
+            SP-808_ZIP_DriveInitializationSequenceAnalysis.md, interestingStrings.md,
+            SP-808EX_strings.md, SP808-Dec24_update.md, reset_vector.md
+Disks/      disk_img.md, CompactFlashCards.md (+ merged Compact_Flash.md), DiskStuff.md,
+            SP-808_Demo_Disk_Analysis.md, SP-808_Media_Change_Protocol.md
 ```
-Not done because moving files would break internal links across docs.
+Project-level docs (`README.md`, `CLAUDE.md`, `AGENTS.md`, `TODO.md`, `things.md`) and the three
+authoritative dated docs stay in the repo root. Internal links in `README.md` and `CLAUDE.md` were
+updated to match.
 
-### `Compact_Flash.md` vs `CompactFlashCards.md`
-These two files cover similar ground (CF card pin tables, ATA modes). They should be merged or clearly differentiated in scope.
+### `Compact_Flash.md` vs `CompactFlashCards.md` — DONE (2026-10-05)
+Merged: the `Compact_Flash.md` boot-outcome test log is now a section in
+`Disks/CompactFlashCards.md`, and `Compact_Flash.md` was removed.
 
-### `SP-808EX_strings.md`
-Large raw string dump. Needs a summary section explaining what was found and cross-referencing the relevant analysis docs.
+### `analysis/SP-808EX_strings.md`
+Large raw string dump. Still wants a summary section explaining what was found and cross-referencing
+the relevant analysis docs (`interestingStrings.md`, `SP-808_SZHC_CommandTableAnalysis.md`).

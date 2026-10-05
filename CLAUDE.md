@@ -154,13 +154,13 @@ known string cross-references. Keep analysis **read-only** by default.
 | `SP-808EX_Observed_Architecture_Technical_Reference_*.md` | **Authoritative** consolidated architecture |
 | `Roland_SP-808_Hardware_Architecture_Corrections_*.md` | **Authoritative** hardware/correction record |
 | `AGENTS.md` | Evidence discipline / inference rules for this project |
-| `RolandSP-808ZIPDriveValidationBypass.md` | Historical ZIP-check analysis — mostly SUPERSEDED |
-| `Roland_SP-808_CPU.md` | H8S architecture, memory map, PCB pin notes (check against corrections doc) |
-| `Roland_SP-808_to_ZIP_Drive_sniff.md` | Full ATAPI bus trace of SP-808 ↔ internal ZIP drive |
-| `SP-808_SZHC_CommandTableAnalysis.md` | SZHC command table structure |
-| `SP-808_ZIP_DriveInitializationSequenceAnalysis.md` | Boot handshake sequence |
+| `analysis/RolandSP-808ZIPDriveValidationBypass.md` | Historical ZIP-check analysis — mostly SUPERSEDED |
+| `hardware/Roland_SP-808_CPU.md` | H8S architecture, memory map, PCB pin notes (check against corrections doc) |
+| `protocols/Roland_SP-808_to_ZIP_Drive_sniff.md` | Full ATAPI bus trace of SP-808 ↔ internal ZIP drive |
+| `analysis/SP-808_SZHC_CommandTableAnalysis.md` | SZHC command table structure |
+| `analysis/SP-808_ZIP_DriveInitializationSequenceAnalysis.md` | Boot handshake sequence |
 | `firmware/decoding_roland_A6_firmware.md` | MIDI SysEx encoding format internals |
-| `CompactFlashCards.md` | Compatibility notes for CF cards |
+| `Disks/CompactFlashCards.md` | Compatibility notes for CF cards |
 | `Disks/SP-808_Demo_Disk_Analysis.md` | FAT16 disk structure analysis |
 
 ## Diagnostic / Hidden Modes

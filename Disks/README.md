@@ -1,5 +1,17 @@
 # SP-808 Storage Emulation — Findings from ATAPI2SD Development
 
+> **Scope note (2026-10-05):** The *empirical* findings here are solid and valuable — the command
+> list, the byte-count-register (512-byte DRQ) requirement, and the **confirmed-working ZIP-emulator
+> configuration**. Treat those as OBSERVED. However, the sections that explain the firmware *gate
+> patch* (`0x12AA14`) — that patching it will make plain HDDs/CF "work" — are an **older
+> interpretation that conflicts with the current authoritative analysis.** `CLAUDE.md` and the
+> evidence ledger place the `0x12Axxx` device-type gate in the **external, target-indexed SCSI-style
+> backend**, a separate path from the internal IDE/ATAPI bay; by that reconstruction, bypassing the
+> gate is **not** expected to enable the internal drive, and the patch has never been hardware-
+> verified. Where this doc and the authoritative docs disagree about the patch's effect, **the
+> authoritative docs win** (see the repo root). The ZIP-emulation route below does not depend on the
+> patch and is the part that is actually demonstrated.
+
 ## Background
 
 These findings come from collaborative work with Konstantin (ATAPI2SD firmware author) 
@@ -138,10 +150,12 @@ that do not identify as IOMEGA — plain PATA HDDs, CF adapters, SD adapters. Th
 devices are classified as type 2 or type 3 (HDD) by `device_classifier` and are 
 currently rejected at the gate in `device_probe`.
 
-Once the gate patch is applied, these devices will follow the HDD post-classify path 
-(`send_prevent_removal_hdd`, `send_format_unit_large_hdd`) rather than the Iomega 
-path. The HDD path uses standard ATAPI commands only — no Iomega vendor commands — 
-so plain HDDs should work without needing to emulate ZIP behaviour.
+The *hypothesis* (see the scope note at the top — not confirmed, and disputed by the authoritative
+analysis) was that applying the gate patch would route these devices down an HDD post-classify path 
+(`send_prevent_removal_hdd`, `send_format_unit_large_hdd`) using standard ATAPI commands only, so
+plain HDDs would work without emulating ZIP behaviour. This has **not** been demonstrated on
+hardware, and the current reconstruction places that gate in the external SCSI-style backend, so it
+may not affect the internal drive at all.
 
 The byte count register requirement applies equally to all devices regardless of 
 which firmware path they take. Any replacement storage must honour 512-byte DRQ 
