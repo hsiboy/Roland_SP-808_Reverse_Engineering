@@ -1,5 +1,10 @@
 # Roland SP-808 / SP-808EX Reverse Engineering
 
+> # ⚠️ NOT WORKING — DO NOT FLASH
+> No firmware modification in this repository is known to enable modern/internal storage on real
+> hardware. Any `*_LinkPlan_*` candidate image is an **untested experiment**. Read the status box
+> below before doing anything.
+
 Reverse-engineering notes and tools for the Roland SP-808 / SP-808EX sampler (1998), with the
 long-term goal of running modern ATAPI/IDE storage (CompactFlash, SD via a CF adapter, ZuluIDE, or an
 IDE HDD) in place of the stock Iomega ZIP-100 drive.
@@ -151,6 +156,6 @@ hardware you own, for preservation and personal use.
 
 ## Resources
 
-- [Owner's Manual](SP-808_OM.pdf) · [Service Manual](Roland-SP-808-808-Pro-Service-Manual.pdf)
+- [Owner's Manual](docs/SP-808_OM.pdf) · [Service Manual](Roland-SP-808-808-Pro-Service-Manual.pdf)
 - RDAC audio decoder — Randy Gordon's external `rdac` project
 - [Original discussion thread](https://forum.hddguru.com/viewtopic.php?f=13&t=31086)
