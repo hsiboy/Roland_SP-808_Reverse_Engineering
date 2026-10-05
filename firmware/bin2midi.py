@@ -21,7 +21,7 @@ This produces: SP8EX_patched#1.mid ... SP8EX_patched#8.mid
 
 Flash procedure:
     1. Connect MIDI interface to SP-808 MIDI IN
-    2. Power on SP-808 while holding SHIFT (display shows "MIDI UPDATE")
+    2. Power on SP-808 while holding Status (Track A) + FX A (display shows "MIDI UPDATE")
     3. Send each file in order (#1 through #8)
     4. Wait for "Completed" message before sending the next file
 

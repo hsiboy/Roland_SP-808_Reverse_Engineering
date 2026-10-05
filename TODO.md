@@ -6,7 +6,18 @@ Generated from full project review, June 2026. Updated after remediation pass.
 
 ## Primary Goal Assessment
 
-The core objective — bypassing ZIP drive validation to enable modern ATAPI storage — **has been achieved** (April 2024). The round-trip toolchain (extract → patch → flash) is now fully documented and implemented.
+The core objective — enabling modern storage in place of the ZIP-100 — **has NOT been achieved.** A
+previous version of this file claimed it was "achieved (April 2024)"; that claim was unsupported and
+has been retracted (see `README.md` status box).
+
+What exists: a round-trip firmware toolchain (`rolandext.py` extract → `patch_sp808.py` patch →
+`bin2midi.py` reflash) and the identification of a device-type gate at `0x12AA14`. But that gate is
+in the **external SCSI-style backend** (`0x12Axxx`); the current analysis indicates bypassing it does
+**not** enable the internal IDE/ATAPI drive, and the patch has never been confirmed on hardware.
+
+The demonstrated forward path is transplanting the Edirol A6's native ATA backend into SP flash
+("Link Plan v2" in `CLAUDE.md`) — designed but **not yet applied**, with runtime blockers still open.
+A pragmatic stopgap for users is ZuluIDE emulating a genuine ZIP-100 (`zuluide.ini`).
 
 ---
 

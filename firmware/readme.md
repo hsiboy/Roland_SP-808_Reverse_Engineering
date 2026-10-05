@@ -11,12 +11,21 @@ A6 hardware ships with HDD support. The restriction is purely firmware.
 
 ## Current Status
 
-A patch has been identified and is ready for hardware testing. A single 2-byte
-change in the flash firmware removes the ZIP-only gate in the device probe
-function, allowing any classified IDE device (HDD, CF adapter) to proceed to
-the init path.
+A candidate 2-byte change has been identified at `0x12AA14` that removes a
+ZIP-only device-type gate. **It is an experiment, not a working fix.**
 
-**The patch has not yet been confirmed on hardware.**
+> **Important:** this gate lives in the firmware's **external, target-indexed
+> SCSI-style backend** (`0x12Axxx`), which is a *separate* storage path from the
+> internal IDE/ATAPI bay the ZIP drive actually uses. The current firmware
+> data-flow analysis (see `../CLAUDE.md` and the authoritative docs in the repo
+> root) finds that **bypassing this gate is not expected to enable the internal
+> drive.** The patch has **never been confirmed on hardware**, and the success
+> path it reaches (`zip_device_init`) may still issue Iomega-specific commands a
+> plain HDD/CF will not answer.
+
+Treat the steps below as a reproducible experiment. The demonstrated forward
+path for real HDD support is the Edirol A6 native-ATA transplant ("Link Plan
+v2" in `../CLAUDE.md`), which is **not yet applied.**
 
 ---
 
@@ -93,7 +102,8 @@ cmp -n 98304 SP8EXall_patched.bin verify.bin   # no output = match
 ### Step 4 — Flash
 
 1. Connect MIDI interface to SP-808 MIDI IN.
-2. Power on SP-808 holding **SHIFT** — display shows `MIDI UPDATE`.
+2. Power on SP-808 holding **Status (Track A) + FX A** — display shows `MIDI UPDATE`.
+   (*Not* SHIFT; see `../things.md` for the full button-combo list.)
 3. Send `SP8EX_patched#1.mid`. Wait for `Completed`.
 4. Repeat for files `#2` through `#8`.
 5. SP-808 restarts automatically after file `#8`.
@@ -112,7 +122,9 @@ attached with unpatched firmware. Whether this is caused by the gate rejection
 loop, a timeout in the mask ROM ATAPI primitive, or something else is not yet
 determined.
 
-See `Project_Summary.md` for the full inquiry list.
+See the authoritative evidence ledger and architecture reference in the repo
+root (listed in `../README.md` → "Document authority") for the full, current
+findings and open-inquiry list.
 
 ---
 
@@ -123,19 +135,20 @@ See `Project_Summary.md` for the full inquiry list.
 | `patch_sp808.py`      | Applies the gate patch to `SP8EXall.bin`             |
 | `rolandext.py`        | Extracts firmware binary from Roland MIDI SysEx files|
 | `bin2midi.py`         | Converts patched binary back to MIDI SysEx files     |
-| `Project_Summary.md`  | Detailed verified findings and open inquiry list     |
 
 ---
 
 ## Hardware
 
-- MCU: Hitachi/Renesas H8S/2653, A-mask, mask-ROM variant (`6432653A11F`)
-- IDE ASIC: EPSON SLA919F
-- External flash: LH28F800-class, 1 MB
-- Mask ROM boundary: 0x00E800 (code below this address is not patchable)
+- MCU: Hitachi/Renesas H8S/2653 (`HD6432653BA11F`, H8S/2600 core), 20 MHz
+- IDE ASIC: EPSON/Roland SLA919FF0J gate array
+- External flash: Sharp LH28F800SUT-70, 8 Mbit = 1 MiB
+- On-chip mask ROM: `0x000000–0x00FFFF` (not patchable); the patchable application
+  image is the external flash mapped from `0x100000`.
 
-IDA Pro setup: load `SP8EXall.bin` with base address `0x100000`, processor
-`H8/300H Advanced`. Run `SP808_IDA_helper.idc` after loading.
+IDA Pro setup: load `SP8EXall.bin` as **H8S advanced mode** with base address
+`0x100000` (executable image begins at file offset `0x20`). Run
+`../IDA/SP808_IDA_helper.idc` after loading.
 
 ---
 

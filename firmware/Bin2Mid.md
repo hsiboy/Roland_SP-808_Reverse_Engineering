@@ -154,7 +154,7 @@ def bin_to_midi(input_file, output_prefix):
     print(f"Created 8 MIDI files: {output_prefix}#1.mid through {output_prefix}#8.mid")
     print("\nTo update your SP-808:")
     print("1. Connect MIDI interface to SP-808")
-    print("2. Power on while holding SHIFT")
+    print("2. Power on while holding Status (Track A) + FX A")
     print("3. Send each MIDI file in order")
     print("4. Wait for 'Completed' message before sending next file")
 
@@ -194,7 +194,7 @@ This creates:
 ## Updating the SP-808
 
 1. Connect a MIDI interface to your SP-808's MIDI IN
-2. Power on the SP-808 while holding SHIFT
+2. Power on the SP-808 while holding Status (Track A) + FX A
 3. The display should show "MIDI UPDATE"
 4. Send each MIDI file in numerical order
 5. Wait for "Completed" message before sending the next file
