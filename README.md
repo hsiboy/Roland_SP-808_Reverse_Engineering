@@ -65,7 +65,7 @@ This repo documents, from the ground up:
 | 🟢 | Firmware extraction (`rolandext.py`, decode) | Reproduces the stock image exactly (MD5 `d744a9cd…`) |
 | 🟢 | IDA analysis of the H8S/2653 image | Working — see [`IDA/`](IDA/README.md) |
 | 🟢 | On‑disk format | **Solved** — standard DOS/MBR + **FAT12**; extract with [`sp808_fat_extract.py`](Disks/Tools/sp808_fat_extract.py) |
-| 🟡 | ZuluIDE emulating a ZIP‑100 (`zuluide.ini`) | Config provided; the practical path for owners (not independently hardware‑confirmed here) |
+| 🟢 | ZuluIDE emulating a ZIP‑100 (`zuluide.ini`) | **Tested working** (the maintainer's own config) — the practical drop‑in for owners |
 | 🟡 | A6 native‑ATA transplant (**Link Plan v3**) | Candidate image + MIDI set generated & byte/payload‑verified; **hardware execution UNRESOLVED** |
 | 🔴 | Firmware patch enabling internal HDD/CF | **Not demonstrated** |
 
@@ -73,14 +73,15 @@ This repo documents, from the ground up:
 
 ## 🎛️ Using it today
 
-There is **no proven drop‑in CF/HDD firmware mod** yet. Two approaches actually work:
+You don't need a firmware mod at all — these are **known to work**:
 
-1. **Use a genuine ZIP‑100 drive** — the only configuration the stock firmware is known to accept.
-2. **Emulate a ZIP‑100 with ZuluIDE** using [`zuluide.ini`](zuluide.ini) (PIO 3, UDMA off, 512‑byte
-   blocks, ZIP identity + `MODE SENSE` page `0x2F` spoof). This presents the internal bay with
-   something the stock firmware treats as a real ZIP, rather than relying on an unproven patch.
+1. **A genuine Iomega ZIP drive** — a **ZIP‑100**, or a **ZIP‑250** with the SP‑808**EX** firmware.
+2. **ZuluIDE** with [`zuluide.ini`](zuluide.ini), emulating a ZIP‑100 (PIO 3, UDMA off, 512‑byte blocks,
+   ZIP identity + `MODE SENSE` page `0x2F` spoof) — **tested working** by the maintainer; this is their
+   own config. It presents the internal bay with something the stock firmware accepts as a real ZIP.
 
-Enabling arbitrary IDE storage is an open research goal (the A6 transplant), **not** a finished feature.
+Enabling *arbitrary* IDE storage (a plain CF card or HDD) is still an open research goal — the A6
+transplant — **not** a finished feature.
 
 ---
 
@@ -193,22 +194,6 @@ Hold on power‑on (full list in [`things.md`](things.md)):
 <br>The SP‑808EX startup logo was reconstructed directly from firmware bitmaps —
 see [`exports/sp808_boot_logo/`](exports/sp808_boot_logo/).
 </details>
-
----
-
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [TODO.md](TODO.md). Highest‑value open items:
-
-- **Link Plan v3 hardware validation** — does an original updater accept the regenerated EX set
-  (model header `2B`, opaque final metadata `4E`), and what do the `EC` IDENTIFY / single read / park
-  actually do on hardware?
-- **Full SP integration** after the bounded experiment — warm `0x5D0000` ownership, transfer‑environment
-  arbitration, retained SP functionality (preserve the programmed `0x450/0x458` vector words).
-- **VS2 file format**, **CN7 debug UART / SCI1 capture**, **SLA919F protocol** — see `TODO.md`.
-
-Please keep contributions to the project's evidence discipline — label claims, and don't present
-untested work as proven.
 
 ---
 

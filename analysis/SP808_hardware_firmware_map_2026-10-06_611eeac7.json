@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "title": "SP-808 block diagram → firmware map",
+  "date": "2026-10-06",
+  "firmware_mapping": "Stock SP8EXall.bin; runtime=file offset+0x100000. A6/v3 entries are explicitly identified.",
+  "scope": "Maps known areas and gaps; not an exhaustive instruction/access census. Diagram wiring does not prove a software driver or memory address. No 400xxx implementation was disassembled.",
+  "nodes": [
+    {
+      "id": "cpu",
+      "name": "CPU — IC7 HD6432653",
+      "confidence": "OBSERVED",
+      "rects": [
+        [
+          148,
+          214,
+          81,
+          246
+        ]
+      ],
+      "firmware": [
+        "100000 → 12CC54: application entry and startup",
+        "12CCC4: installs four DRAM JMP veneers",
+        "100A8C / 100AB0: TPU0 timing setup",
+        "105420: stock storage-init shell"
+      ],
+      "registers": [
+        "TPU0: TCR0/TMDR0/TIOR0H/L/TIER0/TSR0/TCNT0/TGR0A–D at FFFFD0–FFFFDE",
+        "TSTR FFFFC0; TSYR FFFFC1"
+      ],
+      "observed": "The diagram identifies IC7 as the H8S CPU. All listed routines execute H8 instructions; 100AB0 programs TPU0 and starts TSTR bit 0.",
+      "unresolved": "TPU0's downstream physical role is not established. Do not equate it with clock-generator IC19 or infer a sample-rate selection from timing constants.",
+      "sources": [
+        "Technical Reference §3",
+        "Evidence Ledger §19.3",
+        "Fresh IDA: Timing config"
+      ]
+    },
+    {
+      "id": "flash",
+      "name": "Application flash — IC9 LH28F800SUT",
+      "confidence": "OBSERVED",
+      "rects": [
+        [
+          393,
+          214,
+          89,
+          38
+        ]
+      ],
+      "firmware": [
+        "Stock SP ROM image: 100000–1C0003 in the corpus",
+        "100000 contains JMP 12CC54",
+        "V3 copied code/glue: 17D000–17E297"
+      ],
+      "registers": [
+        "Runtime address = BIN offset + 100000"
+      ],
+      "observed": "The diagram shows CPU-bus flash. The checked BIN holds H8 code, tables, strings and ESP records; its first instruction jumps to startup.",
+      "unresolved": "The complete updater/flash-programming implementation is not established here. The first 32 bytes include executable entry code and metadata; do not subtract 0x20 from mapped firmware addresses.",
+      "sources": [
+        "Technical Reference §3 and address map",
+        "Link Plan v3",
+        "Firmware hashes"
+      ]
+    },
+    {
+      "id": "dram",
+      "name": "CPU DRAM — IC8 TMS418169A",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          271,
+          214,
+          89,
+          38
+        ]
+      ],
+      "firmware": [
+        "12CC54: application RAM clear and initializer copy",
+        "12CCC4: writes 400210/214/218/364 JMP veneers"
+      ],
+      "registers": [
+        "403000–42BFFF: documented startup-clear interval",
+        "401000: shared storage context; 5D0000: active storage buffer",
+        "4104C2 / 4110C2: ESP PRAM shadows",
+        "400000–400FFF: inherited executable service layer"
+      ],
+      "observed": "Firmware accesses and executes external DRAM addresses; diagram IC8 is connected to the CPU bus.",
+      "unresolved": "Exact chip-select geometry/aliasing is not proven. The source that populates inherited 400xxx executable services is unresolved; it is not part of the supplied SP application BIN.",
+      "sources": [
+        "Evidence Ledger §§32.1,38 and final programmed-vector clarification",
+        "Technical Reference §27.5"
+      ]
+    },
+    {
+      "id": "gate",
+      "name": "I/F gate array — IC13 SLA919FF0J",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          522,
+          214,
+          110,
+          38
+        ]
+      ],
+      "firmware": [
+        "SP internal init 105420 → 400380",
+        "SP internal read 105ED6 → 4003A8; write 105FB2 → 4003AC",
+        "A6 10058C / 100A58 / 100B2A: native ATA init/IDENTIFY/read"
+      ],
+      "registers": [
+        "A6 task-file-like window 600002–60001C; data endpoint 600000"
+      ],
+      "observed": "Diagram connects the gate array to Zip, LCD, switch/LED and audio-related paths. SP callers use opaque services; A6 accesses the ATA-like window directly.",
+      "unresolved": "Only the storage-side interface has a concrete application mapping here. The gate array's LCD, panel and audio subinterfaces are not assigned undocumented register meanings.",
+      "sources": [
+        "Hardware Corrections §§7–9",
+        "Technical Reference §§17–19",
+        "Internal IDE bus capture"
+      ]
+    },
+    {
+      "id": "zip",
+      "name": "Internal Zip drive",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          587,
+          127,
+          68,
+          38
+        ]
+      ],
+      "firmware": [
+        "105420 / 105ED6 / 105FB2: init/read/write routes",
+        "1058CC / 1064DE: filesystem-format callers (not low-level ATA drivers)"
+      ],
+      "registers": [
+        "400380 / 4003A8 / 4003AC: opaque DRAM service entry addresses, not hardware registers",
+        "401000 context; 5D0000 buffer"
+      ],
+      "observed": "Physical internal-bus traces contain A1 IDENTIFY PACKET, A0 PACKET, A8 READ(12), AA WRITE(12). Application read/write call chains correlate with the internal backend.",
+      "unresolved": "Stock packet construction and transfer-engine code inside 400xxx remain unavailable. Do not assign the external IOMEGA/ZIP gate at 12AA14 to this drive path.",
+      "sources": [
+        "Evidence Ledger historical ATAPI trace/formatter addendum",
+        "Technical Reference §18",
+        "Hardware Corrections §8"
+      ]
+    },
+    {
+      "id": "lcd",
+      "name": "LCD unit",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          676,
+          127,
+          55,
+          38
+        ]
+      ],
+      "firmware": [
+        "138560: eight-byte UI command interpreter",
+        "138DBA / 13904E: coordinate/extent consumers",
+        "138534: brackets 40046C with 400450 calls"
+      ],
+      "registers": [
+        "Caller-visible drawing/service family 40043C / 400450 / 40045C / 400460 / 400468 / 40046C",
+        "42757A–42757F: geometry state"
+      ],
+      "observed": "UI records pass byte-sized geometry to drawing-like service calls. Diagram routes LCD through the gate array.",
+      "unresolved": "Exact primitive names, LCD bus/register addresses, screen-coordinate conventions and controller protocol are unproven. High-level UI mapping does not identify low-level LCD writes.",
+      "sources": [
+        "Evidence Ledger §4.2",
+        "findings §10 (lead corroborated by fresh IDA)",
+        "Fresh IDA: UI primitive caller; UI geometry"
+      ]
+    },
+    {
+      "id": "panel",
+      "name": "Panel and switch boards — switches / LEDs",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          335,
+          110,
+          138,
+          27
+        ],
+        [
+          594,
+          58,
+          76,
+          27
+        ]
+      ],
+      "firmware": [
+        "137FAA / 1381BC: logical-button lookup/query",
+        "1258D8: diagnostic boot decision queries button codes through 1381BC"
+      ],
+      "registers": [
+        "1756D8: 80-entry two-byte mapping table (documented)",
+        "400494: group query; 1381BC tests a returned matrix bit"
+      ],
+      "observed": "1381BC derives a group and bit from the lookup result, calls 400494, masks that bit and returns Boolean. Diagram switches/LEDs connect to the gate array.",
+      "unresolved": "Individual physical-button labels, scan-register implementation and LED write paths have not been established by this map. Do not assume drawing functions scan inputs.",
+      "sources": [
+        "Evidence Ledger Develop Monitor / Boot-mode dispatch",
+        "Fresh IDA: Panel button query"
+      ]
+    },
+    {
+      "id": "faders",
+      "name": "Panel faders",
+      "confidence": "HYPOTHESIZED",
+      "rects": [
+        [
+          148,
+          110,
+          81,
+          27
+        ]
+      ],
+      "firmware": [
+        "No exact acquisition/calibration routine established"
+      ],
+      "registers": [
+        "Candidate H8 A/D interface: ADDRA/B/C/D FFFF90/92/94/96; ADCSR FFFF98; ADCR FFFF99"
+      ],
+      "observed": "The diagram draws the fader connection directly to the CPU.",
+      "unresolved": "H8 ADC acquisition is plausible, but no fader-channel assignment or firmware acquisition path was recovered. Empty fixed-address IDA xrefs do not establish absence; loaded-pointer and inherited-service paths remain possible.",
+      "sources": [
+        "Block diagram",
+        "IDA/H8.cfg register names only (not semantic proof)"
+      ]
+    },
+    {
+      "id": "beam",
+      "name": "Beam board / D-Beam",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          27,
+          315,
+          65,
+          60
+        ]
+      ],
+      "firmware": [
+        "12EAF0: selects two calibration curve rows",
+        "12E626: consumes selected curve and processed input byte",
+        "12EDCC: calibration callback"
+      ],
+      "registers": [
+        "1589D2–1599D1: sixteen 256-byte curves",
+        "426D50 / 426D54: selected row pointers"
+      ],
+      "observed": "12EAF0 multiplies two byte indices by 256, adds 1589D2 and stores two pointers. The documented callback records connect calibration to D BEAM SETUP / Auto Setup Sens?. Diagram links beam board to CPU.",
+      "unresolved": "Physical input acquisition pins, ADC/timer assignment and IR emitter/detector control are not established. These are processed calibration curves, not DSP program records.",
+      "sources": [
+        "Evidence Ledger §19.1–19.2",
+        "Fresh IDA: D-Beam mapping"
+      ]
+    },
+    {
+      "id": "pedal",
+      "name": "Pedal input",
+      "confidence": "UNRESOLVED",
+      "rects": [
+        [
+          96,
+          403,
+          41,
+          28
+        ]
+      ],
+      "firmware": [
+        "No exact reader/debounce/event path established"
+      ],
+      "registers": [],
+      "observed": "Diagram shows the pedal signal entering the CPU.",
+      "unresolved": "CPU port, electrical interpretation, debounce and application action mapping are untraced. A direct CPU wire does not establish an ADC input.",
+      "sources": [
+        "Block diagram"
+      ]
+    },
+    {
+      "id": "midi",
+      "name": "MIDI board",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          28,
+          230,
+          63,
+          68
+        ]
+      ],
+      "firmware": [
+        "13C5C0: SCI0 forwarding/chained handler",
+        "1761BE: documented MIDI identity response bytes"
+      ],
+      "registers": [
+        "SCI0: SMR0/BRR0/SCR0/TDR0/SSR0/RDR0/SCMR0 at FFFF78–FFFF7E",
+        "427758: saved handler successor used by 13C5C0"
+      ],
+      "observed": "Fresh 13C5C0 instructions read RDR0, poll SSR0 bit 7, write TDR0, clear SSR0 bit 7 and RTS through a saved successor. Independent firmware protocol evidence includes MIDI status, running status and SysEx parsing.",
+      "unresolved": "Complete MIDI parser/ISR ownership remains incomplete. 13C5C0 is a forwarding/chaining hook, not evidence that this one routine implements all MIDI. SCI1/CN7 is a separate interface.",
+      "sources": [
+        "Evidence Ledger SCI1 is distinct from MIDI",
+        "Handoff handler/result-flow audit",
+        "Fresh IDA: SCI0 handler"
+      ]
+    },
+    {
+      "id": "dsp",
+      "name": "DSP — IC11 TC170C140AF (ESP)",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          539,
+          379,
+          115,
+          37
+        ]
+      ],
+      "firmware": [
+        "108A7E: host PRAM word writer",
+        "1097F6 family: ROM-record loader; 1099A6: selected read",
+        "108C12 / 108D06: packed record/parameter updates",
+        "101D16 → 10C816 → 108C12: coefficient-to-hardware chain",
+        "12D228 / 12D264 / 12D2DC: diagnostics"
+      ],
+      "registers": [
+        "PRAM0 C00000; PRAM1 C01000; controls C02000–C02005",
+        "C00003 bit 7 readiness; shadows 4104C2 / 4110C2",
+        "Type-1 ROM image 15E470–15E754; PRAM1 starts at index 03C"
+      ],
+      "observed": "108A7E computes C00000/C01000 plus masked selector offset and writes the supplied longword; it maintains corresponding RAM shadows. Firmware diagnoses DEVICE(ESP). Diagram labels IC11 TC170C140AF. Later production corpus reconstruction finds 25 type images and 8,381 records.",
+      "unresolved": "Register-to-IC11 correspondence is strongly supported, not individually traced on the bus here. Complete opcode timing, opcode 50 and 34/B0 details remain unresolved. Apply the later executable-ESP interpretation over older descriptor-only prose.",
+      "sources": [
+        "Technical Reference §§4,13 and Appendix A",
+        "Evidence Ledger ESP diagnostics/production updates",
+        "Fresh IDA: PRAM writer",
+        "Block diagram"
+      ]
+    },
+    {
+      "id": "dsp_ram",
+      "name": "DSP DRAM — IC12 LH62800K",
+      "confidence": "HYPOTHESIZED",
+      "rects": [
+        [
+          686,
+          379,
+          76,
+          37
+        ]
+      ],
+      "firmware": [
+        "12D398–12D736: documented ERAM setup/functional checks",
+        "1097BE / 108D06: 18-bit Q fields in ESP records"
+      ],
+      "registers": [
+        "ERAM exercised indirectly through ESP programs; no direct H8 base assigned"
+      ],
+      "observed": "The diagram connects IC12 to the DSP rather than directly to the CPU bus. Firmware has distinct indirect ERAM tests and address-field updates.",
+      "unresolved": "ERAM-to-IC12 physical correspondence is plausible but unproven. Do not equate IC12 with the main CPU DRAM or assert which audio/sample buffers reside here.",
+      "sources": [
+        "Technical Reference §§8,13.6",
+        "Block diagram"
+      ]
+    },
+    {
+      "id": "clock",
+      "name": "Clock generator — IC19 TC9246F",
+      "confidence": "UNRESOLVED",
+      "rects": [
+        [
+          349,
+          379,
+          83,
+          37
+        ]
+      ],
+      "firmware": [
+        "No exact IC19 programming routine established",
+        "100A8C / 100AB0 are confirmed TPU0 programming, not an identified IC19 driver"
+      ],
+      "registers": [],
+      "observed": "Diagram connects the CPU-side control path to the clock generator and its output toward audio hardware.",
+      "unresolved": "Control pins/protocol and sample-clock selection are untraced. Values 850/880/870/860 at 1599D2 are timer parameters; their association with this chip or audio rates is not established.",
+      "sources": [
+        "Block diagram",
+        "Evidence Ledger §19.3",
+        "Fresh IDA: Timing config"
+      ]
+    },
+    {
+      "id": "codecs",
+      "name": "Main-board A/D–D/A — IC23 / IC24 AK4520",
+      "confidence": "UNRESOLVED",
+      "rects": [
+        [
+          783,
+          173,
+          55,
+          112
+        ],
+        [
+          783,
+          301,
+          55,
+          112
+        ]
+      ],
+      "firmware": [
+        "ESP coefficient/effect code maps to processing, not an identified AK4520 control driver"
+      ],
+      "registers": [],
+      "observed": "Diagram places two AK4520 converters on the audio path, with digital connections toward the gate-array/DSP side.",
+      "unresolved": "Codec initialization, serial control, digital routing and converter-specific H8 writes have not been mapped. H8 ADDRA/ADCSR are MCU peripherals, not these audio codecs.",
+      "sources": [
+        "Block diagram",
+        "Technical Reference ESP architecture"
+      ]
+    },
+    {
+      "id": "analog",
+      "name": "Analog input VR, output mute and phones selection",
+      "confidence": "UNRESOLVED",
+      "rects": [
+        [
+          861,
+          92,
+          45,
+          43
+        ],
+        [
+          861,
+          179,
+          45,
+          47
+        ],
+        [
+          861,
+          310,
+          45,
+          45
+        ],
+        [
+          861,
+          231,
+          45,
+          40
+        ],
+        [
+          894,
+          423,
+          35,
+          39
+        ]
+      ],
+      "firmware": [
+        "No exact IC35 mute or IC33/IC35 selection routine established"
+      ],
+      "registers": [],
+      "observed": "Diagram shows input VR controls, MUTE IC35 4053 and SEL IC33/IC35 4053 paths to master, aux and phones outputs.",
+      "unresolved": "Analog potentiometer paths do not imply H8-readable controls. CPU/ASIC control wiring, mute polarity and output-selection firmware require schematic/control-flow tracing.",
+      "sources": [
+        "Block diagram"
+      ]
+    },
+    {
+      "id": "scsi",
+      "name": "Option-board SCSI — IC4 NCR53CF92",
+      "confidence": "STRONGLY INFERRED",
+      "rects": [
+        [
+          280,
+          579,
+          81,
+          35
+        ],
+        [
+          280,
+          657,
+          71,
+          30
+        ]
+      ],
+      "firmware": [
+        "12Axxx / 12Bxxx: target-indexed command backend",
+        "12A934: registers IRQ3 selector 4C → 123864",
+        "123864: controller ISR; 12B2F6 / 12B496: routed block operations",
+        "12A956 / 12AA14: probe/ZIP classification gate"
+      ],
+      "registers": [
+        "800000–80000E: controller register window",
+        "880000: documented external transfer endpoint",
+        "IER/ISR bit 3; 426BF8 and subsequent transfer state"
+      ],
+      "observed": "123864 clears ISR/IER bit 3 and reads/writes 800002–800006, advances buffer state and calls transfer helpers. Target-indexed firmware uses SCSI-style CDBs. Diagram puts an NCR53CF92 and separate Zip device on SP808-OP1.",
+      "unresolved": "Exact register-to-chip bus decode and full 880000 transfer-hardware implementation are not newly proven here. The option-board Zip label is separate from the main-board internal Zip path.",
+      "sources": [
+        "Evidence Ledger §§9,32.3",
+        "Technical Reference §§14.2–14.5",
+        "Fresh IDA: SCSI ISR",
+        "Block diagram"
+      ]
+    },
+    {
+      "id": "option_audio",
+      "name": "Option-board digital I/O and extra D/A",
+      "confidence": "UNRESOLVED",
+      "rects": [
+        [
+          385,
+          551,
+          81,
+          65
+        ],
+        [
+          511,
+          551,
+          74,
+          65
+        ],
+        [
+          599,
+          551,
+          68,
+          65
+        ],
+        [
+          687,
+          551,
+          72,
+          65
+        ],
+        [
+          775,
+          551,
+          74,
+          65
+        ]
+      ],
+      "firmware": [
+        "No exact per-chip driver established"
+      ],
+      "registers": [],
+      "observed": "Diagram labels D.OUT I/F IC2 TC9271F, D.IN I/F IC3 LC8905V and D/A IC7/8/9 AK4324, with digital paths into the main board.",
+      "unresolved": "Option detection, digital lock/status, clock-source selection and individual channel routing/control paths are not assigned routines. Do not map the SCSI driver to all option-board hardware merely because it shares a board.",
+      "sources": [
+        "Block diagram"
+      ]
+    }
+  ],
+  "primary_ida_evidence": {
+    "SCI0 handler": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x13c5c0: push.l  er0; Push data on stack\n0x13c5c4: push.l  er0; Push data on stack\n0x13c5c8: mov.l   @dword_427758:32, er0; Move data\n0x13c5d0: mov.l   er0, @(var_s4:16,sp); Move data\n0x13c5d6: mov.b   @0xFFFFFF7D:32, r0l; Move data\n0x13c5dc: btst    #7, @0xFFFFFF7C:32; Bit test\n0x13c5e4: beq     loc_13C5DC:8; Branch if equal\n0x13c5e6: mov.b   r0l, @0xFFFFFF7B:32; Move data\n0x13c5ec: bclr    #7, @0xFFFFFF7C:32; Bit clear\n0x13c5f4: pop.l   er0; Pop data from stack\n0x13c5f8: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "PRAM writer": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x108a7e: stm.l   er4-er6, @-sp; Store from multiple registers\n0x108a82: mov.w   r0, e6; Move data\n0x108a84: mov.l   er1, er5; Move data\n0x108a86: jsr     sub_109956:24; Jump to subroutine\n0x108a8a: mov.w   #1, r0; Move data\n0x108a8e: mov.w   r0, @word_4104C0:32; Move data\n0x108a94: mov.w   e6, r6; Move data\n0x108a96: and.w   #0xFFC, r6; Logical AND\n0x108a9a: mov.w   r6, r1; Move data\n0x108a9c: extu.l  er1; Extend as unsigned\n0x108a9e: mov.w   r6, r4; Move data\n0x108aa0: shlr.w  #2, r4; Shift logical right\n0x108aa2: extu.l  er4; Extend as unsigned\n0x108aa4: shll.l  #2, er4; Shift logical left\n0x108aa6: mov.w   e6, r0; Move data\n0x108aa8: btst    #4, r0h; Bit test\n0x108aaa: beq     loc_108ABA:8; Branch if equal\n0x108aac: add.l   #0xC01000, er1; Add binary\n0x108ab2: mov.l   #dword_4110C2, er6; Move data\n0x108ab8: bra     loc_108AC6:8; Branch always\n0x108aba: add.l   #0xC00000, er1; Add binary\n0x108ac0: mov.l   #dword_4104C2, er6; Move data\n0x108ac6: add.l   er4, er6; Add binary\n0x108ac8: mov.b   @dword_411CC3+2:32, r0l; Move data\n0x108ace: and.b   #3, r0l; Logical AND\n0x108ad0: cmp.b   #3, r0l; Compare\n0x108ad2: beq     loc_108ADC:8; Branch if equal\n0x108ad4: mov.l   er5, @er6; Move data\n0x108ad8: mov.l   er5, @er1; Move data\n0x108adc: sub.w   r0, r0; Subtract binary\n0x108ade: mov.w   r0, @word_4104C0:32; Move data\n0x108ae4: ldm.l   @sp+, er4-er6; Load to multiple registers\n0x108ae8: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "SCI1 init": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x107a72: stc.w   ccr, @-sp; Store from control register\n0x107a76: stc.w   exr, @-sp; Store from control register\n0x107a7a: orc     #0xC0, ccr; Logical OR with control register\n0x107a7c: andc    #0xF8, exr; Logical AND with control register\n0x107a80: orc     #7, exr; Logical OR with control register\n0x107a84: stm.l   er0-er2, @-sp; Store from multiple registers\n0x107a88: mov.l   #sub_107BCA, er1; Move data\n0x107a8e: mov.w   #0x150, r0; Move data\n0x107a92: jsr     unk_40020C:24; Jump to subroutine\n0x107a96: mov.l   #sub_107BEE, er1; Move data\n0x107a9c: mov.w   #0x154, r0; Move data\n0x107aa0: jsr     unk_40020C:24; Jump to subroutine\n0x107aa4: mov.l   #sub_107C2E, er1; Move data\n0x107aaa: mov.w   #0x158, r0; Move data\n0x107aae: jsr     unk_40020C:24; Jump to subroutine\n0x107ab2: sub.b   r0l, r0l; Subtract binary\n0x107ab4: mov.b   r0l, @0xFFFFFF82:32; Move data\n0x107aba: mov.b   @0xFFFFFF84:32, r0l; Move data\n0x107ac0: mov.b   #0x40, r0l ; '@'; Move data\n0x107ac2: mov.b   r0l, @0xFFFFFF84:32; Move data\n0x107ac8: sub.b   r0l, r0l; Subtract binary\n0x107aca: mov.b   r0l, @0xFFFFFF80:32; Move data\n0x107ad0: mov.b   #9, r0l; Move data\n0x107ad2: mov.b   r0l, @0xFFFFFF81:32; Move data\n0x107ad8: mov.l   #0, er0; Move data\n0x107ade: bra     loc_107AEA:16; Branch always\n0x107ae2: nop; No operation\n0x107ae4: add.l   #1, er0; Add binary\n0x107aea: cmp.l   #0x100, er0; Compare\n0x107af0: ble     loc_107AE2:8; Branch if less or equal\n0x107af2: sub.w   r0, r0; Subtract binary\n0x107af4: mov.w   r0, @word_4104AA:32; Move data\n0x107afa: mov.w   r0, @word_4104AC:32; Move data\n0x107b00: mov.w   r0, @word_4104AE:32; Move data\n0x107b06: mov.w   r0, @word_4104B0:32; Move data\n0x107b0c: mov.b   r0l, @byte_4104B2:32; Move data\n0x107b12: mov.b   r0l, @byte_4104B3:32; Move data\n0x107b18: mov.b   @0xFFFFFECE:32, r0l; Move data\n0x107b1e: or.b    #0x20, r0l; Logical OR\n0x107b20: mov.b   r0l, @0xFFFFFECE:32; Move data\n0x107b26: mov.b   #0xF0, r0l; Move data\n0x107b28: mov.b   r0l, @0xFFFFFF82:32; Move data\n0x107b2e: ldm.l   @sp+, er0-er2; Load to multiple registers\n0x107b32: ldc.w   @sp+, exr; Load to control register\n0x107b36: ldc.w   @sp+, ccr; Load to control register\n0x107b3a: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "SCSI ISR": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x123864: stm.l   er0-er1, @-sp; Store from multiple registers\n0x123868: andc    #0xBF, ccr; Logical AND with control register\n0x12386a: bclr    #3, @0xFFFFFF2F:8; Bit clear\n0x12386e: bclr    #3, @0xFFFFFF2E:8; Bit clear\n0x123872: mov.b   @0x800006:32, r0l; Move data\n0x123878: extu.w  r0; Extend as unsigned\n0x12387a: mov.b   r0l, r0h; Move data\n0x12387c: sub.b   r0l, r0l; Subtract binary\n0x12387e: mov.b   @0x800004:32, r1l; Move data\n0x123884: extu.w  r1; Extend as unsigned\n0x123886: or.w    r1, r0; Logical OR\n0x123888: mov.w   r0, @word_426BFA:32; Move data\n0x12388e: mov.b   @0x800005:32, r0l; Move data\n0x123894: mov.b   r0l, @byte_426BF9:32; Move data\n0x12389a: mov.b   @byte_426BF8:32, r0l; Move data\n0x1238a0: cmp.b   #0x81, r0l; Compare\n0x1238a2: bne     loc_1238E4:8; Branch if not equal\n0x1238a4: mov.l   #dword_426C02, er0; Move data\n0x1238aa: mov.l   @er0, er1; Move data\n0x1238ae: inc.l   #1, er1; Increment\n0x1238b0: mov.l   er1, @er0; Move data\n0x1238b4: mov.b   @0x800002:32, r0l; Move data\n0x1238ba: mov.b   r0l, @-er1; Move data\n0x1238bc: mov.l   #dword_426C06, er0; Move data\n0x1238c2: mov.l   @er0, er1; Move data\n0x1238c6: dec.l   #1, er1; Decrement\n0x1238c8: mov.l   er1, @er0; Move data\n0x1238cc: mov.l   @dword_426C06:32, er0; Move data\n0x1238d4: beq     loc_12398A:16; Branch if equal\n0x1238d8: mov.b   #0x10, r0l; Move data\n0x1238da: mov.b   r0l, @0x800003:32; Move data\n0x1238e0: jmp     loc_12398A:24; Jump\n0x1238e4: mov.b   @byte_426BF8:32, r0l; Move data\n0x1238ea: cmp.b   #0x80, r0l; Compare\n0x1238ec: bne     loc_12392E:8; Branch if not equal\n0x1238ee: mov.l   #dword_426C06, er0; Move data\n0x1238f4: mov.l   @er0, er1; Move data\n0x1238f8: dec.l   #1, er1; Decrement\n0x1238fa: mov.l   er1, @er0; Move data\n0x1238fe: mov.l   @dword_426C06:32, er0; Move data\n0x123906: beq     loc_12398A:16; Branch if equal\n0x12390a: mov.l   #dword_426C02, er0; Move data\n0x123910: mov.l   @er0, er1; Move data\n0x123914: inc.l   #1, er1; Increment\n0x123916: mov.l   er1, @er0; Move data\n0x12391a: dec.l   #1, er1; Decrement\n0x12391c: mov.b   @er1, r1l; Move data\n0x12391e: mov.b   r1l, @0x800002:32; Move data\n0x123924: mov.b   #0x10, r0l; Move data\n0x123926: mov.b   r0l, @0x800003:32; Move data\n0x12392c: bra     loc_12398A:8; Branch always\n0x12392e: mov.b   @byte_426BF8:32, r0l; Move data\n0x123934: cmp.b   #1, r0l; Compare\n0x123936: bne     loc_12395E:8; Branch if not equal\n0x123938: mov.l   #dword_426C02, er0; Move data\n0x12393e: mov.l   @er0, er1; Move data\n0x123942: add.l   #0x200, er1; Add binary\n0x123948: mov.l   er1, @er0; Move data\n0x12394c: mov.l   #word_426C00, er0; Move data\n0x123952: mov.w   @er0, r1; Move data\n0x123954: dec.w   #1, r1; Decrement\n0x123956: mov.w   r1, @er0; Move data\n0x123958: jsr     sub_12B3F0:24; Jump to subroutine\n0x12395c: bra     loc_12398A:8; Branch always\n0x12395e: mov.b   @byte_426BF8:32, r0l; Move data\n0x123964: bne     loc_12398A:8; Branch if not equal\n0x123966: mov.l   #dword_426C02, er0; Move data\n0x12396c: mov.l   @er0, er1; Move data\n0x123970: add.l   #0x200, er1; Add binary\n0x123976: mov.l   er1, @er0; Move data\n0x12397a: mov.l   #word_426C00, er0; Move data\n0x123980: mov.w   @er0, r1; Move data\n0x123982: dec.w   #1, r1; Decrement\n0x123984: mov.w   r1, @er0; Move data\n0x123986: jsr     sub_12B590:24; Jump to subroutine\n0x12398a: jsr     sub_12A7F4:24; Jump to subroutine\n0x12398e: ldm.l   @sp+, er0-er1; Load to multiple registers\n0x123992: rte; Return from exception"
+        }
+      ],
+      "isError": false
+    },
+    "D-Beam mapping": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x12eaf0: stm.l   er4-er5, @-sp; Store from multiple registers\n0x12eaf4: mov.l   #word_426D48, er4; Move data\n0x12eafa: sub.l   er5, er5; Subtract binary\n0x12eafc: mov.b   @byte_43B7C1:32, r5l; Move data\n0x12eb02: sub.l   er0, er0; Subtract binary\n0x12eb04: mov.b   @byte_43B7CA:32, r0l; Move data\n0x12eb0a: shll.l  #2, er0; Shift logical left\n0x12eb0c: shll.l  #2, er0; Shift logical left\n0x12eb0e: shll.l  #2, er0; Shift logical left\n0x12eb10: shll.l  #2, er0; Shift logical left\n0x12eb12: add.l   #byte_1589D2, er0; Add binary\n0x12eb18: mov.l   er0, @(8:16,er4); Move data\n0x12eb1e: sub.l   er0, er0; Subtract binary\n0x12eb20: mov.b   @byte_43B7CB:32, r0l; Move data\n0x12eb26: shll.l  #2, er0; Shift logical left\n0x12eb28: shll.l  #2, er0; Shift logical left\n0x12eb2a: shll.l  #2, er0; Shift logical left\n0x12eb2c: shll.l  #2, er0; Shift logical left\n0x12eb2e: add.l   #byte_1589D2, er0; Add binary\n0x12eb34: mov.l   er0, @(0xC:16,er4); Move data\n0x12eb3a: mov.w   #8, r0; Move data\n0x12eb3e: mov.w   r0, @er4; Move data\n0x12eb40: mov.l   er5, er0; Move data\n0x12eb42: sub.l   er1, er1; Subtract binary\n0x12eb44: mov.b   #0x77, r1l ; 'w'; Move data\n0x12eb46: jsr     sub_15833C:24; Jump to subroutine\n0x12eb4a: sub.l   er1, er1; Subtract binary\n0x12eb4c: mov.b   #0x64, r1l ; 'd'; Move data\n0x12eb4e: jsr     sub_157B44:24; Jump to subroutine\n0x12eb52: add.w   #8, r0; Add binary\n0x12eb56: mov.w   r0, @(2:16,er4); Move data\n0x12eb5a: add.w   #8, r0; Add binary\n0x12eb5e: mov.w   r0, @(6:16,er4); Move data\n0x12eb62: mov.w   @(2:16,er4), r0; Move data\n0x12eb66: sub.w   #8, r0; Subtract binary\n0x12eb6a: mov.w   r0, @(4:16,er4); Move data\n0x12eb6e: mov.w   @(6:16,er4), r0; Move data\n0x12eb72: cmp.w   #0x7F, r0; Compare\n0x12eb76: ble     loc_12EB80:8; Branch if less or equal\n0x12eb78: mov.w   #0x7F, r0; Move data\n0x12eb7c: mov.w   r0, @(6:16,er4); Move data\n0x12eb80: mov.w   @er4, r5; Move data\n0x12eb82: mov.w   @(4:16,er4), r0; Move data\n0x12eb86: cmp.w   r5, r0; Compare\n0x12eb88: bge     loc_12EB8E:8; Branch if greates or equal\n0x12eb8a: mov.w   r5, @(4:16,er4); Move data\n0x12eb8e: ldm.l   @sp+, er4-er5; Load to multiple registers\n0x12eb92: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "UI primitive caller": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x138534: stm.l   er4-er6, @-sp; Store from multiple registers\n0x138538: mov.b   r0l, r4l; Move data\n0x13853a: mov.b   r0h, r5h; Move data\n0x13853c: mov.b   r1l, r4h; Move data\n0x13853e: mov.b   r1h, r5l; Move data\n0x138540: sub.b   r0l, r0l; Subtract binary\n0x138542: jsr     unk_400450:24; Jump to subroutine\n0x138546: mov.w   r0, r6; Move data\n0x138548: mov.b   r5l, r1h; Move data\n0x13854a: mov.b   r4h, r1l; Move data\n0x13854c: mov.b   r5h, r0h; Move data\n0x13854e: mov.b   r4l, r0l; Move data\n0x138550: jsr     unk_40046C:24; Jump to subroutine\n0x138554: mov.b   r6l, r0l; Move data\n0x138556: jsr     unk_400450:24; Jump to subroutine\n0x13855a: ldm.l   @sp+, er4-er6; Load to multiple registers\n0x13855e: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "Timing config": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x100ab0: stm.l   er4-er6, @-sp; Store from multiple registers\n0x100ab4: shll.w  r0; Shift logical left\n0x100ab6: shll.w  e0; Shift logical left\n0x100ab8: mov.b   @0xFFFFFFC0:8, r1l; Move data\n0x100aba: and.b   #0x3E, r1l; Logical AND\n0x100abc: mov.b   r1l, @0xFFFFFFC0:8; Move data\n0x100abe: mov.b   @0xFFFFFFC1:8, r1l; Move data\n0x100ac0: and.b   #0x3E, r1l; Logical AND\n0x100ac2: mov.b   r1l, @0xFFFFFFC1:8; Move data\n0x100ac4: mov.b   #0x20, r1l ; ' '; Move data\n0x100ac6: mov.b   r1l, @0xFFFFFFD0:8; Move data\n0x100ac8: mov.b   #0xC2, r5l; Move data\n0x100aca: mov.b   r5l, @0xFFFFFFD1:8; Move data\n0x100acc: mov.b   #0x21, r6l ; '!'; Move data\n0x100ace: mov.b   r6l, @0xFFFFFFD2:8; Move data\n0x100ad0: mov.b   r6l, @0xFFFFFFD3:8; Move data\n0x100ad2: sub.w   r4, r4; Subtract binary\n0x100ad4: mov.w   r4, @0xFFFFFFD6:16; Move data\n0x100ad8: mov.w   r0, @0xFFFFFFD8:16; Move data\n0x100adc: mov.w   r0, r4; Move data\n0x100ade: sub.w   e0, r4; Subtract binary\n0x100ae0: mov.w   r4, @0xFFFFFFDA:16; Move data\n0x100ae4: shlr.w  r0; Shift logical right\n0x100ae6: mov.w   r0, r1; Move data\n0x100ae8: mov.w   r0, @0xFFFFFFDC:16; Move data\n0x100aec: sub.w   e0, r1; Subtract binary\n0x100aee: mov.w   r1, @0xFFFFFFDE:16; Move data\n0x100af2: mov.b   @0xFFFFFFD5:8, r4l; Move data\n0x100af4: and.b   #0xC0, r4l; Logical AND\n0x100af6: mov.b   r4l, @0xFFFFFFD5:8; Move data\n0x100af8: mov.b   @0xFFFFFFD4:8, r4l; Move data\n0x100afa: and.b   #0x40, r4l; Logical AND\n0x100afc: mov.b   r4l, @0xFFFFFFD4:8; Move data\n0x100afe: mov.b   @0xFFFFFFC0:8, r4l; Move data\n0x100b00: or.b    #1, r4l; Logical OR\n0x100b02: mov.b   r4l, @0xFFFFFFC0:8; Move data\n0x100b04: ldm.l   @sp+, er4-er6; Load to multiple registers\n0x100b08: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "Panel button query": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x1381bc: push.l  er6; Push data on stack\n0x1381c0: jsr     sub_137FAA:24; Jump to subroutine\n0x1381c4: mov.w   r0, r6; Move data\n0x1381c6: cmp.w   #0xFFFF, r0; Compare\n0x1381ca: beq     loc_1381F2:8; Branch if equal\n0x1381cc: and.w   #0x78, r0; Logical AND\n0x1381d0: shar.w  #2, r0; Shift arithmetic right\n0x1381d2: shar.w  r0; Shift arithmetic right\n0x1381d4: and.w   #7, r6; Logical AND\n0x1381d8: jsr     unk_400494:24; Jump to subroutine\n0x1381dc: mov.w   #1, r1; Move data\n0x1381e0: dec.b   r6l; Decrement\n0x1381e2: bmi     loc_1381E8:8; Branch if minus\n0x1381e4: shll.w  r1; Shift logical left\n0x1381e6: bra     loc_1381E0:8; Branch always\n0x1381e8: and.w   r1, r0; Logical AND\n0x1381ea: beq     loc_1381F2:8; Branch if equal\n0x1381ec: mov.w   #1, r0; Move data\n0x1381f0: bra     loc_1381F4:8; Branch always\n0x1381f2: sub.w   r0, r0; Subtract binary\n0x1381f4: pop.l   er6; Pop data from stack\n0x1381f8: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    },
+    "UI geometry": {
+      "content": [
+        {
+          "type": "text",
+          "text": "0x138dba: stm.l   er2-er3, @-sp; Store from multiple registers\n0x138dbe: stm.l   er4-er6, @-sp; Store from multiple registers\n0x138dc2: subs    #2, sp; Subtract with sign extension\n0x138dc4: mov.b   r0l, r6h; Move data\n0x138dc6: mov.b   r0h, r6l; Move data\n0x138dc8: mov.b   r1l, r5h; Move data\n0x138dca: mov.b   r1h, r5l; Move data\n0x138dcc: mov.b   #7, r0l; Move data\n0x138dce: jsr     unk_4003C0:24; Jump to subroutine\n0x138dd2: mov.l   er0, er4; Move data\n0x138dd4: mov.b   @(1:16,er0), r0l; Move data\n0x138dd8: mov.b   r0l, @sp; Move data\n0x138dda: mov.b   @(3:16,er4), r3l; Move data\n0x138dde: mov.b   r6h, @dword_42757A+1:32; Move data\n0x138de4: mov.b   r6l, @dword_42757A+2:32; Move data\n0x138dea: mov.b   r5h, @dword_42757A+3:32; Move data\n0x138df0: mov.b   r5l, @byte_42757E:32; Move data\n0x138df6: cmp.b   #2, r6h; Compare\n0x138df8: bls     loc_138E02:8; Branch if lower or same\n0x138dfa: mov.b   r6h, r1l; Move data\n0x138dfc: extu.w  r1; Extend as unsigned\n0x138dfe: dec.w   #2, r1; Decrement\n0x138e00: bra     loc_138E04:8; Branch always\n0x138e02: sub.w   r1, r1; Subtract binary\n0x138e04: mov.b   r1l, @(2+var_1:16,sp); Move data\n0x138e08: cmp.b   #2, r6l; Compare\n0x138e0a: bls     loc_138E14:8; Branch if lower or same\n0x138e0c: mov.b   r6l, r0l; Move data\n0x138e0e: extu.w  r0; Extend as unsigned\n0x138e10: dec.w   #2, r0; Decrement\n0x138e12: bra     loc_138E16:8; Branch always\n0x138e14: sub.w   r0, r0; Subtract binary\n0x138e16: mov.b   r0l, r3h; Move data\n0x138e18: mov.b   r6h, r1l; Move data\n0x138e1a: extu.w  r1; Extend as unsigned\n0x138e1c: mov.b   r5h, r2l; Move data\n0x138e1e: extu.w  r2; Extend as unsigned\n0x138e20: add.w   r2, r1; Add binary\n0x138e22: mov.w   r1, r4; Move data\n0x138e24: add.w   #4, r1; Add binary\n0x138e28: mov.b   @sp, r2l; Move data\n0x138e2a: extu.w  r2; Extend as unsigned\n0x138e2c: mov.w   r2, e4; Move data\n0x138e2e: cmp.w   r2, r1; Compare\n0x138e30: bge     loc_138E36:8; Branch if greates or equal\n0x138e32: mov.w   r1, e0; Move data\n0x138e34: bra     loc_138E3A:8; Branch always\n0x138e36: mov.w   e4, e0; Move data\n0x138e38: dec.w   #1, e0; Decrement\n0x138e3a: mov.w   e0, r0; Move data\n0x138e3c: mov.b   r0l, @sp; Move data\n0x138e3e: mov.b   r6l, r1l; Move data\n0x138e40: extu.w  r1; Extend as unsigned\n0x138e42: mov.b   r5l, r2l; Move data\n0x138e44: extu.w  r2; Extend as unsigned\n0x138e46: add.w   r2, r1; Add binary\n0x138e48: mov.w   r1, e5; Move data\n0x138e4a: add.w   #4, r1; Add binary\n0x138e4e: mov.b   r3l, r2l; Move data\n0x138e50: extu.w  r2; Extend as unsigned\n0x138e52: mov.w   r2, e6; Move data\n0x138e54: cmp.w   r2, r1; Compare\n0x138e56: bge     loc_138E5C:8; Branch if greates or equal\n0x138e58: mov.w   r1, e0; Move data\n0x138e5a: bra     loc_138E60:8; Branch always\n0x138e5c: mov.w   e6, e0; Move data\n0x138e5e: dec.w   #1, e0; Decrement\n0x138e60: mov.w   e0, r0; Move data\n0x138e62: mov.b   r0l, r1h; Move data\n0x138e64: mov.b   @sp, r1l; Move data\n0x138e66: mov.b   r3h, r0h; Move data\n0x138e68: mov.b   @(2+var_1:16,sp), r0l; Move data\n0x138e6c: jsr     sub_138534:24; Jump to subroutine\n0x138e70: add.b   r6l, r5l; Add binary\n0x138e72: mov.b   r5l, r3l; Move data\n0x138e74: add.b   r6h, r5h; Add binary\n0x138e76: mov.b   r5h, r3h; Move data\n0x138e78: mov.b   r5l, r1h; Move data\n0x138e7a: mov.b   r5h, r1l; Move data\n0x138e7c: mov.b   r6l, r0h; Move data\n0x138e7e: mov.b   r6h, r0l; Move data\n0x138e80: jsr     unk_400468:24; Jump to subroutine\n0x138e84: mov.b   r3h, r5l; Move data\n0x138e86: add.b   #1, r5l; Add binary\n0x138e88: mov.b   r3l, r5h; Move data\n0x138e8a: add.b   #1, r5h; Add binary\n0x138e8c: add.b   #2, r6h; Add binary\n0x138e8e: mov.b   r6h, @(2+var_1:16,sp); Move data\n0x138e92: mov.b   r5l, r1l; Move data\n0x138e94: mov.b   r5h, r0h; Move data\n0x138e96: mov.b   r6h, r0l; Move data\n0x138e98: jsr     unk_40045C:24; Jump to subroutine\n0x138e9c: add.b   #2, r6l; Add binary\n0x138e9e: mov.b   r6l, r6h; Move data\n0x138ea0: mov.b   r5h, r1l; Move data\n0x138ea2: mov.b   r6h, r0h; Move data\n0x138ea4: mov.b   r5l, r0l; Move data\n0x138ea6: jsr     unk_400460:24; Jump to subroutine\n0x138eaa: inc.w   #2, e5; Increment\n0x138eac: cmp.w   e6, e5; Compare\n0x138eae: bge     loc_138EC0:8; Branch if greates or equal\n0x138eb0: mov.b   r3h, r1l; Move data\n0x138eb2: add.b   #2, r1l; Add binary\n0x138eb4: mov.b   r3l, r0h; Move data\n0x138eb6: add.b   #2, r0h; Add binary\n0x138eb8: mov.b   @(2+var_1:16,sp), r0l; Move data\n0x138ebc: jsr     unk_40045C:24; Jump to subroutine\n0x138ec0: inc.w   #2, r4; Increment\n0x138ec2: cmp.w   e4, r4; Compare\n0x138ec4: bge     loc_138ED4:8; Branch if greates or equal\n0x138ec6: mov.b   r3l, r1l; Move data\n0x138ec8: add.b   #2, r1l; Add binary\n0x138eca: mov.b   r3h, r0l; Move data\n0x138ecc: add.b   #2, r0l; Add binary\n0x138ece: mov.b   r6h, r0h; Move data\n0x138ed0: jsr     unk_400460:24; Jump to subroutine\n0x138ed4: sub.b   r0l, r0l; Subtract binary\n0x138ed6: mov.b   r0l, @byte_42757F:32; Move data\n0x138edc: adds    #2, sp; Add with sign extension\n0x138ede: ldm.l   @sp+, er4-er6; Load to multiple registers\n0x138ee2: ldm.l   @sp+, er2-er3; Load to multiple registers\n0x138ee6: rts; Return from subroutine"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "inputs": [
+    {
+      "path": "media/sp808-block_diagram.png",
+      "size": 122940,
+      "md5": "7b98ab2dc146a3bfd051fa9bad278a27",
+      "sha256": "c8b1d23ddac2797a927e2a9b592d621f166a659f95d5b7bceacea34a28d278e3"
+    },
+    {
+      "path": "firmware/SP8EXall.bin",
+      "size": 786436,
+      "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+      "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+    },
+    {
+      "path": "firmware/A6_all.bin",
+      "size": 786436,
+      "md5": "8a8983975680f5df54a41bc1683f5387",
+      "sha256": "d8d39cb6320cc937471b3d7f32a838d90894f152f875c4014768a67356f952b1"
+    },
+    {
+      "path": "SP-808EX_Evidence_Ledger_2026-10-05_v11.md",
+      "size": 94672,
+      "md5": "d99efc466bd3927a578865dd57ecc4eb",
+      "sha256": "beea4563f0163211f56f92a153f1ea16814ebd034ceddb7bf25a5ef4726bd59d"
+    },
+    {
+      "path": "SP-808EX_Observed_Architecture_Technical_Reference_2026-10-05_v9.md",
+      "size": 56219,
+      "md5": "0f34dc7c3ae9521cbabc99312d3a5184",
+      "sha256": "f684728f5dda056568f074a225812978167bdd523bc90c1c533cfa8da5b03337"
+    },
+    {
+      "path": "Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md",
+      "size": 33126,
+      "md5": "542f11b9e67e93d0666f1702d55ae657",
+      "sha256": "292be9246c3bef811d7201d769a52dbd70e0fae3b4616c5469c2bceb6abb96b1"
+    },
+    {
+      "path": "analysis/CODEX_HANDOFF_2026-10-05.md",
+      "size": 26009,
+      "md5": "98a617e3183de3913a9860420845658e",
+      "sha256": "0a581afc7f3128ea951babf6bdd893b1d1c3bbc6ce43ff4319a12f93a5ac4371"
+    },
+    {
+      "path": "analysis/findings.md",
+      "size": 60071,
+      "md5": "93524cfcbd88f56eb93a84366675e1dc",
+      "sha256": "8974d1dea76434ef4f9d91d73f7161a2d8d6a3bb7f91524c7fa1f9b6e5d02713"
+    },
+    {
+      "path": "analysis/Link_Plan_v3_2026-10-05.md",
+      "size": 27680,
+      "md5": "cf82b52d395ca83622be227ffe274c59",
+      "sha256": "53602dbe74a4afac7ea4029f24b2ee24a1156b29cd0968c653aa72ddbc327f74"
+    },
+    {
+      "path": "IDA/H8.cfg",
+      "size": 16121,
+      "md5": "4197f2760b2a3ae30c806c654dd8e8b1",
+      "sha256": "471736ceca05539b71a54c0c2e6697f81e987f40521a2c104b70db66f60a6c88"
+    },
+    {
+      "path": "protocols/Roland_SP-808_to_ZIP_Drive_sniff.md",
+      "size": 114307,
+      "md5": "69b1b044b80449926f938667adc4ebfa",
+      "sha256": "05b59447d2b28d3abfa4bb2a4368923fc61aa7a827c21a38a0822fc48c6c9e51"
+    },
+    {
+      "path": "analysis/SP808_hardware_firmware_map_2026-10-06_evidence.json",
+      "size": 39388,
+      "md5": "5076ec382a871f59e39974f495643d25",
+      "sha256": "6651d82f5952ef89687c23fb6cfab48b4ff1b31910ea0d9a26937453247628c4"
+    },
+    {
+      "path": "analysis/build_hardware_firmware_map_2026-10-06.py",
+      "size": 11229,
+      "md5": "b292fb08de8457a2012f658ee2ab817d",
+      "sha256": "78bb2e42a66eb48ccaf0cd064b10c1b2dc30a4e5d90b6f8839b4e26e02e51f8d"
+    }
+  ],
+  "runtime_validation": "UNRESOLVED; no hardware test, firmware/database edits or renames"
+}

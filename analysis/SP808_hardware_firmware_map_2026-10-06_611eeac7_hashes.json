@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "inputs": [
+    {
+      "path": "media/sp808-block_diagram.png",
+      "size": 122940,
+      "md5": "7b98ab2dc146a3bfd051fa9bad278a27",
+      "sha256": "c8b1d23ddac2797a927e2a9b592d621f166a659f95d5b7bceacea34a28d278e3"
+    },
+    {
+      "path": "firmware/SP8EXall.bin",
+      "size": 786436,
+      "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+      "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+    },
+    {
+      "path": "firmware/A6_all.bin",
+      "size": 786436,
+      "md5": "8a8983975680f5df54a41bc1683f5387",
+      "sha256": "d8d39cb6320cc937471b3d7f32a838d90894f152f875c4014768a67356f952b1"
+    },
+    {
+      "path": "SP-808EX_Evidence_Ledger_2026-10-05_v11.md",
+      "size": 94672,
+      "md5": "d99efc466bd3927a578865dd57ecc4eb",
+      "sha256": "beea4563f0163211f56f92a153f1ea16814ebd034ceddb7bf25a5ef4726bd59d"
+    },
+    {
+      "path": "SP-808EX_Observed_Architecture_Technical_Reference_2026-10-05_v9.md",
+      "size": 56219,
+      "md5": "0f34dc7c3ae9521cbabc99312d3a5184",
+      "sha256": "f684728f5dda056568f074a225812978167bdd523bc90c1c533cfa8da5b03337"
+    },
+    {
+      "path": "Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md",
+      "size": 33126,
+      "md5": "542f11b9e67e93d0666f1702d55ae657",
+      "sha256": "292be9246c3bef811d7201d769a52dbd70e0fae3b4616c5469c2bceb6abb96b1"
+    },
+    {
+      "path": "analysis/CODEX_HANDOFF_2026-10-05.md",
+      "size": 26009,
+      "md5": "98a617e3183de3913a9860420845658e",
+      "sha256": "0a581afc7f3128ea951babf6bdd893b1d1c3bbc6ce43ff4319a12f93a5ac4371"
+    },
+    {
+      "path": "analysis/findings.md",
+      "size": 60071,
+      "md5": "93524cfcbd88f56eb93a84366675e1dc",
+      "sha256": "8974d1dea76434ef4f9d91d73f7161a2d8d6a3bb7f91524c7fa1f9b6e5d02713"
+    },
+    {
+      "path": "analysis/Link_Plan_v3_2026-10-05.md",
+      "size": 27680,
+      "md5": "cf82b52d395ca83622be227ffe274c59",
+      "sha256": "53602dbe74a4afac7ea4029f24b2ee24a1156b29cd0968c653aa72ddbc327f74"
+    },
+    {
+      "path": "IDA/H8.cfg",
+      "size": 16121,
+      "md5": "4197f2760b2a3ae30c806c654dd8e8b1",
+      "sha256": "471736ceca05539b71a54c0c2e6697f81e987f40521a2c104b70db66f60a6c88"
+    },
+    {
+      "path": "protocols/Roland_SP-808_to_ZIP_Drive_sniff.md",
+      "size": 114307,
+      "md5": "69b1b044b80449926f938667adc4ebfa",
+      "sha256": "05b59447d2b28d3abfa4bb2a4368923fc61aa7a827c21a38a0822fc48c6c9e51"
+    },
+    {
+      "path": "analysis/SP808_hardware_firmware_map_2026-10-06_evidence.json",
+      "size": 39388,
+      "md5": "5076ec382a871f59e39974f495643d25",
+      "sha256": "6651d82f5952ef89687c23fb6cfab48b4ff1b31910ea0d9a26937453247628c4"
+    },
+    {
+      "path": "analysis/build_hardware_firmware_map_2026-10-06.py",
+      "size": 11229,
+      "md5": "b292fb08de8457a2012f658ee2ab817d",
+      "sha256": "78bb2e42a66eb48ccaf0cd064b10c1b2dc30a4e5d90b6f8839b4e26e02e51f8d"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "analysis/SP808_hardware_firmware_map_2026-10-06_611eeac7.json",
+      "size": 43117,
+      "md5": "42968ea7b3f0aa108735a0cf37b9b2a4",
+      "sha256": "dd225ea33d4a0751042bfbd04337c7a5f227e5bd579143812561bb85328b8f9f"
+    },
+    {
+      "path": "analysis/SP808_hardware_firmware_map_2026-10-06_611eeac7.md",
+      "size": 19357,
+      "md5": "4dd4bc2332eabca31a6fe3c9b3812004",
+      "sha256": "727a8a1a8d3b9854f7576c2cf779402363fb84018ddacf0d2b15c872fb72b65d"
+    },
+    {
+      "path": "analysis/SP808_hardware_firmware_map_2026-10-06_611eeac7.html",
+      "size": 205749,
+      "md5": "50d290749b137d69880a6d73fa0986a3",
+      "sha256": "0ca424525ea52517cdb57d9abcd01fb777f9e471915e33e86484503c9c7e5bf6"
+    }
+  ],
+  "verification": {
+    "firmware_md5": "PASS",
+    "distinct_nodes": "PASS",
+    "overlay_bounds": "PASS",
+    "nodes": 18,
+    "runtime_validation": "UNRESOLVED"
+  }
+}

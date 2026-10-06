@@ -40,7 +40,7 @@ A pragmatic stopgap for users is ZuluIDE emulating a genuine ZIP-100 (`zuluide.i
 - **`firmware/bin2midi.py`** — written from scratch with correct 7-bit encoding (verified against `rolandext.py`'s decoder). Replaces the broken nibble-splitting version in `Bin2Mid.md`. **[SUPERSEDED 2026-10-06: the SMF audit found `bin2midi.py` itself emits malformed SysEx (bad length framing, dropped metadata); use `analysis/smf_v3_deployment_audit.py` for repacking.]**
 - **`firmware/README.md`** — extract → patch workflow documented (now **historical**; repacking is superseded by the SMF audit).
 - **`README.md`** — removed broken references to `software/`, `research/`, wiki links, and non-existent Releases. Replaced with local file links.
-- **`CONTRIBUTING.md`** — created.
+- **`CONTRIBUTING.md`** — created, then **removed** (2026-10-06): soliciting hardware/experimental testing was contributing to people flashing unverified firmware.
 - **`hardware/datasheets/README.md`** — index created with notes on what each PDF covers and what's missing.
 - **`interestingStrings.md`** — filled in SP-808 and A6 columns with confirmed data from analysis docs.
 - **`HARDWARE_CORRECTIONS_2026-05.md`** — superseded by the dated `Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md` (a content superset) and removed from the repo.
