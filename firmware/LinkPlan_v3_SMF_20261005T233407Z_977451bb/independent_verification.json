@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "method": "Separate fresh process and stream-based SMF parser; independent bit-shift unpacking; strict SMF lengths, packet checksums, ascending non-overlapping addresses; complete firmware byte equality",
+  "sets": [
+    {
+      "set": "roundtrip_SP808EXv1001",
+      "status": "PASS",
+      "files": 8,
+      "packets": 2605,
+      "size": 786436,
+      "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+      "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+    },
+    {
+      "set": "roundtrip_SP-808EX_v.1001_for_SP-808",
+      "status": "PASS",
+      "files": 8,
+      "packets": 2605,
+      "size": 786436,
+      "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+      "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+    },
+    {
+      "set": "deployment",
+      "status": "PASS",
+      "files": 8,
+      "packets": 2630,
+      "size": 786436,
+      "md5": "9d38db7f4cc07f00c30c6022e073ed7d",
+      "sha256": "bcb3d71755dd8b5ca16275af9dc0e490126b9a248fd6794e689fc824c0c2b95a"
+    }
+  ],
+  "candidate_unchanged": true
+}

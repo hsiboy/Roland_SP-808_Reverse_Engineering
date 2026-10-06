@@ -1,0 +1,2828 @@
+{
+  "schema_version": 1,
+  "evidence_status": "OBSERVED",
+  "source": {
+    "size": 786436,
+    "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+    "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+  },
+  "candidate": {
+    "size": 786436,
+    "md5": "9d38db7f4cc07f00c30c6022e073ed7d",
+    "sha256": "bcb3d71755dd8b5ca16275af9dc0e490126b9a248fd6794e689fc824c0c2b95a"
+  },
+  "candidate_path": "firmware\\SP8EXall_LinkPlan_v3_readonly_20261005T230456Z_23c5dcc8.bin",
+  "checked_manifest": {
+    "size": 81375,
+    "md5": "c705c3990b31070180ef48302b5e25a2",
+    "sha256": "975f5521e47e18461076d570f604c024c3d051600d0d506d8c2fd988bf81ffdc"
+  },
+  "archives": [
+    {
+      "archive": "SP808EXv1001.zip",
+      "archive_hashes": {
+        "size": 335800,
+        "md5": "8797806cca56fbf3c0e61bec26eccaf6",
+        "sha256": "8336afef986297215baa9f3c0386236b1ac98d00474931c15cb6fba620931e8d"
+      },
+      "original_files": [
+        {
+          "name": "SP8EX#1.mid",
+          "size": 79447,
+          "md5": "b27fc1d92fd5de4f9732a0a016f69c8c",
+          "sha256": "4d2baa0f718a7c5e3440589202170de299746339732155b39735146861de07ba",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120312f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "000700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 00 00",
+              "payload_hex": "00000100000000000000010c00000000",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "00077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 0,
+              "end": 63896
+            }
+          ],
+          "declared_track_length": 79425,
+          "actual_track_length": 79425,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#2.mid",
+          "size": 79413,
+          "md5": "f695c46629f286589f1b4bc19a24c7a8",
+          "sha256": "9b2161ced921e7286339f7c8ebfafef85a0c37e467b054c0e253abd6c129ef11",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120322f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "010700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "01077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 63896,
+              "end": 127792
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#3.mid",
+          "size": 79413,
+          "md5": "c8b341ae369c6268469cffe9bc685066",
+          "sha256": "033262a009df0f6a0cd0d8f1f931ac7bbe7d77e9c584449367462625cd789152",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120332f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "020700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "02077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 127792,
+              "end": 191688
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#4.mid",
+          "size": 79413,
+          "md5": "f7cc9c571d1f640dad9d222f5e417f61",
+          "sha256": "f3f9fa6f6058a3426c82b03b0a77b739482e579a4594b9336b370d2aaeb5b44f",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120342f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "030700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "03077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 191688,
+              "end": 255584
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#5.mid",
+          "size": 79413,
+          "md5": "34fcf05e0096816ac97de254c3e7b106",
+          "sha256": "38726f300f543c761862812464c7ceac64e47a2d6d6f33742e1c07d48ab2a595",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120352f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "040700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "04077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 255584,
+              "end": 319480
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#6.mid",
+          "size": 79413,
+          "md5": "7a361db1f9c845699e7a7e6003edc95a",
+          "sha256": "af0c63e646a395548e2bb26336d8240b9fd5c166d13bdb6d63800b22054811a2",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120362f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "050700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "05077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 319480,
+              "end": 383376
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#7.mid",
+          "size": 79413,
+          "md5": "c2d6a925bfd92bfeb33043beabc2ed47",
+          "sha256": "530a727bf6c93846a5818171b880a36e7ffabb57b52fe49a5e07286adadff73c",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120372f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "060700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "06077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 383376,
+              "end": 447272
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#8.mid",
+          "size": 78140,
+          "md5": "6662b3e7c6aa04068947444cbe3390b3",
+          "sha256": "4f68b5e13b20720ad40d9ffb8e9a2cef1ab7ec49bdcf35f6db5f60b7eaf570f0",
+          "ppqn": 48,
+          "data_packets": 323,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120382f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "070700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 01 00",
+              "payload_hex": "4e",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "07077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 447272,
+              "end": 467600
+            },
+            {
+              "start": 467607,
+              "end": 496664
+            },
+            {
+              "start": 496692,
+              "end": 510083
+            },
+            {
+              "start": 786394,
+              "end": 786436
+            }
+          ],
+          "declared_track_length": 78118,
+          "actual_track_length": 78118,
+          "track_length_status": "PASS",
+          "status": "PASS"
+        }
+      ],
+      "regenerated_files": [
+        {
+          "name": "SP8EX#1.mid",
+          "size": 79447,
+          "md5": "b27fc1d92fd5de4f9732a0a016f69c8c",
+          "sha256": "4d2baa0f718a7c5e3440589202170de299746339732155b39735146861de07ba",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120312f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "000700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 00 00",
+              "payload_hex": "00000100000000000000010c00000000",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "00077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 0,
+              "end": 63896
+            }
+          ],
+          "declared_track_length": 79425,
+          "actual_track_length": 79425,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#1.mid"
+        },
+        {
+          "name": "SP8EX#2.mid",
+          "size": 79413,
+          "md5": "f695c46629f286589f1b4bc19a24c7a8",
+          "sha256": "9b2161ced921e7286339f7c8ebfafef85a0c37e467b054c0e253abd6c129ef11",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120322f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "010700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "01077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 63896,
+              "end": 127792
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#2.mid"
+        },
+        {
+          "name": "SP8EX#3.mid",
+          "size": 79413,
+          "md5": "c8b341ae369c6268469cffe9bc685066",
+          "sha256": "033262a009df0f6a0cd0d8f1f931ac7bbe7d77e9c584449367462625cd789152",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120332f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "020700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "02077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 127792,
+              "end": 191688
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#3.mid"
+        },
+        {
+          "name": "SP8EX#4.mid",
+          "size": 79413,
+          "md5": "f7cc9c571d1f640dad9d222f5e417f61",
+          "sha256": "f3f9fa6f6058a3426c82b03b0a77b739482e579a4594b9336b370d2aaeb5b44f",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120342f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "030700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "03077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 191688,
+              "end": 255584
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#4.mid"
+        },
+        {
+          "name": "SP8EX#5.mid",
+          "size": 79413,
+          "md5": "34fcf05e0096816ac97de254c3e7b106",
+          "sha256": "38726f300f543c761862812464c7ceac64e47a2d6d6f33742e1c07d48ab2a595",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120352f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "040700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "04077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 255584,
+              "end": 319480
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#5.mid"
+        },
+        {
+          "name": "SP8EX#6.mid",
+          "size": 79413,
+          "md5": "7a361db1f9c845699e7a7e6003edc95a",
+          "sha256": "af0c63e646a395548e2bb26336d8240b9fd5c166d13bdb6d63800b22054811a2",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120362f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "050700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "05077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 319480,
+              "end": 383376
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#6.mid"
+        },
+        {
+          "name": "SP8EX#7.mid",
+          "size": 79413,
+          "md5": "c2d6a925bfd92bfeb33043beabc2ed47",
+          "sha256": "530a727bf6c93846a5818171b880a36e7ffabb57b52fe49a5e07286adadff73c",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120372f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "060700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "06077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 383376,
+              "end": 447272
+            }
+          ],
+          "declared_track_length": 79391,
+          "actual_track_length": 79391,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#7.mid"
+        },
+        {
+          "name": "SP8EX#8.mid",
+          "size": 78140,
+          "md5": "6662b3e7c6aa04068947444cbe3390b3",
+          "sha256": "4f68b5e13b20720ad40d9ffb8e9a2cef1ab7ec49bdcf35f6db5f60b7eaf570f0",
+          "ppqn": 48,
+          "data_packets": 323,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120382f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "070700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+              "delta": 16
+            },
+            {
+              "address": "01 01 00",
+              "payload_hex": "4e",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "07077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 10 00 2b 12"
+          ],
+          "ranges": [
+            {
+              "start": 447272,
+              "end": 467600
+            },
+            {
+              "start": 467607,
+              "end": 496664
+            },
+            {
+              "start": 496692,
+              "end": 510083
+            },
+            {
+              "start": 786394,
+              "end": 786436
+            }
+          ],
+          "declared_track_length": 78118,
+          "actual_track_length": 78118,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP808EXv1001/SP8EX#8.mid"
+        }
+      ],
+      "original_extracted_bin": {
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      "regenerated_extracted_bin": {
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      "firmware_payload_exact": true,
+      "whole_smf_files_exact": true,
+      "implicit_zero_bytes": 276346,
+      "status": "PASS"
+    },
+    {
+      "archive": "SP-808EX_v.1001_for_SP-808.zip",
+      "archive_hashes": {
+        "size": 334821,
+        "md5": "03afcc4bfb554e8f674034dc178e423c",
+        "sha256": "973dfeb18ae0702c3b8cc35d867b4a90174c1c10325bceb6feef02f45027ebfd"
+      },
+      "original_files": [
+        {
+          "name": "SP8EX#1.mid",
+          "size": 79125,
+          "md5": "30afe8580293e5a6d9d41c3a9d7b93c4",
+          "sha256": "7580934ad458fb851e5f2e354a175eafe488c736d4724e8683fcf56380553027",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520312f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "000700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 00 00",
+              "payload_hex": "00000100000000000000010c00000000",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "00077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 0,
+              "end": 63896
+            }
+          ],
+          "declared_track_length": 67728,
+          "actual_track_length": 79103,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#2.mid",
+          "size": 79092,
+          "md5": "40ee7963cb88ee6ae0aa185b05c12d73",
+          "sha256": "b3d8c05b3333fdf35f5b6934f8083d1ba92443c6ed08910cf21bd9601e956562",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520322f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "010700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "01077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 63896,
+              "end": 127792
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#3.mid",
+          "size": 79092,
+          "md5": "64650e9a21c8f5713e3669993c54d87f",
+          "sha256": "0c5ae447161d53f58c0c4e2d2bc77ac00eb9aa1635a67e90f1ef6806f41fb3bd",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520332f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "020700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "02077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 127792,
+              "end": 191688
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#4.mid",
+          "size": 79092,
+          "md5": "5302fa2c7f91e794d9bc833c404a8cbf",
+          "sha256": "fb92f4cd913299894aca9cc0e1278132aef214449d555b9d74d64a3c77830bef",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520342f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "030700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "03077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 191688,
+              "end": 255584
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#5.mid",
+          "size": 79092,
+          "md5": "55ae5de1ddaf48a4898244448ee59fb9",
+          "sha256": "8dbd7a68b6b7957b43102e925dabb149caabf6eba73be91069e738ffd7341653",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520352f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "040700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "04077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 255584,
+              "end": 319480
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#6.mid",
+          "size": 79092,
+          "md5": "c589e45ff4f20831fa18c0ebaa9063ce",
+          "sha256": "c2c0f13617b803d57f48bc78b748ab213f2a49fca72e1f1e1c56b3149d73690d",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520362f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "050700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "05077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 319480,
+              "end": 383376
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#7.mid",
+          "size": 79092,
+          "md5": "7e6c57fc48ddb5e55dd4c5cdac101287",
+          "sha256": "c51162cb1baf887d579cfd20c0db36bca54b544d5b9ee64e93fe98a7de1e4a50",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520372f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "060700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "06077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 383376,
+              "end": 447272
+            }
+          ],
+          "declared_track_length": 67937,
+          "actual_track_length": 79070,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        },
+        {
+          "name": "SP8EX#8.mid",
+          "size": 77820,
+          "md5": "b5e383fe096f3c361047f9953c0d004e",
+          "sha256": "742a9d9720cb5bb6f44795c7854a7e8afc7321c85fd43b0724d47d2a71e27291",
+          "ppqn": 48,
+          "data_packets": 323,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520382f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "070700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 01 00",
+              "payload_hex": "4e",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "07077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 447272,
+              "end": 467600
+            },
+            {
+              "start": 467607,
+              "end": 496664
+            },
+            {
+              "start": 496692,
+              "end": 510083
+            },
+            {
+              "start": 786394,
+              "end": 786436
+            }
+          ],
+          "declared_track_length": 66271,
+          "actual_track_length": 77798,
+          "track_length_status": "FAIL",
+          "status": "PASS"
+        }
+      ],
+      "regenerated_files": [
+        {
+          "name": "SP8EX#1.mid",
+          "size": 79125,
+          "md5": "1a0c82d5d40ab5a824925bbdde7d991e",
+          "sha256": "c5ae882e9db4156da406208ebce7081981d0586d1d1eeb9bee6df5a828b7fbdd",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520312f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "000700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 00 00",
+              "payload_hex": "00000100000000000000010c00000000",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "00077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 0,
+              "end": 63896
+            }
+          ],
+          "declared_track_length": 79103,
+          "actual_track_length": 79103,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#1.mid"
+        },
+        {
+          "name": "SP8EX#2.mid",
+          "size": 79092,
+          "md5": "b055d68e7b04bfea0068ec5467a46376",
+          "sha256": "a7fe5de8d08a0a92d0dcbb83d18cf024e039dde97bd1c262edc3cf22d457ec5d",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520322f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "010700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "01077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 63896,
+              "end": 127792
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#2.mid"
+        },
+        {
+          "name": "SP8EX#3.mid",
+          "size": 79092,
+          "md5": "bd391150edc7c58648d90011a201ef22",
+          "sha256": "df282d3ef051003e1ae2ae47a1c6c831d34022fa35b319a566e4913218873f47",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520332f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "020700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "02077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 127792,
+              "end": 191688
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#3.mid"
+        },
+        {
+          "name": "SP8EX#4.mid",
+          "size": 79092,
+          "md5": "c7e3e5cc53b928db541933801ff3eff8",
+          "sha256": "c37b3f674d862b371a0bddf5673348b7facbc4465a91c1d60be4fd44c1b097ef",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520342f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "030700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "03077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 191688,
+              "end": 255584
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#4.mid"
+        },
+        {
+          "name": "SP8EX#5.mid",
+          "size": 79092,
+          "md5": "5128135f3df2c0b9b2cf076892ada887",
+          "sha256": "117e0917184ad3f1493e055d2a1f40d10809375c7ad6fca6a449ef1c17766af7",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520352f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "040700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "04077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 255584,
+              "end": 319480
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#5.mid"
+        },
+        {
+          "name": "SP8EX#6.mid",
+          "size": 79092,
+          "md5": "de91431a615a13bee1be2ed68eb8c5e5",
+          "sha256": "56524d8f629d9df13f517cb9c4b882fd24f3aa1143953aa92e80440ee1b15e65",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520362f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "050700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "05077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 319480,
+              "end": 383376
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#6.mid"
+        },
+        {
+          "name": "SP8EX#7.mid",
+          "size": 79092,
+          "md5": "131e978892ec2aa9d76be5bcb2aae5cd",
+          "sha256": "14b9d752ebe28b2d4fabf5e82036a7dbb592795a41d979bccacaa3e85efda17f",
+          "ppqn": 48,
+          "data_packets": 326,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520372f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "060700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "06077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12",
+            "41 10 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 383376,
+              "end": 447272
+            }
+          ],
+          "declared_track_length": 79070,
+          "actual_track_length": 79070,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#7.mid"
+        },
+        {
+          "name": "SP8EX#8.mid",
+          "size": 77820,
+          "md5": "b250ccec06313f78a774004c526797e0",
+          "sha256": "43ad71a9edff2a03033f6eb48dc12ae5bb3306e9c8b3922af3b8cacc6608737a",
+          "ppqn": 48,
+          "data_packets": 323,
+          "metadata": [
+            {
+              "smf_meta": 3,
+              "payload_hex": "535038303845582076657220312e30303120323030302f30352f303520382f38",
+              "delta": 0
+            },
+            {
+              "smf_meta": 2,
+              "payload_hex": "7475726e7320796f757220535038303820696e746f206120535038303845582e",
+              "delta": 0
+            },
+            {
+              "smf_meta": 81,
+              "payload_hex": "07a120",
+              "delta": 0
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "070700",
+              "delta": 16
+            },
+            {
+              "address": "01 03 00",
+              "payload_hex": "53502d3830382056657220312e303530206d6d6d20646420797979792068683a6d6d3a7373",
+              "delta": 16
+            },
+            {
+              "address": "01 01 00",
+              "payload_hex": "4e",
+              "delta": 16
+            },
+            {
+              "address": "01 02 00",
+              "payload_hex": "07077f",
+              "delta": 16
+            },
+            {
+              "smf_meta": 47,
+              "payload_hex": "",
+              "delta": 0
+            }
+          ],
+          "headers": [
+            "41 00 7c 12"
+          ],
+          "ranges": [
+            {
+              "start": 447272,
+              "end": 467600
+            },
+            {
+              "start": 467607,
+              "end": 496664
+            },
+            {
+              "start": 496692,
+              "end": 510083
+            },
+            {
+              "start": 786394,
+              "end": 786436
+            }
+          ],
+          "declared_track_length": 77798,
+          "actual_track_length": 77798,
+          "track_length_status": "PASS",
+          "status": "PASS",
+          "path": "roundtrip_SP-808EX_v.1001_for_SP-808/SP8EX#8.mid"
+        }
+      ],
+      "original_extracted_bin": {
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      "regenerated_extracted_bin": {
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      "firmware_payload_exact": true,
+      "whole_smf_files_exact": false,
+      "implicit_zero_bytes": 276346,
+      "status": "PASS"
+    }
+  ],
+  "converter_audit": {
+    "bin2midi_strict_smf_status": "FAIL",
+    "legacy_output_bin": {
+      "size": 786464,
+      "md5": "27c0590e870347b5d42269a27627c2d4",
+      "sha256": "db8c41367a4592d55e6f66916e81bf9fd7579af898aada6c56dbe30f9f5ed48e"
+    },
+    "legacy_payload_exact": false,
+    "legacy_generated_files": [
+      {
+        "name": "legacy#1.mid",
+        "size": 119882,
+        "md5": "c7d3598ad93bf7a140e5aac76e2e2e81",
+        "sha256": "2fe799f92aa3a0b3bbeabaae0df0240efdd5ea73a6a42b59cc2b6d5bf755286b",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#1.mid"
+      },
+      {
+        "name": "legacy#2.mid",
+        "size": 119882,
+        "md5": "2dfb9b15683468572cdbc505672cd864",
+        "sha256": "1c83d15a49b42e56276908e1a38cf8dcad4489bf1c891bc7e7af625f40f4acfa",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#2.mid"
+      },
+      {
+        "name": "legacy#3.mid",
+        "size": 119882,
+        "md5": "5a2309c06c6c62f9361513eaf95fc51f",
+        "sha256": "8ff65ef6e89caef6af9bfd69c9d3e6abd387f32b282de7ce1304cc37616999ea",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#3.mid"
+      },
+      {
+        "name": "legacy#4.mid",
+        "size": 119882,
+        "md5": "e49ef1be0bcecce6029852d83272e8f1",
+        "sha256": "b902a8880edf20751c4540fbb46fbb5cc57f6dae0f66847c2d39dc5e3daf7604",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#4.mid"
+      },
+      {
+        "name": "legacy#5.mid",
+        "size": 119882,
+        "md5": "d73bda12cdc71b40b66c1b39363ecaf9",
+        "sha256": "2cacc2cc40e0fde9e03759be4d8d6029e469a656e5d8af5e4371d53d1472afdb",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#5.mid"
+      },
+      {
+        "name": "legacy#6.mid",
+        "size": 119882,
+        "md5": "4d2ddc3f42075587ea65e25b4e0b2f0a",
+        "sha256": "6f541aeb44bc0b1230e00ae6ccb6e5cc0450cc3ccc282c4287dd1fbfc552fe44",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#6.mid"
+      },
+      {
+        "name": "legacy#7.mid",
+        "size": 119882,
+        "md5": "b2b9f0539889345150955bbb6fa5e00e",
+        "sha256": "10a1bb2088548b97c82d1ea54a23ef9d4004a1cbdafb54c87daf53da2d2a5069",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#7.mid"
+      },
+      {
+        "name": "legacy#8.mid",
+        "size": 119882,
+        "md5": "d234ee50b051195ee83a77ddcbe25a26",
+        "sha256": "5d9ffc3620af2521ea2eeb9e9e1af9a2d7dc6773793f80d4420a82e733b2f81b",
+        "status": "FAIL",
+        "purpose": "diagnostic only; not deployment",
+        "path": "legacy_converter_test/legacy#8.mid"
+      }
+    ]
+  },
+  "runtime_validation": "UNRESOLVED; not transmitted to hardware",
+  "deployment": {
+    "template_archive": "SP808EXv1001.zip",
+    "files": [
+      {
+        "name": "SP8EX#1.mid",
+        "size": 79447,
+        "md5": "89a8ffdf5dd2fe0625894383fed8fe97",
+        "sha256": "5fc38a374ea88bb35b97eb9df84b6e3197c234cc904e31ddeedfefebbdd7d686",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120312f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "000700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 00 00",
+            "payload_hex": "00000100000000000000010c00000000",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "00077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 0,
+            "end": 63896
+          }
+        ],
+        "declared_track_length": 79425,
+        "actual_track_length": 79425,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#1.mid",
+        "send_order": 1
+      },
+      {
+        "name": "SP8EX#2.mid",
+        "size": 79413,
+        "md5": "f695c46629f286589f1b4bc19a24c7a8",
+        "sha256": "9b2161ced921e7286339f7c8ebfafef85a0c37e467b054c0e253abd6c129ef11",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120322f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "010700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "01077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 63896,
+            "end": 127792
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#2.mid",
+        "send_order": 2
+      },
+      {
+        "name": "SP8EX#3.mid",
+        "size": 79413,
+        "md5": "ff3c0635b42e01fcf9d10d68824a193d",
+        "sha256": "73f4f3908a2511857c189a9db7ce8b71bae31fb97e24e783970decced2002d52",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120332f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "020700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "02077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 127792,
+            "end": 191688
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#3.mid",
+        "send_order": 3
+      },
+      {
+        "name": "SP8EX#4.mid",
+        "size": 79413,
+        "md5": "f7cc9c571d1f640dad9d222f5e417f61",
+        "sha256": "f3f9fa6f6058a3426c82b03b0a77b739482e579a4594b9336b370d2aaeb5b44f",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120342f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "030700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "03077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 191688,
+            "end": 255584
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#4.mid",
+        "send_order": 4
+      },
+      {
+        "name": "SP8EX#5.mid",
+        "size": 79413,
+        "md5": "fef34479a36262eab02ff18c236ce0ba",
+        "sha256": "c4d990c8bc2d59a90b2935de454d7fcfc4dd973e9522c7241b92cd5f2170337a",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120352f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "040700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "04077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 255584,
+            "end": 319480
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#5.mid",
+        "send_order": 5
+      },
+      {
+        "name": "SP8EX#6.mid",
+        "size": 79413,
+        "md5": "7a361db1f9c845699e7a7e6003edc95a",
+        "sha256": "af0c63e646a395548e2bb26336d8240b9fd5c166d13bdb6d63800b22054811a2",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120362f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "050700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "05077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 319480,
+            "end": 383376
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#6.mid",
+        "send_order": 6
+      },
+      {
+        "name": "SP8EX#7.mid",
+        "size": 79413,
+        "md5": "c2d6a925bfd92bfeb33043beabc2ed47",
+        "sha256": "530a727bf6c93846a5818171b880a36e7ffabb57b52fe49a5e07286adadff73c",
+        "ppqn": 48,
+        "data_packets": 326,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120372f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "060700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "06077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 383376,
+            "end": 447272
+          }
+        ],
+        "declared_track_length": 79391,
+        "actual_track_length": 79391,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#7.mid",
+        "send_order": 7
+      },
+      {
+        "name": "SP8EX#8.mid",
+        "size": 84054,
+        "md5": "6bcac33f3d1f0ceaa70276b3706ef4ce",
+        "sha256": "6519655a3fc026ef29efa629c25b6d21c1d65736b4b6f8f12bc302d7a6ba9159",
+        "ppqn": 48,
+        "data_packets": 348,
+        "metadata": [
+          {
+            "smf_meta": 3,
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f303120382f38",
+            "delta": 0
+          },
+          {
+            "smf_meta": 2,
+            "payload_hex": "284329313939392d3230303020526f6c616e6420436f72706f726174696f6e2e",
+            "delta": 0
+          },
+          {
+            "smf_meta": 81,
+            "payload_hex": "07a120",
+            "delta": 0
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "070700",
+            "delta": 16
+          },
+          {
+            "address": "01 03 00",
+            "payload_hex": "53502d38303845582056657220312e30303120323030302f30312f3031",
+            "delta": 16
+          },
+          {
+            "address": "01 01 00",
+            "payload_hex": "4e",
+            "delta": 16
+          },
+          {
+            "address": "01 02 00",
+            "payload_hex": "07077f",
+            "delta": 16
+          },
+          {
+            "smf_meta": 47,
+            "payload_hex": "",
+            "delta": 0
+          }
+        ],
+        "headers": [
+          "41 10 00 2b 12"
+        ],
+        "ranges": [
+          {
+            "start": 447272,
+            "end": 467600
+          },
+          {
+            "start": 467607,
+            "end": 496664
+          },
+          {
+            "start": 496692,
+            "end": 510083
+          },
+          {
+            "start": 512000,
+            "end": 516760
+          },
+          {
+            "start": 786394,
+            "end": 786436
+          }
+        ],
+        "declared_track_length": 84032,
+        "actual_track_length": 84032,
+        "track_length_status": "PASS",
+        "status": "PASS",
+        "path": "deployment/SP8EX#8.mid",
+        "send_order": 8
+      }
+    ],
+    "extra_packets": [
+      {
+        "address": 512000,
+        "decoded_length": 196
+      },
+      {
+        "address": 512196,
+        "decoded_length": 196
+      },
+      {
+        "address": 512392,
+        "decoded_length": 196
+      },
+      {
+        "address": 512588,
+        "decoded_length": 196
+      },
+      {
+        "address": 512784,
+        "decoded_length": 196
+      },
+      {
+        "address": 512980,
+        "decoded_length": 196
+      },
+      {
+        "address": 513176,
+        "decoded_length": 196
+      },
+      {
+        "address": 513372,
+        "decoded_length": 196
+      },
+      {
+        "address": 513568,
+        "decoded_length": 196
+      },
+      {
+        "address": 513764,
+        "decoded_length": 196
+      },
+      {
+        "address": 513960,
+        "decoded_length": 196
+      },
+      {
+        "address": 514156,
+        "decoded_length": 196
+      },
+      {
+        "address": 514352,
+        "decoded_length": 196
+      },
+      {
+        "address": 514548,
+        "decoded_length": 196
+      },
+      {
+        "address": 514744,
+        "decoded_length": 196
+      },
+      {
+        "address": 514940,
+        "decoded_length": 196
+      },
+      {
+        "address": 515136,
+        "decoded_length": 196
+      },
+      {
+        "address": 515332,
+        "decoded_length": 196
+      },
+      {
+        "address": 515528,
+        "decoded_length": 196
+      },
+      {
+        "address": 515724,
+        "decoded_length": 196
+      },
+      {
+        "address": 515920,
+        "decoded_length": 196
+      },
+      {
+        "address": 516116,
+        "decoded_length": 196
+      },
+      {
+        "address": 516312,
+        "decoded_length": 196
+      },
+      {
+        "address": 516508,
+        "decoded_length": 196
+      },
+      {
+        "address": 516704,
+        "decoded_length": 56
+      }
+    ],
+    "firmware_payload_exact": true,
+    "recovered_bin": {
+      "size": 786436,
+      "md5": "9d38db7f4cc07f00c30c6022e073ed7d",
+      "sha256": "bcb3d71755dd8b5ca16275af9dc0e490126b9a248fd6794e689fc824c0c2b95a"
+    },
+    "candidate_unchanged": true,
+    "source_unchanged": true,
+    "status": "PASS",
+    "opaque_final_metadata": {
+      "address": "01 01 00",
+      "payload": "4e",
+      "action": "Preserved exactly from original",
+      "semantic_status": "UNRESOLVED"
+    }
+  },
+  "overall_status": "PASS: original/template round trips and v3 deployment payload; existing converters fail",
+  "independent_verification": {
+    "status": "PASS",
+    "method": "Separate fresh process and stream-based SMF parser; independent bit-shift unpacking; strict SMF lengths, packet checksums, ascending non-overlapping addresses; complete firmware byte equality",
+    "sets": [
+      {
+        "set": "roundtrip_SP808EXv1001",
+        "status": "PASS",
+        "files": 8,
+        "packets": 2605,
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      {
+        "set": "roundtrip_SP-808EX_v.1001_for_SP-808",
+        "status": "PASS",
+        "files": 8,
+        "packets": 2605,
+        "size": 786436,
+        "md5": "d744a9cd4a2790ac68d165fd7849b5d8",
+        "sha256": "e00235dd95d1f74f3ae27c463db9ed65b0800685073f9fb16ab0fc989239493d"
+      },
+      {
+        "set": "deployment",
+        "status": "PASS",
+        "files": 8,
+        "packets": 2630,
+        "size": 786436,
+        "md5": "9d38db7f4cc07f00c30c6022e073ed7d",
+        "sha256": "bcb3d71755dd8b5ca16275af9dc0e490126b9a248fd6794e689fc824c0c2b95a"
+      }
+    ],
+    "candidate_unchanged": true
+  },
+  "audit_sources": [
+    {
+      "path": "firmware/bin2midi.py",
+      "size": 8267,
+      "md5": "a7a5b15972982ffcb49a04b84bea40ce",
+      "sha256": "d56d8dccaad67d1806f27f1ecc75607a0845dc5e13f63eb0276db0b6f898612b"
+    },
+    {
+      "path": "firmware/rolandext.py",
+      "size": 14006,
+      "md5": "f21d80fc3354e176a5d88d460eb60e56",
+      "sha256": "3fb3ac4b0abf5fb2cdadf2cae4e5539bf5574d5dac80aa2ade5ef12406e7a504"
+    },
+    {
+      "path": "firmware/Rvs82bin.bas",
+      "size": 13785,
+      "md5": "155fa1c7ed6edcf7583bee9a3af2f45a",
+      "sha256": "e2e691eebbc4a7d965b13bb10a9a51fcfbceee2b767d4ac8830cbdf3eb58669c"
+    },
+    {
+      "path": "analysis/smf_v3_deployment_audit.py",
+      "size": 15049,
+      "md5": "5a20fee309cbcc453c35e1ecc7e5483d",
+      "sha256": "ebbcf51cb759d24f85b783b301cebc39e9ec74800726f63e4bda8981623a72d4"
+    }
+  ],
+  "audit_document": "analysis/Link_Plan_v3_SMF_audit_2026-10-06.md",
+  "unresolved": [
+    "Meaning and any payload dependency of final 01 01 00 metadata byte 4E",
+    "Acceptance of preserved EX model header 2B by original SP-808 updater",
+    "Physical updater treatment of implicit zero addresses",
+    "Hardware execution"
+  ]
+}

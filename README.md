@@ -25,9 +25,14 @@ IDE HDD) in place of the stock Iomega ZIP-100 drive.
 > - Treat `patch_sp808.py` as an **experiment**, not a fix. Flashing it is unlikely to achieve the
 >   goal and carries the normal risk of a bad flash.
 >
-> The route that is actually *demonstrated* (Edirol A6 firmware driving an IDE HDD on SP-808 hardware
-> via a native ATA backend) is captured as **"Link Plan v2"** in `CLAUDE.md` and the authoritative
-> docs below — it is a **transplant plan that has not yet been applied**.
+> **OBSERVED / documented physical control case:** Complete Edirol A6 application firmware has
+> operated an IDE HDD on SP-808 hardware through its native ATA backend. That supports the
+> transplant direction; it does not establish success of the SP firmware patch.
+>
+> **OBSERVED — current experiment:** A **Link Plan v3 candidate BIN** has been generated from the
+> checked manifest and independently verified. Eight experimental SMFs reconstruct that BIN
+> exactly. **UNRESOLVED:** Hardware updater acceptance and execution remain untested. V3 performs
+> cold initialization/IDENTIFY and one 512-byte read, then parks; normal SP operation is not resumed.
 
 ## Document authority (read this first)
 
@@ -40,20 +45,62 @@ authoritative sources are the newest dated revisions of:
 2. [`SP-808EX_Observed_Architecture_Technical_Reference_2026-10-05_v9.md`](SP-808EX_Observed_Architecture_Technical_Reference_2026-10-05_v9.md) — consolidated architecture
 3. [`Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md`](Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md) — hardware/correction record
 
-[`AGENTS.md`](AGENTS.md) describes the evidence discipline all analysis must follow, and
-[`CLAUDE.md`](CLAUDE.md) is the working brief. **Every other `.md` in the repo (including the tables
-below and anything in `superseded/`) is a lead, not a premise.**
+Authority depends on the claim: the references above consolidate architecture evidence; the
+[checked v3 manifest](analysis/Link_Plan_v3_manifest_2026-10-05.json) and
+[candidate verification report](analysis/SP8EXall_LinkPlan_v3_readonly_20261005T230456Z_23c5dcc8_verification.json)
+establish exact patch bytes; the [SMF audit](analysis/Link_Plan_v3_SMF_audit_2026-10-06.md) and its
+verification reports establish payload transport. Hardware success requires hardware observations.
+
+[`AGENTS.md`](AGENTS.md) describes the evidence discipline, and [`CLAUDE.md`](CLAUDE.md) is the
+working brief. Older status statements in CLAUDE, TODO and the firmware workflow have not all been
+updated to v3 or the SMF audit. Archived documents and inherited IDA names are leads, not independent
+evidence. A newer date alone does not establish a claim; follow its primary evidence and scope.
 
 ## What actually works today
 
 | Area | Status |
 |------|--------|
-| MIDI → binary firmware extraction (`firmware/rolandext.py`) | Decodes the original update set to `SP8EXall.bin` (786,436 B, MD5 `d744a9cd4a2790ac68d165fd7849b5d8`). **Its re-encode path is buggy** (append-mode seek → wrong size); don't use it to repack. |
+| Original SMFs → BIN → regenerated SMFs → BIN | **OBSERVED: PASS** with the audited converter: exact 786,436-byte stock image, MD5 `d744a9cd4a2790ac68d165fd7849b5d8`. All eight regenerated `SP808EXv1001.zip` SMFs are also byte-identical to their originals. |
+| Legacy `firmware/rolandext.py` | **OBSERVED: FAIL** current audit: append-mode output defeats addressed writes, and original packet/metadata forms are rejected. It is a decoder, not a re-encoder. Do not use it as the verification oracle. |
 | ZuluIDE emulating a genuine Iomega ZIP-100 (`zuluide.ini`) | Configuration provided; targets the **stock internal ATAPI ZIP path** — not yet independently hardware-confirmed in this repo |
 | IDA Pro firmware analysis (H8S/2653) | Working — see [`IDA/README.md`](IDA/README.md) |
 | Internal HDD/CF via a **firmware patch** | **Not demonstrated** — see the status box above |
-| A6 native-ATA transplant (Link Plan v2 → v3) | A v3 **candidate image** and a MIDI **deployment set** now exist (`analysis/Link_Plan_v3_*`, `firmware/LinkPlan_v3_SMF_*`), byte/payload-verified to reconstruct the candidate (MD5 `9d38db7f…`). **Untested on hardware — not applied, not a release.** Unresolved runtime blockers remain (see `CLAUDE.md`). |
-| MIDI reflash converter | Use the audited `analysis/smf_v3_deployment_audit.py`. The older `firmware/bin2midi.py` and the `firmware/Bin2Mid.md` example are **NOT correct** (SMF audit: malformed SysEx length, invented packet layout, dropped metadata) — do not use them to build an update set. |
+| A6 native-ATA transplant (Link Plan v3) | **OBSERVED:** Candidate generated; 11 mutation spans and 45 fixups independently verified. No generation blocker remains for the checked inputs. **UNRESOLVED:** Hardware execution, IDENTIFY/read results and later integration with normal SP functionality. |
+| V3 SMF conversion | **OBSERVED: PASS** exact candidate payload reconstruction using `analysis/smf_v3_deployment_audit.py`. Legacy `firmware/bin2midi.py` emits malformed SysEx lengths; the `firmware/Bin2Mid.md` example uses incompatible framing/packing. **UNRESOLVED:** Physical updater acceptance. |
+
+## Link Plan v3 artifacts and limits
+
+**OBSERVED:** The [v3 specification](analysis/Link_Plan_v3_2026-10-05.md) defines a cold-init,
+IDENTIFY and single ATA READ SECTORS experiment: **LBA 0, count 1, destination `0x5D0000`**.
+It preserves A6's runtime DTC-vector handling, changes the SP shell's TGR1A/TGR2A immediate from
+`0x0018` to `0x0050`, and relocates the established private globals. The test parks afterward.
+It excludes media-writing command producers, formatting, `1008A2`, and normal filesystem routing.
+
+- [Verified candidate BIN](firmware/SP8EXall_LinkPlan_v3_readonly_20261005T230456Z_23c5dcc8.bin)
+- [Candidate mutation/fixup verification](analysis/SP8EXall_LinkPlan_v3_readonly_20261005T230456Z_23c5dcc8_verification.json)
+- [Experimental SMF bundle](firmware/LinkPlan_v3_SMF_20261005T233407Z_977451bb/LinkPlan_v3_deployment.zip)
+- [Per-file hashes, ordering and conversion manifest](firmware/LinkPlan_v3_SMF_20261005T233407Z_977451bb/manifest.json)
+- [Independent SMF verification](firmware/LinkPlan_v3_SMF_20261005T233407Z_977451bb/independent_verification.json)
+- [SMF framing, metadata and legacy-tool audit](analysis/Link_Plan_v3_SMF_audit_2026-10-06.md)
+
+**OBSERVED:** Candidate BIN identity, also reproduced by decoding the generated SMFs:
+
+```text
+Size:    786436 bytes (0xC0004)
+MD5:     9d38db7f4cc07f00c30c6022e073ed7d
+SHA-256: bcb3d71755dd8b5ca16275af9dc0e490126b9a248fd6794e689fc824c0c2b95a
+```
+
+**OBSERVED:** The SMFs preserve the valid Roland EX templates, regenerate packet checksums and
+track lengths, and add 25 packets for v3 code in an originally omitted zero-filled range. The
+archive named `SP-808EX_v.1001_for_SP-808.zip` has the same firmware payload but stale track lengths
+and different model headers; it was not used as the deployment template.
+
+**UNRESOLVED:** Acceptance of the preserved EX model header `2B` by an original SP-808 updater,
+the meaning/payload dependency of final metadata byte `4E` (preserved exactly), and physical updater
+handling of omitted zero-filled ranges. Exact payload reconstruction does not prove update
+acceptance. No hardware execution result is recorded, and v3 does not yet preserve normal SP
+operation; that remains the broader transplant objective.
 
 ## Two storage paths — do not conflate them
 
@@ -100,7 +147,9 @@ three dated files listed under "Document authority") stay in the repo root along
 - [Notes and Overview](hardware/Roland_SP-808_Notes.md) — memory map, firmware load address
 
 ### Firmware
-- [Firmware Workflow](firmware/readme.md) — extract → (experimental) patch → reflash procedure
+- [Link Plan v3](analysis/Link_Plan_v3_2026-10-05.md) — checked read-only experiment specification; its original “not written” status predates candidate generation
+- [SMF conversion audit](analysis/Link_Plan_v3_SMF_audit_2026-10-06.md) — current payload proof and transport uncertainties
+- [Historical Firmware Workflow](firmware/readme.md) — legacy tool instructions are superseded by the SMF audit
 - [ZIP Drive Validation Bypass](analysis/RolandSP-808ZIPDriveValidationBypass.md) — **mostly SUPERSEDED** historical patch analysis
 - [SZHC Command Table](analysis/SP-808_SZHC_CommandTableAnalysis.md) — ATAPI command-table structure
 - [SP-808 vs A6 Firmware](firmware/SP808_Vs_A6_firmware.md) — cross-model comparison
@@ -142,10 +191,11 @@ entered with **Status + FX A**, *not* by holding SHIFT.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [TODO.md](TODO.md). Highest-value open items:
 
-- **A6 native-ATA transplant (Link Plan v2)** — resolve the runtime blockers in `CLAUDE.md`
-  (`0x5D0000` ownership, `0x450/0x458` DTC init, transfer-quiescence protocol).
-- **Hardware test of `patch_sp808.py`** — if you try it, report exactly what happens (it is expected
-  *not* to enable the internal drive; a clean negative result is still useful data).
+- **V3 experimental transport and observation** — establish updater model-header/final-metadata
+  requirements and a way to observe IDENTIFY, the one-sector read, and the final park state.
+- **Full SP integration after the bounded experiment** — establish warm `0x5D0000` ownership,
+  transfer-environment arbitration and retained SP functionality. Preserve the programmed
+  `0x450/0x458` vector words and A6's descriptor initialization; rewriting those words is not a v3 prerequisite.
 - **VS2 file format**, **CN7 debug UART / SCI1 capture**, **SLA919F protocol** — see `TODO.md`.
 
 ## Disclaimer
