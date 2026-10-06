@@ -20,3 +20,9 @@ desktop.ini
 # IDA cleanup / audit working artifacts (contain IDA databases; kept private)
 analysis/IDA_annotation_cleanup_*/
 analysis/IDA_startup_tables_*/
+
+# IDA cleanup process reports/scripts (kept private; IDA/ helper scripts stay public)
+analysis/SP808_segment_audit_*
+analysis/run_reviewed_idalib_*.py
+analysis/test_reviewed_rollback_*.py
+analysis/verify_reviewed_idb_*.py
