@@ -6,7 +6,8 @@ Scripts for inspecting and extracting SP-808 / SP-808EX Zip-disk images.
 
 **Use [`sp808_fat_extract.py`](sp808_fat_extract.py).**
 
-The SP-808 disk is a **standard DOS MBR + FAT12 volume** (partition at sector 32, 32 KiB clusters).
+SP-808 disks are a **standard DOS MBR + FAT volume** (partition at sector 32) — **FAT12 or FAT16**
+depending on the disk's cluster count (e.g. the 100 MB demo disk is FAT12; larger disks can be FAT16).
 Extraction is just reading FAT — there is no proprietary Roland directory format. `sp808_fat_extract.py`
 parses the MBR + BPB, walks the real directory tree via the FAT cluster chain, and copies files out
 intact.

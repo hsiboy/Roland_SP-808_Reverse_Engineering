@@ -64,7 +64,7 @@ This repo documents, from the ground up:
 |:--:|---|---|
 | 🟢 | Firmware extraction (`rolandext.py`, decode) | Reproduces the stock image exactly (MD5 `d744a9cd…`) |
 | 🟢 | IDA analysis of the H8S/2653 image | Working — see [`IDA/`](IDA/README.md) |
-| 🟢 | On‑disk format | **Solved** — standard DOS/MBR + **FAT12**; extract with [`sp808_fat_extract.py`](Disks/Tools/sp808_fat_extract.py) |
+| 🟢 | On‑disk format | **Solved** — standard DOS/MBR + FAT (**FAT12 or FAT16**); extract with [`sp808_fat_extract.py`](Disks/Tools/sp808_fat_extract.py) |
 | 🟢 | ZuluIDE emulating a ZIP‑100 (`zuluide.ini`) | **Tested working** (the maintainer's own config) — the practical drop‑in for owners |
 | 🟡 | A6 native‑ATA transplant (**Link Plan v3**) | Candidate image + MIDI set generated & byte/payload‑verified; **hardware execution UNRESOLVED** |
 | 🔴 | Firmware patch enabling internal HDD/CF | **Not demonstrated** |

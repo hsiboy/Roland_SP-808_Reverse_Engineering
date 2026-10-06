@@ -27,11 +27,13 @@ Device                            Boot Start    End Sectors  Size Id Type
 /mnt/g/image/Zip250/ZIP250_0.img1         32 489530  489499  239M  6 FAT16
 ```
 
-The partition **type byte** here is `0x06`, which tooling labels "FAT16" — but the *actual* FAT width
-is decided by the cluster count, not that byte. A 100 MB SP‑808 disk (with 32 KiB clusters) works out to
-only ~3,070 clusters, which is **FAT12** by the Microsoft count‑of‑clusters rule; a larger 250 MB volume
-like this one has enough clusters to be genuine FAT16. (The 100 MB demo disk is confirmed FAT12 in
-[`SP-808_Demo_Disk_Analysis.md`](SP-808_Demo_Disk_Analysis.md).)
+The partition **type byte** here is `0x06`, which tooling labels "FAT16" — but the *actual* FAT width is
+set by the **cluster count**, not that byte. SP‑808 Zip disks can be **either FAT12 or FAT16**; it isn't
+fixed by the media size, but by the volume size and cluster size together. For example the 100 MB demo
+disk, with 32 KiB clusters, works out to ~3,070 clusters → **FAT12** (confirmed in
+[`SP-808_Demo_Disk_Analysis.md`](SP-808_Demo_Disk_Analysis.md)), while other disks land on FAT16.
+[`Tools/sp808_fat_extract.py`](Tools/sp808_fat_extract.py) reads the real FAT width from the boot
+sector, so it handles both.
 
 ## What the SP‑808 writes to it
 
