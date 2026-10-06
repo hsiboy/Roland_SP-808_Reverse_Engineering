@@ -30,9 +30,11 @@ ZIP-only device-type gate. **It is an experiment, not a working fix.**
 > path it reaches (`zip_device_init`) may still issue Iomega-specific commands a
 > plain HDD/CF will not answer.
 
-Treat the steps below as a reproducible experiment. The demonstrated forward
-path for real HDD support is the Edirol A6 native-ATA transplant ("Link Plan
-v2" in `../CLAUDE.md`), which is **not yet applied.**
+This page documents the older `patch_sp808.py` gate experiment and the legacy
+tool workflow; it is **historical**. The forward path for real HDD support is the
+Edirol A6 native-ATA transplant — now at **Link Plan v3** (`../analysis/Link_Plan_v3_*`),
+for which a candidate image and a MIDI deployment set exist but remain
+**experimental and untested on hardware** (not applied, not a release).
 
 ---
 
@@ -72,7 +74,8 @@ allowing types 2 and 3 through.
 - SP-808 firmware update ZIP: `SP-808EX_v.1001_for_SP-808.zip`
 - Python 3
 - MIDI interface connected to SP-808 MIDI IN
-- `rolandext.py`, `patch_sp808.py`, `bin2midi.py` (this repo)
+- `rolandext.py` (decode) and `patch_sp808.py` (this repo); for repacking use
+  `../analysis/smf_v3_deployment_audit.py` (see Step 3 — **not** `bin2midi.py`)
 
 ### Step 1 — Extract firmware binary
 
@@ -91,29 +94,22 @@ python patch_sp808.py SP8EXall.bin SP8EXall_patched.bin
 The script verifies the input MD5, confirms patch bytes before writing, and
 prints the output MD5.
 
-### Step 3 — Convert back to MIDI SysEx
+### Step 3 — Convert a modified image back to a MIDI update set
 
-```bash
-python bin2midi.py SP8EXall_patched.bin SP8EX_patched
-```
+> **Do not use `bin2midi.py` for this.** The 2026-10-06 SMF audit found it emits
+> malformed SysEx (bad length framing, invented packet layout, dropped metadata),
+> and `rolandext.py`'s re-encode path has an append-mode bug (wrong output size).
+> Use the audited converter `../analysis/smf_v3_deployment_audit.py`, which
+> regenerates a valid Roland EX update set and independently verifies that decoding
+> it reconstructs the input image byte-for-byte. See
+> `../analysis/Link_Plan_v3_SMF_audit_2026-10-06.md`.
 
-Produces `SP8EX_patched#1.mid` … `SP8EX_patched#8.mid`.
+### Step 4 — Apply (experimental)
 
-**Round-trip verify before flashing:**
-
-```bash
-python rolandext.py model=sp808 infil="SP8EX_patched#1.mid" outfil=verify.bin
-cmp -n 98304 SP8EXall_patched.bin verify.bin   # no output = match
-```
-
-### Step 4 — Flash
-
-1. Connect MIDI interface to SP-808 MIDI IN.
-2. Power on SP-808 holding **Status (Track A) + FX A** — display shows `MIDI UPDATE`.
-   (*Not* SHIFT; see `../things.md` for the full button-combo list.)
-3. Send `SP8EX_patched#1.mid`. Wait for `Completed`.
-4. Repeat for files `#2` through `#8`.
-5. SP-808 restarts automatically after file `#8`.
+A generated set is sent through the stock Roland **MIDI Update** mode (entered with
+**Status + FX A** on power-on; see `../things.md`). **This is experimental — see the
+DO NOT FLASH notice at the top of this page.** No candidate in this repo has been
+validated on hardware, and updater acceptance of a re-generated set is UNRESOLVED.
 
 ---
 
@@ -141,7 +137,7 @@ findings and open-inquiry list.
 |-----------------------|------------------------------------------------------|
 | `patch_sp808.py`      | Applies the gate patch to `SP8EXall.bin`             |
 | `rolandext.py`        | Extracts firmware binary from Roland MIDI SysEx files|
-| `bin2midi.py`         | Converts patched binary back to MIDI SysEx files     |
+| `bin2midi.py`         | **SUPERSEDED / broken** repacker (SMF audit) — use `../analysis/smf_v3_deployment_audit.py` |
 
 ---
 

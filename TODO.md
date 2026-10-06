@@ -10,13 +10,18 @@ The core objective — enabling modern storage in place of the ZIP-100 — **has
 previous version of this file claimed it was "achieved (April 2024)"; that claim was unsupported and
 has been retracted (see `README.md` status box).
 
-What exists: a round-trip firmware toolchain (`rolandext.py` extract → `patch_sp808.py` patch →
-`bin2midi.py` reflash) and the identification of a device-type gate at `0x12AA14`. But that gate is
-in the **external SCSI-style backend** (`0x12Axxx`); the current analysis indicates bypassing it does
-**not** enable the internal IDE/ATAPI drive, and the patch has never been confirmed on hardware.
+What exists: the firmware image is extracted with `rolandext.py`, and an external-SCSI gate at
+`0x12AA14` was identified (`patch_sp808.py`) — but that gate is in the **external SCSI-style backend**
+(`0x12Axxx`), not the internal-drive path, so bypassing it is **not** expected to enable the internal
+IDE/ATAPI drive, and it was never confirmed on hardware.
 
-The demonstrated forward path is transplanting the Edirol A6's native ATA backend into SP flash
-("Link Plan v2" in `CLAUDE.md`) — designed but **not yet applied**, with runtime blockers still open.
+The main forward work is the **Edirol A6 native-ATA transplant — now at Link Plan v3**: a candidate
+image and an audited MIDI deployment set have been generated and independently byte/payload-verified
+(both reconstruct MD5 `9d38db7f…`), but **hardware updater acceptance and v3 execution are
+UNRESOLVED** — not applied, not a release. See `analysis/Link_Plan_v3_*` and `CLAUDE.md`.
+
+To repack a modified image into a MIDI update set, use the audited
+`analysis/smf_v3_deployment_audit.py`; the older `bin2midi.py` is broken (SMF audit, 2026-10-06).
 A pragmatic stopgap for users is ZuluIDE emulating a genuine ZIP-100 (`zuluide.ini`).
 
 ---
@@ -32,19 +37,22 @@ A pragmatic stopgap for users is ZuluIDE emulating a genuine ZIP-100 (`zuluide.i
 - **`SP808-Dec24_update.md`** — MODE SENSE 0x2F response discrepancy resolved. Bus trace confirms correct response is `2F 5C FF D9`; conflicting code snippet annotated.
 - **Firmware base address** — confirmed `0x100000` from reset vector analysis (vector at file offset `0x20` = `01 10 6D F2`, lower 24 bits = `0x106DF2` = file offset `0x6DF2` at runtime). Documented in `Roland_SP-808_Notes.md`.
 - **`firmware/patch_sp808.py`** — extracted from `RolandSP-808ZIPDriveValidationBypass.md` into a runnable script.
-- **`firmware/bin2midi.py`** — written from scratch with correct 7-bit encoding (verified against `rolandext.py`'s decoder). Replaces the broken nibble-splitting version in `Bin2Mid.md`.
-- **`firmware/README.md`** — full extract → patch → flash workflow documented.
+- **`firmware/bin2midi.py`** — written from scratch with correct 7-bit encoding (verified against `rolandext.py`'s decoder). Replaces the broken nibble-splitting version in `Bin2Mid.md`. **[SUPERSEDED 2026-10-06: the SMF audit found `bin2midi.py` itself emits malformed SysEx (bad length framing, dropped metadata); use `analysis/smf_v3_deployment_audit.py` for repacking.]**
+- **`firmware/README.md`** — extract → patch workflow documented (now **historical**; repacking is superseded by the SMF audit).
 - **`README.md`** — removed broken references to `software/`, `research/`, wiki links, and non-existent Releases. Replaced with local file links.
 - **`CONTRIBUTING.md`** — created.
 - **`hardware/datasheets/README.md`** — index created with notes on what each PDF covers and what's missing.
 - **`interestingStrings.md`** — filled in SP-808 and A6 columns with confirmed data from analysis docs.
-- **`HARDWARE_CORRECTIONS_2026-05.md`** — all checklist items marked done; load address row updated; document marked as archived.
+- **`HARDWARE_CORRECTIONS_2026-05.md`** — superseded by the dated `Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md` (a content superset) and removed from the repo.
 
 ---
 
 ## Still Open — Requires Hardware Access
 
 These items cannot be resolved by code or documentation work alone:
+
+### Link Plan v3 hardware validation
+A v3 candidate image + MIDI deployment set exist and are byte/payload-verified, but nothing has run on hardware. Open: whether an original SP-808 updater accepts the regenerated EX set (model header `2B`, opaque final metadata byte `4E`), and observing v3's cold init → `EC` IDENTIFY → single `READ SECTORS` (LBA 0 → `0x5D0000`) → park. Then the broader integration blockers (warm `0x5D0000` ownership, transfer-environment arbitration, retained SP functionality). See `analysis/Link_Plan_v3_SMF_audit_2026-10-06.md` and `CLAUDE.md`.
 
 ### CN7 UART / debug port
 The unpopulated CN7 connector breaks out TX1 (pin 32), RX1 (pin 33), and XRST (pin 31) from the H8S/2653 serial port 1. Multiple docs note "TODO - Sniff TTY". A logic analyser or USB-serial adapter on these pins during boot would reveal whether diagnostic strings are emitted. If the port is compatible with H8/300 debug tools (E6000), it could enable single-step debugging.
@@ -56,7 +64,7 @@ Strings present at `0x17xxxx` in the flash binary are accessed from `0x4xxxxx` r
 `SONG0000VS2`, `EFFECT__VS2`, `PADBANK_VS2`, `SAMPLE__VS2`, `TAKE0000VS2`, `WAVELISTVS2`, `PADBANK_VS2` filenames are known from disk analysis but the internal binary format is undocumented. Requires a disk image and hex analysis.
 
 ### A6 device types 0x07 and 0x08
-`HARDWARE_CORRECTIONS_2026-05.md` noted the A6 firmware has code paths for device types beyond ZIP (suspected HDD types). A full A6 firmware analysis to confirm is outstanding.
+The hardware-corrections record (`Roland_SP-808_Hardware_Architecture_Corrections_2026-10-05_v4.md`) notes the A6 firmware has code paths for device types beyond ZIP (suspected HDD types). A full A6 firmware analysis to confirm is outstanding.
 
 ### Complete Epson SLA919F ASIC protocol
 No public datasheet. Vendor commands `0x06` and `0x0D` are partially mapped from the bus trace but not fully understood. Extended bus traces of the full boot sequence would help.

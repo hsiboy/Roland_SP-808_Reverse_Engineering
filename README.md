@@ -149,7 +149,7 @@ three dated files listed under "Document authority") stay in the repo root along
 ### Firmware
 - [Link Plan v3](analysis/Link_Plan_v3_2026-10-05.md) — checked read-only experiment specification; its original “not written” status predates candidate generation
 - [SMF conversion audit](analysis/Link_Plan_v3_SMF_audit_2026-10-06.md) — current payload proof and transport uncertainties
-- [Historical Firmware Workflow](firmware/readme.md) — legacy tool instructions are superseded by the SMF audit
+- [Historical Firmware Workflow](firmware/README.md) — legacy tool instructions are superseded by the SMF audit
 - [ZIP Drive Validation Bypass](analysis/RolandSP-808ZIPDriveValidationBypass.md) — **mostly SUPERSEDED** historical patch analysis
 - [SZHC Command Table](analysis/SP-808_SZHC_CommandTableAnalysis.md) — ATAPI command-table structure
 - [SP-808 vs A6 Firmware](firmware/SP808_Vs_A6_firmware.md) — cross-model comparison
