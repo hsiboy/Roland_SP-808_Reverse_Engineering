@@ -7,3 +7,16 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# IDA Pro databases and local working copies — NEVER publish
+*.i64
+*.idb
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+# IDA cleanup / audit working artifacts (contain IDA databases; kept private)
+analysis/IDA_annotation_cleanup_*/
+analysis/IDA_startup_tables_*/
