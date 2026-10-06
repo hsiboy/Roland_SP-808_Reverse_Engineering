@@ -25,7 +25,8 @@ The splash is assembled from **five** ROM graphics. The `8` sprite is drawn *twi
 </tr>
 </table>
 
-*(Each image is the 1‑bit ROM bitmap upscaled 8× with no smoothing, so you see the exact pixels.)*
+*(Each image is the 1‑bit ROM bitmap upscaled 8× with no smoothing — exact pixels — shown in the
+SP‑808's characteristic **yellow‑green backlit LCD** colours.)*
 
 ---
 
