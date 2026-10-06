@@ -1,0 +1,9 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
