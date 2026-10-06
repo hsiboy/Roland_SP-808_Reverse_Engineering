@@ -175,25 +175,16 @@ The three authoritative dated docs plus `README.md`, `CLAUDE.md`, `AGENTS.md`, `
 
 ---
 
-## 🔘 Diagnostic & update modes
+## 🖥️ Reverse‑engineered boot splash
 
-Hold on power‑on (full list in [`things.md`](things.md)):
+The SP‑808EX startup logo, reconstructed straight from the firmware's own ROM bitmaps:
 
-| Combo | Mode |
-|---|---|
-| **Status + FX A** | MIDI Update |
-| **Status + FX B** | ZIP Update |
-| **Status + FX C** | Develop Monitor |
-| **Status + FX D** | Diagnostic Mode |
+<div align="center">
+<img src="exports/sp808_boot_logo/logo_full.png" alt="SP-808EX boot logo" width="440">
+</div>
 
-> The MIDI firmware update is **Status + FX A** — *not* "hold SHIFT", as some older guides claim.
-
-<details>
-<summary>✨ Bonus: the boot splash, carved out of the ROM</summary>
-
-<br>The SP‑808EX startup logo was reconstructed directly from firmware bitmaps —
-see [`exports/sp808_boot_logo/`](exports/sp808_boot_logo/).
-</details>
+See [**exports/sp808_boot_logo/**](exports/sp808_boot_logo/README.md) for the individual recovered
+sprites, their ROM offsets, the draw order, the startup animation and the bitmap format.
 
 ---
 

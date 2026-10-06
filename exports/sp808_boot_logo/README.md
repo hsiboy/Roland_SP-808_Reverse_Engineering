@@ -1,21 +1,75 @@
-Source: SP8EXall.bin; MD5 d744a9cd4a2790ac68d165fd7849b5d8.
-BMPs: 1-bit black-on-white, native dimensions.
-Raw images: width byte, height byte; ceil(width/7) bytes per row; bits 7..1 contain pixels, bit 0 unused.
-179E52: width 69, height byte 8E. Observed RLE: 00nnnnnn repeats following byte, 01nnnnnn emits zeros, 11nnnnnn copies literals. No 10nnnnnn controls occur. Stream ends exactly at 179ED1, yields 140 bytes, arranged in seven-pixel column groups of fourteen rows.
-Assembly uses final 14FB82 animation coordinates: Roland (3,0), SP- (3,15), 8 (61,15), 0 (86,15), 8 (111,15), EX (118,23). This is the logo bounding region, not a full LCD screenshot.
-PNG preview is enlarged 6x without interpolation.
+# 🖥️ The SP‑808EX boot splash — recovered from ROM
 
-Startup calls it at `125904`. It draws several ROM graphics, then runs 17 animation steps, moving their vertical coordinate from `31` to `15`, with a delay after each step.
+The startup logo the SP‑808EX paints on its LCD, reconstructed directly from the firmware's own graphic
+data. Every piece below was carved out of `SP8EXall.bin`
+(MD5 `d744a9cd4a2790ac68d165fd7849b5d8`) — no external artwork.
 
-| ROM data | Behavior in `14FB82` |
+<div align="center">
+<img src="logo_full.png" alt="Roland SP-808EX boot logo" width="620">
+</div>
+
+---
+
+## Recovered elements
+
+The splash is assembled from **five** ROM graphics. The `8` sprite is drawn *twice*, so “808” is really
+`8 0 8` built from just two distinct digit bitmaps:
+
+<table>
+<tr>
+<td align="center" valign="bottom"><img src="element_roland.png" width="210"><br><code>0x179E52</code><br><b>Roland</b><br><sub>69×14 px</sub></td>
+<td align="center" valign="bottom"><img src="element_sp-dash.png" width="180"><br><code>0x179ED1</code><br><b>SP‑</b><br><sub>56×17 px</sub></td>
+<td align="center" valign="bottom"><img src="element_8.png" width="74"><br><code>0x179F5B</code><br><b>8</b> <sub>(drawn ×2)</sub><br><sub>22×17 px</sub></td>
+<td align="center" valign="bottom"><img src="element_0.png" width="74"><br><code>0x179FA1</code><br><b>0</b><br><sub>22×17 px</sub></td>
+<td align="center" valign="bottom"><img src="element_ex.png" width="60"><br><code>0x179FE7</code><br><b>EX</b><br><sub>18×9 px</sub></td>
+</tr>
+</table>
+
+*(Each image is the 1‑bit ROM bitmap upscaled 8× with no smoothing, so you see the exact pixels.)*
+
+---
+
+## How it's drawn
+
+The boot routine at `0x125904` calls the logo painter at `0x14FB82`, which draws the graphics and then
+animates them into place.
+
+| ROM data | Role |
 |---|---|
-| `179E52` | Drawn first through `400470`. |
-| `179ED1` | Larger graphic, drawn through `400478` at horizontal coordinate `3`. |
-| `179F5B` | Graphic drawn twice, at horizontal coordinates `61` and `111`. |
-| `179FA1` | Graphic drawn between them, at horizontal coordinate `86`. |
-| `179FE7` | Drawn through `400470` after the animation and another delay. |
+| `0x179E52` | **Roland** wordmark — drawn first (via `0x400470`). |
+| `0x179ED1` | **SP‑** large lettering — drawn at x = 3 (via `0x400478`). |
+| `0x179F5B` | the **8** — drawn twice, at x = 61 and x = 111. |
+| `0x179FA1` | the **0** — drawn between them at x = 86 → **808**. |
+| `0x179FE7` | **EX** badge — drawn after the animation (via `0x400470`). |
 
-The middle four draws assemble **“SP-808”**: the raw bitmap patterns at `179ED1` resemble the large **SP-** lettering; `179F5B` has the shape of **8**, and `179FA1` has the shape of **0**. Reusing the same graphic on either side gives **808**. Their placement and startup-only animation reinforce that interpretation.
+Final assembly coordinates (from `0x14FB82`): Roland `(3,0)`, SP‑ `(3,15)`, 8 `(61,15)`, 0 `(86,15)`,
+8 `(111,15)`, EX `(118,23)`. This is the logo's bounding region, not a full LCD screenshot.
 
-The animation loop is **`14FBE2–14FC52`**, with drawing calls at `14FBF8`, `14FC0E`, `14FC28` and `14FC3E`.
+### The animation
 
+The logo doesn't just appear — the four middle graphics slide up. The animation loop is
+`0x14FBE2–0x14FC52` (draw calls at `14FBF8 / 14FC0E / 14FC28 / 14FC3E`): **17 steps** moving the
+vertical coordinate from `31` up to `15`, with a short delay after each step.
+
+---
+
+## Bitmap format
+
+- **Source:** `firmware/SP8EXall.bin`, MD5 `d744a9cd4a2790ac68d165fd7849b5d8`.
+- Raw ROM images: a width byte, a height byte, then `ceil(width / 7)` bytes per row; bits 7..1 hold
+  pixels and bit 0 is unused (seven pixels per byte).
+- Light compression (seen in the `0x179E52` stream, which ends exactly at `0x179ED1`):
+  `00nnnnnn` repeats the following byte, `01nnnnnn` emits zero bytes, `11nnnnnn` copies literals; no
+  `10nnnnnn` controls occur. That stream yields 140 bytes, arranged in seven‑pixel column groups of
+  fourteen rows.
+
+---
+
+## Files
+
+| File | What |
+|---|---|
+| `logo_full.png` | the assembled logo (8× preview) |
+| `element_*.png` | the individual recovered sprites (8×) |
+| `sp808ex_preview.png` | earlier 6× whole‑logo preview |
+| `sp808ex_assembled.bmp` · `*_<offset>.bmp` | the raw 1‑bit sprites at native resolution (ROM offset in each name) |
